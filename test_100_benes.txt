@@ -1,0 +1,1 @@
+Delete * from Grades Where  Classid=4009308 AND Subjectid=4006358 AND <ADMINID>

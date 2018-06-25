@@ -1,0 +1,35 @@
+SELECT DISTINCT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(st.studentId AS CHAR), '">', st.firstName, ' ', st.lastName, '</a>') AS 'Student Name'\
+    , st.studentId\
+    , MAX(TIME(clock.punchTime)) AS 'Student Out Time'\
+    , Classes.className AS 'Last Class'\
+    , CAST(MAX(class.endTime)*100 AS TIME) AS 'Class End Time'\
+    , TIME_FORMAT(CAST(TIMEDIFF(CAST(MAX(class.endTime) AS TIME), CAST(EXTRACT(HOUR_MINUTE FROM TIME(clock.punchTime)) AS TIME))*100 AS TIME), '%H:%i') AS 'Time Difference'\
+    , CASE WHEN (CAST(TIMEDIFF(CAST(MAX(class.endTime) AS TIME), CAST(EXTRACT(HOUR_MINUTE FROM TIME(clock.punchTime)) AS TIME))*100 AS TIME)) > 0 THEN 'less than your scheduled time'\
+           ELSE 'more than your scheduled time' END AS 'test'\
+\
+\	FROM(\
+\	\	SELECT cp.userId\
+\	\	, cp.punchTime AS punchTime\
+\	\	, cp.clockPunchId AS timeid\
+        , COUNT(cp.clockPunchId) AS count\
+        , cp.clockedStatus\
+        FROM ClockPunches cp\
+        WHERE cp.userType = 1 AND DATE(cp.punchTime) = CURDATE() AND cp.clockedStatus%2 != 1 -- CHANGE\
+        GROUP BY cp.userId) clock\
+\	LEFT JOIN (SELECT stu.studentId\
+\	\	, stu.isActive\
+        , stu.firstName\
+        , stu.lastName\
+        FROM Students stu\
+        WHERE stu.isActive = 1) st ON st.studentId = clock.userId\
+    LEFT JOIN ClassStudentReltn csr ON csr.studentId = clock.userId\
+    INNER JOIN (\
+\	\	SELECT cs.endTime\
+\	\	\	, cs.classId\
+            , cs.isActive\
+\	\	FROM ClassSchedules cs) class ON csr.classId = class.classId AND NOT class.isActive = 0\
+    INNER JOIN Classes ON csr.classId = Classes.classId\
+\
+WHERE csr.<ADMINID>\
+GROUP BY clock.userId\
+ORDER BY clock.userId, clock.clockedStatus

@@ -1,0 +1,70 @@
+Select \
+S.idNumber 'ID'\
+,CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(S.studentId AS CHAR), '">', CONCAT(UCASE(SUBSTRING(S.firstname, 1, 1)),LCASE(SUBSTRING(S.firstname, 2))," ",CONCAT(UCASE(SUBSTRING(S.lastName, 1, 1)),LCASE(SUBSTRING(S.lastName, 2)))), '</a>') 'Name'\
+, SSQ.statusName 'Status'\
+, DATE_FORMAT(R.startDate,'%m/%d/%Y')'Start Date'\
+, IF(D12.ID >= 1, "Yes","<font color='red'>No</font>") 'Enrollment Agreement'\
+, IF(D1.ID >= 1, "Yes","<font color='red'>No</font>") 'IDs'\
+, IF(D5.ID >= 1, "Yes","<font color='red'>No</font>") 'School Verification'\
+, IF(D4.ID >= 1, "Yes","<font color='red'>No</font>") 'Social Security Card'\
+, IF(D6.ID >= 1, "Yes","<font color='red'>No</font>") 'Pre-Enrollment'\
+, IF(D52.ID >= 1, "Yes","<font color='red'>No</font>") 'SAP1'\
+, IF(D53.ID >= 1, "Yes","<font color='red'>No</font>") 'SAP2'\
+, IF(D60.ID >= 1, "Yes","<font color='red'>No</font>") 'Contract/LOA'\
+, IF(D49.ID >= 1, "Yes","<font color='red'>No</font>") 'statements'\
+, IF(D77.ID >= 1, "Yes","<font color='red'>No</font>") 'zero bal'\
+, IF(D28.ID >= 1, "Yes","<font color='red'>No</font>") 'Loan Entrance'\
+, IF(D19.ID >= 1, "Yes","<font color='red'>No</font>") 'MPN'\
+, IF(D23.ID >= 1, "Yes","<font color='red'>No</font>") 'Start Form'\
+, IF(D109.ID >= 1, "Yes","<font color='red'>No</font>") 'Signed CS'\
+, IF(D35.ID >= 1, "Yes","<font color='red'>No</font>") 'Award Notice'\
+, IF(D36.ID >= 1, "Yes","<font color='red'>No</font>") 'Disb1'\
+, IF(D38.ID >= 1, "Yes","<font color='red'>No</font>") 'Disb2'\
+, IF(D39.ID >= 1, "Yes","<font color='red'>No</font>") 'Disb2 Hours'\
+, IF(D41.ID >= 1, "Yes","<font color='red'>No</font>") 'Disb3'\
+, IF(D42.ID >= 1, "Yes","<font color='red'>No</font>") 'Disb3 Hours'\
+, IF(D44.ID >= 1, "Yes","<font color='red'>No</font>") 'Disb4'\
+, IF(D45.ID >= 1, "Yes","<font color='red'>No</font>") 'Disb4 Hours'\
+, IF(D65.ID >= 1, "Yes","<font color='red'>No</font>") 'Grades'\
+, IF(D74.ID >= 1, "Yes","<font color='red'>No</font>") 'Service Sheet'\
+, IF(D70.ID >= 1, "Yes","<font color='red'>No</font>") 'Final Hours'\
+, IF(D75.ID >= 1, "Yes","<font color='red'>No</font>") 'Loan Exit'\
+, IF(D68.ID >= 1, "Yes","<font color='red'>No</font>") 'Final Transcript'\
+\
+From \
+Students S,\
+StatusSequences SSQ,\
+Registrations R\
+LEFT JOIN (Select F12.userId 'studentId', COUNT(F12.documentTypeId) 'ID' From FolderFileReltn F12 Where F12.folderFolderReltnId = 114 AND F12.userType=1 AND F12.documentTypeId =12  AND F12.<ADMINID> GROUP BY F12.userId ) D12 USING (studentId)\
+LEFT JOIN (Select F1.userId 'studentId', COUNT(F1.documentTypeId) 'ID' From FolderFileReltn F1 Where F1.folderFolderReltnId = 114 AND F1.userType=1 AND F1.documentTypeId =1 AND F1.<ADMINID> GROUP BY F1.userId ) D1 USING (studentId)\
+LEFT JOIN (Select F5.userId 'studentId', COUNT(F5.documentTypeId) 'ID' From FolderFileReltn F5 Where F5.folderFolderReltnId = 114 AND F5.userType=1 AND F5.documentTypeId =5 AND F5.<ADMINID> GROUP BY F5.userId ) D5 USING (studentId)\
+LEFT JOIN (Select F4.userId 'studentId', COUNT(F4.documentTypeId) 'ID' From FolderFileReltn F4 Where F4.folderFolderReltnId = 114 AND F4.userType=1 AND F4.documentTypeId =4  AND F4.<ADMINID> GROUP BY F4.userId ) D4 USING (studentId)\
+LEFT JOIN (Select F6.userId 'studentId', COUNT(F6.documentTypeId) 'ID' From FolderFileReltn F6 Where F6.folderFolderReltnId = 114 AND F6.userType=1 AND F6.documentTypeId =6 AND F6.<ADMINID> GROUP BY F6.userId ) D6 USING (studentId)\
+LEFT JOIN (Select F52.userId 'studentId', COUNT(F52.documentTypeId) 'ID' From FolderFileReltn F52 Where F52.folderFolderReltnId = 117 AND F52.userType=1 AND F52.documentTypeId =52  AND F52.<ADMINID> GROUP BY F52.userId ) D52 USING (studentId)\
+LEFT JOIN (Select F53.userId 'studentId', COUNT(F53.documentTypeId) 'ID' From FolderFileReltn F53 Where F53.folderFolderReltnId = 118 AND F53.userType=1 AND F53.documentTypeId =53 AND F53.<ADMINID> GROUP BY F53.userId ) D53 USING (studentId)\
+LEFT JOIN (Select F60.userId 'studentId', COUNT(F60.documentTypeId) 'ID' From FolderFileReltn F60 Where F60.folderFolderReltnId = 114 AND F60.userType=1 AND F60.documentTypeId =60 AND F60.<ADMINID> GROUP BY F60.userId ) D60 USING (studentId)\
+LEFT JOIN (Select F49.userId 'studentId', COUNT(F49.documentTypeId) 'ID' From FolderFileReltn F49 Where F49.folderFolderReltnId = 120 AND F49.userType=1 AND F49.documentTypeId =49  AND F49.<ADMINID> GROUP BY F49.userId ) D49 USING (studentId)\
+LEFT JOIN (Select F77.userId 'studentId', COUNT(F77.documentTypeId) 'ID' From FolderFileReltn F77 Where F77.folderFolderReltnId = 123 AND F77.userType=1 AND F77.documentTypeId =77 AND F77.<ADMINID> GROUP BY F77.userId ) D77 USING (studentId)\
+LEFT JOIN (Select F28.userId 'studentId', COUNT(F28.documentTypeId) 'ID' From FolderFileReltn F28 Where F28.folderFolderReltnId = 115 AND F28.userType=1 AND F28.documentTypeId =28 AND F28.<ADMINID> GROUP BY F28.userId ) D28 USING (studentId)\
+LEFT JOIN (Select F19.userId 'studentId', COUNT(F19.documentTypeId) 'ID' From FolderFileReltn F19 Where F19.folderFolderReltnId = 115 AND F19.userType=1 AND F19.documentTypeId =19 AND F19.<ADMINID> GROUP BY F19.userId ) D19 USING (studentId)\
+LEFT JOIN (Select F23.userId 'studentId', COUNT(F23.documentTypeId) 'ID' From FolderFileReltn F23 Where F23.folderFolderReltnId = 115 AND F23.userType=1 AND F23.documentTypeId =23 AND F23.<ADMINID> GROUP BY F23.userId ) D23 USING (studentId)\
+LEFT JOIN (Select F109.userId 'studentId', COUNT(F109.documentTypeId) 'ID' From FolderFileReltn F109 Where F109.folderFolderReltnId = 115 AND F109.userType=1 AND F109.documentTypeId =109 AND F109.<ADMINID> GROUP BY F109.userId ) D109 USING (studentId)\
+LEFT JOIN (Select F35.userId 'studentId', COUNT(F35.documentTypeId) 'ID' From FolderFileReltn F35 Where F35.folderFolderReltnId = 115 AND F35.userType=1 AND F35.documentTypeId =35 AND F35.<ADMINID> GROUP BY F35.userId ) D35 USING (studentId)\
+LEFT JOIN (Select F36.userId 'studentId', COUNT(F36.documentTypeId) 'ID' From FolderFileReltn F36 Where F36.folderFolderReltnId = 116 AND F36.userType=1 AND F36.documentTypeId =36 AND F36.<ADMINID> GROUP BY F36.userId ) D36 USING (studentId)\
+LEFT JOIN (Select F37.userId 'studentId', COUNT(F37.documentTypeId) 'ID' From FolderFileReltn F37 Where F37.folderFolderReltnId = 116 AND F37.userType=1 AND F37.documentTypeId =37 AND F37.<ADMINID> GROUP BY F37.userId ) D37 USING (studentId)\
+LEFT JOIN (Select F38.userId 'studentId', COUNT(F38.documentTypeId) 'ID' From FolderFileReltn F38 Where F38.folderFolderReltnId = 117 AND F38.userType=1 AND F38.documentTypeId =38 AND F38.<ADMINID> GROUP BY F38.userId ) D38 USING (studentId)\
+LEFT JOIN (Select F39.userId 'studentId', COUNT(F39.documentTypeId) 'ID' From FolderFileReltn F39 Where F39.folderFolderReltnId = 117 AND F39.userType=1 AND F39.documentTypeId =39 AND F39.<ADMINID> GROUP BY F39.userId ) D39 USING (studentId)\
+LEFT JOIN (Select F41.userId 'studentId', COUNT(F41.documentTypeId) 'ID' From FolderFileReltn F41 Where F41.folderFolderReltnId = 118 AND F41.userType=1 AND F41.documentTypeId =41 AND F41.<ADMINID> GROUP BY F41.userId ) D41 USING (studentId)\
+LEFT JOIN (Select F42.userId 'studentId', COUNT(F42.documentTypeId) 'ID' From FolderFileReltn F42 Where F42.folderFolderReltnId = 118 AND F42.userType=1 AND F42.documentTypeId =42 AND F42.<ADMINID> GROUP BY F42.userId ) D42 USING (studentId)\
+LEFT JOIN (Select F44.userId 'studentId', COUNT(F44.documentTypeId) 'ID' From FolderFileReltn F44 Where F44.folderFolderReltnId = 119 AND F44.userType=1 AND F44.documentTypeId =44 AND F44.<ADMINID> GROUP BY F44.userId ) D44 USING (studentId)\
+LEFT JOIN (Select F45.userId 'studentId', COUNT(F45.documentTypeId) 'ID' From FolderFileReltn F45 Where F45.folderFolderReltnId = 119 AND F45.userType=1 AND F45.documentTypeId =45 AND F45.<ADMINID> GROUP BY F45.userId ) D45 USING (studentId)\
+LEFT JOIN (Select F65.userId 'studentId', COUNT(F65.documentTypeId) 'ID' From FolderFileReltn F65 Where F65.folderFolderReltnId = 124 AND F65.userType=1 AND F65.documentTypeId =65 AND F65.<ADMINID> GROUP BY F65.userId ) D65 USING (studentId)\
+LEFT JOIN (Select F74.userId 'studentId', COUNT(F74.documentTypeId) 'ID' From FolderFileReltn F74 Where F74.folderFolderReltnId = 124 AND F74.userType=1 AND F74.documentTypeId =74 AND F74.<ADMINID> GROUP BY F74.userId ) D74 USING (studentId)\
+LEFT JOIN (Select F70.userId 'studentId', COUNT(F70.documentTypeId) 'ID' From FolderFileReltn F70 Where F70.folderFolderReltnId = 124 AND F70.userType=1 AND F70.documentTypeId =70 AND F70.<ADMINID> GROUP BY F70.userId ) D70 USING (studentId)\
+LEFT JOIN (Select F75.userId 'studentId', COUNT(F75.documentTypeId) 'ID' From FolderFileReltn F75 Where F75.folderFolderReltnId = 123 AND F75.userType=1 AND F75.documentTypeId =75 AND F75.<ADMINID> GROUP BY F75.userId ) D75 USING (studentId)\
+LEFT JOIN (Select F68.userId 'studentId', COUNT(F68.documentTypeId) 'ID' From FolderFileReltn F68 Where F68.folderFolderReltnId = 123 AND F68.userType=1 AND F68.documentTypeId =68 AND F68.<ADMINID> GROUP BY F68.userId ) D68 USING (studentId)\
+\
+WHERE R.studentId = S.studentId AND R.<ADMINID> AND R.startDate between '2016-06-01' AND CURDATE() \
+AND SSQ.statusId = S.isActive AND SSQ.isActive = 1 AND SSQ.<ADMINID>\
+AND R.isActive =1 AND R.RegStatus = 1\
+Order by R.startDate ASC

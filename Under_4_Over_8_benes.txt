@@ -1,0 +1,14 @@
+SELECT       CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', STD.firstName, ' ', STD.lastName, '</a>') AS 'Student Name'\
+           , ATD.attendancedate AS 'Date of Attendance'\
+           , CASE WHEN ATD.duration < 3.999 OR ATD.duration > 8.0001 THEN CONCAT('<font color="#FF0000">',ROUND(ATD.Duration,2),'</font>')\
+             Else '' END AS 'Out Of Scheduled Hours'\
+From Students STD\
+INNER JOIN Attendance ATD ON STD.StudentID = ATD.studentID \
+WHERE DATE(ATD.AttendanceDate) BETWEEN (CURRENT_DATE - INTERVAL 30 DAY) AND CURRENT_DATE \
+      AND  ATD.duration > 0 \
+      AND (ATD.duration > 8.0001  OR  ATD.duration < 3.999)\
+      AND STD.isactive = 1 \
+      AND ATD.isactive = 1\
+      AND ATD.<ADMINID>\
+GROUP BY STD.Lastname\
+ORDER BY STD.Firstname ASC

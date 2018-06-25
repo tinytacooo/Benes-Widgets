@@ -1,0 +1,12 @@
+SELECT  TCH.lastname AS 'Teacher Name',  CMP.campusname AS 'Campus', CLS.classname, \
+Count(DISTINCT SDT.lastname, SDT.Firstname) AS 'Number Of Students',\
+CONCAT(Round(Count(DISTINCT SDT.lastname) / Count(Distinct TCH.Lastname)),'',' To 1') AS 'Students Per Teacher'\
+FROM Registrations REG\
+INNER JOIN Attendance ATD ON REG.studentId=ATD.studentId AND ATD.isActive=1\
+INNER JOIN Classes CLS ON ATD.classId = CLS.classId AND CLS.isActive=1\
+INNER JOIN Students SDT ON REG.studentId = SDT.studentId AND SDT.isActive=1\
+INNER JOIN Campuses CMP ON SDT.studentCampus = CMP.campusCode AND CMP.isActive=1\
+INNER JOIN Teachers TCH ON CLS.teacherid = TCH.teacherid AND TCH.isactive = 1\
+WHERE SDT.<ADMINID> AND  REG.enrollmentSemesterID = '4000441' \
+Group BY CMP.Campusname, CLS.classname\
+ORDER BY CMP.Campusname, CLS.classname, TCH.Lastname

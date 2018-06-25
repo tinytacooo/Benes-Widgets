@@ -1,0 +1,24 @@
+Select\
+S.lastName\
+,S.firstName\
+ ,CONVERT(CONCAT("<a target='_blank' href='admin_view_program_invoice.jsp?studentid=", S.studentId, "'>", (S.idNumber), "</a>") USING utf8) AS 'ID#'\
+\
+,(Select P.programmeName From Programmes P Where P.<ADMINID> AND RG.programmeId = P.programmeId) 'Program'\
+,receiptId\
+,DATE_FORMAT(R.paymentDate,'%m/%d/%Y') 'Payment Date'\
+,R.paymentMethod\
+,ROUND(R.paymentAmount,2) 'Payment Amount'\
+From Receipts R,\
+Students S,\
+Registrations RG\
+Where S.studentId = R.studentId \
+AND R.studentId = S.studentId \
+AND R.registrationId = RG.registrationId \
+AND R.studentId = RG.studentId  \
+AND R.financialAidProgramId > 0 \
+AND R.<ADMINID> AND R.isActive = 1 AND RG.isActive = 1 \
+AND R.disbursementNo > 0 AND R.paymentAmount > 0\
+AND R.paymentDate >='[?From Date]'\
+AND R.paymentDate <='[?To Date]'\
+\
+Order By R.paymentDate, R.paymentAmount

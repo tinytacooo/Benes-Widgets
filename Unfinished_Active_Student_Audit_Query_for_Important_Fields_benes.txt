@@ -1,0 +1,22 @@
+-- Developer: Zachary Bene\
+-- Version 1.0.0\
+-- Created 03/16/2017\
+-- Active Student Audit Query for Important Fields\
+-- The purpose of this query is to show\
+\	-- Active students with race, dateOfBirth, and ssn\
+\	-- requires marital status\
+\
+SELECT\
+\	SDT.idNumber,\
+\	CONCAT('<a href="admin_view_student.jsp?studentid=', SDT.studentId, '">', SDT.firstName, ' ', SDT.lastName, '</a>') AS Name,\
+\	SDT.ssn AS Social_Security_Number,\
+\	LCD.listText AS Race,\
+\	DATE_FORMAT(SDT.dateOfBirth, '%m-%d-%Y') AS Date_of_Birth\
+\
+FROM Registrations REG\
+\	INNER JOIN Students SDT ON REG.studentId = SDT.studentId AND NOT SDT.isActive = 0\
+\	INNER JOIN ListCodes LCD ON SDT.race = LCD.listCode AND LCD.listType = 2\
+WHERE\
+\	REG.<ADMINID>\	\	\	\	AND\
+\	NOT REG.isActive = 0\	\	AND\
+\	REG.enrollmentSemesterId = 4000441

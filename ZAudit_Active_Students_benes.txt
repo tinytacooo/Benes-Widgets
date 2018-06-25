@@ -1,0 +1,31 @@
+Select\
+Distinct \
+S.idNumber AS 'ID#'\
+,CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(S.studentId AS CHAR), '">', S.firstName, ' ', S.lastName, '</a>') AS 'Student Name'\
+,(Select P.programmeName From Programmes P Where P.<ADMINID> AND RG.programmeId = P.programmeId) 'Program'\
+\
+  , CASE WHEN S.isActive = 1 THEN 'Active'\
+                  WHEN S.isActive = 0 THEN 'Dropped'\
+                  WHEN S.isActive = 3 THEN 'Graduated'\
+                  WHEN S.isActive = 14 THEN 'No Start'\
+                  WHEN S.isActive =12 THEN 'LOA'\
+       END AS 'Status'\
+\
+\
+From Receipts R,\
+Students S,\
+Registrations RG\
+Where S.studentId = R.studentId \
+AND R.studentId = S.studentId \
+AND R.registrationId = RG.registrationId \
+AND R.studentId = RG.studentId  \
+AND R.financialAidProgramId > 0 \
+AND R.<ADMINID>  \
+AND S.isActive !='14'\
+AND S.isActive != 0\
+AND R.disbursementNo > 0 AND R.paymentAmount > 0\
+AND R.paymentDate >='2017-01-01'\
+AND R.paymentDate <='2018-01-01'\
+Group By R.registrationId\
+\
+Order By S.isActive

@@ -1,0 +1,1 @@
+Select Distinct studentId  From LeavesOfAbsence Where <ADMINID> and isActive=1

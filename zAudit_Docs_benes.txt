@@ -1,0 +1,46 @@
+Select \
+(Select S.idNumber From Students S Where S.studentId = R.studentId AND R.Isactive = 1) 'ID'\
+,(Select CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(S1.studentId AS CHAR), '">', CONCAT(UCASE(SUBSTRING(S1.Firstname, 1, 1)),LCASE(SUBSTRING(S1.Firstname, 2))," ",CONCAT(UCASE(SUBSTRING(LastName, 1, 1)),LCASE(SUBSTRING(LastName, 2)))), '</a>') From Students S1 \
+  Where S1.studentId = R.studentId AND R.IsActive) 'Student Name'\
+, DATE_FORMAT(R.startDate,'%m/%d/%Y') 'Start Date'\
+, IF(D52.ID >= 1, "Yes","<font color='red'>No</font>") 'SAP1'\
+, IF(D53.ID >= 1, "Yes","<font color='red'>No</font>") 'SAP2'\
+, IF(D23.ID >= 1, "Yes","<font color='red'>No</font>") 'Contract/LOA'\
+, IF(D29.ID >= 1, "Yes","<font color='red'>No</font>") 'statements'\
+, IF(D19.ID >= 1, "Yes","<font color='red'>No</font>") 'zero bal'\
+, IF(D23.ID >= 1, "Yes","<font color='red'>No</font>") 'Contract/LOA'\
+, IF(D29.ID >= 1, "Yes","<font color='red'>No</font>") 'Loan Entrance'\
+, IF(D19.ID >= 1, "Yes","<font color='red'>No</font>") 'MPN'\
+, IF(D23.ID >= 1, "Yes","<font color='red'>No</font>") 'Start Form'\
+, IF(D18.ID >= 1, "Yes","<font color='red'>No</font>") 'Cost Sheet'\
+, IF(D109.ID >= 1, "Yes","<font color='red'>No</font>") 'Signed CS'\
+\
+From Registrations R \
+LEFT JOIN (Select F19.userId 'studentId', COUNT(F19.documentTypeId) 'ID' From FolderFileReltn F19 Where F19.folderFolderReltnId = 115 AND F19.userType=1 AND F19.documentTypeId =19  AND F19.<ADMINID> GROUP BY F19.userId ) D19 USING (studentId)\
+LEFT JOIN (Select F23.userId 'studentId', COUNT(F23.documentTypeId) 'ID' From FolderFileReltn F23 Where F23.folderFolderReltnId = 115 AND F23.userType=1 AND F23.documentTypeId =23 AND F23.<ADMINID> GROUP BY F23.userId ) D23 USING (studentId)\
+LEFT JOIN (Select F18.userId 'studentId', COUNT(F18.documentTypeId) 'ID' From FolderFileReltn F18 Where F18.folderFolderReltnId = 115 AND F18.userType=1 AND F18.documentTypeId =18 AND F18.<ADMINID> GROUP BY F18.userId ) D18 USING (studentId)\
+LEFT JOIN (Select F109.userId 'studentId', COUNT(F109.documentTypeId) 'ID' From FolderFileReltn F109 Where F109.folderFolderReltnId = 115 AND F109.userType=1 AND F109.documentTypeId =109  AND F109.<ADMINID> GROUP BY F109.userId ) D109 USING (studentId)\
+LEFT JOIN (Select F29.userId 'studentId', COUNT(F29.documentTypeId) 'ID' From FolderFileReltn F29 Where F29.folderFolderReltnId = 115 AND F28.userType=1 AND F28.documentTypeId =28 AND F28.<ADMINID> GROUP BY F28.userId ) D28 USING (studentId)\
+LEFT JOIN (Select F52.userId 'studentId', COUNT(F52.documentTypeId) 'ID' From FolderFileReltn F52 Where F52.folderFolderReltnId = 117 AND F52.userType=1 AND F52.documentTypeId =52  AND F52.<ADMINID> GROUP BY F52.userId ) D52 USING (studentId)\
+LEFT JOIN (Select F53.userId 'studentId', COUNT(F53.documentTypeId) 'ID' From FolderFileReltn F53 Where F53.folderFolderReltnId = 118 AND F53.userType=1 AND F53.documentTypeId =53 AND F53.<ADMINID> GROUP BY F53.userId ) D53 USING (studentId)\
+LEFT JOIN (Select F18.userId 'studentId', COUNT(F18.documentTypeId) 'ID' From FolderFileReltn F18 Where F18.folderFolderReltnId = 115 AND F18.userType=1 AND F18.documentTypeId =18 AND F18.<ADMINID> GROUP BY F18.userId ) D18 USING (studentId)\
+LEFT JOIN (Select F109.userId 'studentId', COUNT(F109.documentTypeId) 'ID' From FolderFileReltn F109 Where F109.folderFolderReltnId = 115 AND F109.userType=1 AND F109.documentTypeId =109  AND F109.<ADMINID> GROUP BY F109.userId ) D109 USING (studentId)\
+LEFT JOIN (Select F29.userId 'studentId', COUNT(F29.documentTypeId) 'ID' From FolderFileReltn F29 Where F29.folderFolderReltnId = 115 AND F28.userType=1 AND F28.documentTypeId =28 AND F28.<ADMINID> GROUP BY F28.userId ) D28 USING (studentId)\
+\
+From Receipts R,\
+Students S,\
+Registrations RG\
+Where S.studentId = R.studentId \
+AND R.studentId = S.studentId \
+AND R.registrationId = RG.registrationId \
+AND R.studentId = RG.studentId  \
+AND R.financialAidProgramId > 0 \
+AND R.<ADMINID>  \
+AND S.isActive !='14'\
+AND S.isActive != 0\
+AND R.disbursementNo > 0 AND R.paymentAmount > 0\
+AND R.paymentDate >='2017-01-01'\
+AND R.paymentDate <='2018-01-01'\
+Group By R.registrationId\
+\
+Order By S.isActive

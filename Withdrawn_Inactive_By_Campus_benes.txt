@@ -1,0 +1,43 @@
+Select st.idnumber,\
+            st.lastname as "Last Name",\
+\	    st.firstname as "First Name",\
+            COALESCE(ca.campusName,'Invalid Campus') as "CampusName",\
+\	    st.isActive as "Isactive Code",\
+            cl.semester as "Semester",\
+           cl.class as "Class",\
+            lda.totalhours as "Total Hours",\
+           DATE_FORMAT(lda.lastday,'%m/%d/%Y')  as "Last Day"\
+from Students st\
+LEFT JOIN Campuses ca \
+       ON ca.campusCode = st.studentcampus,\
+/*   ******** Student Class Query************************************* */\
+     (Select crel.studentId, \
+\	           crel.classId,\
+                   cl.className as "class", \
+\	           cl.semesterId,\
+\	           se.title as "semester"\
+        from ClassStudentReltn crel,\
+                 Classes cl,\
+\	\	 Semesters se\
+        where 1=1 \
+        and   cl.classId = crel.classId \
+        and   se.semesterId = cl.semesterId) cl,\
+/* ******* Last Day and total hours by Student and Class**************** */\
+      (select studentid, \
+\	           classId,\
+\	\	   MAX(attendanceDate) as "lastday",\
+                  TRUNCATE(SUM(duration),2) as "TotalHours"\
+         from Attendance\
+         group by studentId,\
+\	\	          classId) lda\
+       \
+where 1=1\
+and   ca.<ADMINID>\
+and   cl.studentid = st.studentid\
+and   lda.studentid = st.studentId\
+and   lda.classid = cl.classId\
+and   st.isActive = 0   -- only withdrewn/inactive students \
+ORDER BY campusName,\
+                      lda.lastday\
+   \
+\	\	\	\	 

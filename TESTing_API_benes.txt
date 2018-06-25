@@ -1,0 +1,1 @@
+Select * From FaApplication where faApplicationId=1279 and isActive=1 and <ADMINID>

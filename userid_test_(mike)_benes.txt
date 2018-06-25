@@ -1,0 +1,9 @@
+select  subadminid,\
+            subadmintypeid,\
+            lastname,\
+            firstname,\
+           <SUBADMINID>\
+from SubAdmins\
+where <ADMINID>\
+\
+
