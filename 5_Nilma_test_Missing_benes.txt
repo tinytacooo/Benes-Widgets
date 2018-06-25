@@ -1,0 +1,15 @@
+SELECT t1.Calendar\
+FROM\
+(SELECT ATD.studentID FROM Attendance ATD\
+UNION ALL\
+       SELECT DISTINCT TD.DB_date AS Calender\
+       FROM time_dimension TD\
+       LEFT JOIN Attendance ATD ON ATD.attendanceDate = TD.Db_date AND ATD.<ADMINID>\
+       WHERE NOT EXISTS (\
+       SELECT 1 \
+       FROM attendance ATD\
+       WHERE ATD.attendanceDate = TD.Db_date\
+       AND ATD.studentID = '4046834') AND TD.DB_date Between '2017-08-14' AND CURDATE() \
+       AND DAYOFWEEK(DATE(TD.DB_Date)) BETWEEN 2 AND 6 AND NOT EXISTS(SELECT 1 \
+\	\	\	\	\	\	\	\	\	\	\	\	\	\	   FROM CalendarEvents CE\
+\	\	\	\	\	\	\	\	\	\	\	\	           WHERE CE.EventDate = TD.Db_date AND isDAYoff = 1 AND CE.<ADMINID>)) AS t1

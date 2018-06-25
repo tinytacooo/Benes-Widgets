@@ -1,0 +1,74 @@
+SELECT allData.TAAname AS 'Staff Name'\
+             , CONCAT('<div>','<font color="red">', allData.TAAduration, '</font>','</div>') AS 'Total Hours This Week'\
+             , allData.mondays\
+\
+FROM\
+\
+(SELECT CONCAT(TA.firstName, ' ', TA.lastName) AS TAAname\
+              , SUM(TAA.duration) AS TAAduration\
+              , TAA.monday AS mondays\
+\	\
+FROM Teachers TA\
+\
+INNER JOIN\
+\	(SELECT TeacherAttendance.teacherId\
+          , TeacherAttendance.duration\
+\	\	  , TeacherAttendance.attendanceDate\
+          , CASE WHEN DAYOFWEEK(CURDATE()) = 7\
+\	\	\	\	\	  THEN DATE_SUB(CURDATE(), INTERVAL 6 DAY)\
+\	\	\	\	 WHEN DAYOFWEEK(CURDATE()) = 6\
+\	\	\	\	\	  THEN DATE_SUB(CURDATE(), INTERVAL 4 DAY)\
+\	\	\	\	 WHEN DAYOFWEEK(CURDATE()) = 5\
+\	\	\	\	\	  THEN DATE_SUB(CURDATE(), INTERVAL 3 DAY)\
+\	\	\	\	 WHEN DAYOFWEEK(CURDATE()) = 4\
+\	\	\	\	\	  THEN DATE_SUB(CURDATE(), INTERVAL 2 DAY)\
+\	\	\	\	 WHEN DAYOFWEEK(CURDATE()) = 3\
+\	\	\	\	\	  THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)\
+\	\	\	\	 WHEN DAYOFWEEK(CURDATE()) = 2\
+\	\	\	\	\	  THEN DATE_SUB(CURDATE(), INTERVAL 0 DAY)\
+\	\	\	END as monday\
+\	 FROM TeacherAttendance\
+     ) AS TAA\
+ON TAA.teacherId = TA.teacherId\
+AND TA.isActive = 1\
+AND TA.<ADMINID>\
+\
+WHERE TAA.attendanceDate BETWEEN TAA.monday AND CURDATE()\
+GROUP BY TA.teacherId\
+\
+UNION\
+\
+SELECT CONCAT(SA.firstName, ' ', SA.lastName)\
+             , SUM(SAA.duration) AS SAAduration\
+             , SAA.monday\
+\	\
+FROM SubAdmins SA\
+\
+INNER JOIN\
+\	(SELECT SubAdminAttendance.subAdminId\
+          , SubAdminAttendance.duration\
+          , SubAdminAttendance.attendanceDate\
+          , CASE WHEN DAYOFWEEK(CURDATE()) = 7\
+\	\	\	\	\	  THEN DATE_SUB(CURDATE(), INTERVAL 6 DAY)\
+\	\	\	\	 WHEN DAYOFWEEK(CURDATE()) = 6\
+\	\	\	\	\	  THEN DATE_SUB(CURDATE(), INTERVAL 4 DAY)\
+\	\	\	\	 WHEN DAYOFWEEK(CURDATE()) = 5\
+\	\	\	\	\	  THEN DATE_SUB(CURDATE(), INTERVAL 3 DAY)\
+\	\	\	\	 WHEN DAYOFWEEK(CURDATE()) = 4\
+\	\	\	\	\	  THEN DATE_SUB(CURDATE(), INTERVAL 2 DAY)\
+\	\	\	\	 WHEN DAYOFWEEK(CURDATE()) = 3\
+\	\	\	\	\	  THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)\
+\	\	\	\	 WHEN DAYOFWEEK(CURDATE()) = 2\
+\	\	\	\	\	  THEN DATE_SUB(CURDATE(), INTERVAL 0 DAY)\
+\	\	\	END as monday\
+\	 FROM SubAdminAttendance\
+         WHERE SubAdminAttendance.<ADMINID>\
+     ) AS SAA\
+ON SAA.SubAdminId = SA.SubAdminId\
+AND SA.isActive = 1\
+\
+WHERE SAA.attendanceDate BETWEEN SAA.monday AND CURDATE()\
+      AND SA.<ADMINID>\
+GROUP BY SA.subAdminId) AS allData\
+\
+WHERE (allData.TAAduration >= 35)

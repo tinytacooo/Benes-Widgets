@@ -1,0 +1,1 @@
+SELECT * FROM Attendance where studentId = 4043944 and classId=4009308 AND <ADMINID> ORDER BY AttendanceDate ASC

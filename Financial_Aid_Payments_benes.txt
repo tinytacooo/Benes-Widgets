@@ -1,0 +1,23 @@
+Select  st.idNumber "Student ID",\
+             CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(st.studentId AS CHAR), '">', st.firstName, ' ', st.lastName, '</a>') AS 'Student Name',\
+\	     pr.programmeName "Program",\
+\	     DATE_FORMAT(rc.paymentDate,'%m/%d/%Y') "Payment Date",\
+\	     rc.disbursementNo "Disbursment Number",\
+\	    format(rc.paymentAmount,2) AS 'Amount',\
+\	    fa.programname 'Financial Aid Program'\
+From    Receipts rc,\
+\	    Students st,\
+\	   FinancialAidPrograms fa,\
+\	   Registrations reg,\
+\	   Programmes pr\
+where 1=1\
+and st.<ADMINID>\
+and st.studentId = rc.studentId\
+and fa.financialAidProgramId = rc.financialAidProgramId\
+and reg.registrationId = rc.registrationId\
+and pr.programmeId = reg.programmeId\
+and rc.paymentMethod = 'Financial Aid Disbursement'\
+and    (rc.paymentDate  BETWEEN '[?BeginDate]' and '[?EndDate]')\
+order BY st.idNumber,\
+\	       rc.registrationId,\
+\	       paymentDate

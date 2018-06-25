@@ -1,0 +1,32 @@
+SELECT t1.Name, PFV.fieldValue\
+\
+FROM ProfileFieldValues PFV\
+\
+INNER JOIN (\
+\	SELECT T.teacherId\
+\	\	, CONCAT('TEACHER:  ', IF (T.isActive = 1, CONCAT(T.firstName, ' ', T.lastName), 'No teacher selected')) AS Name\
+\	FROM Teachers T\
+) t1\
+ON t1.teacherId = PFV.userId\
+\
+WHERE PFV.profileFieldNameId = 4002279   -- ID for teacher's TEAM_NAME field\
+AND PFV.<ADMINID>\
+\
+UNION\
+\
+SELECT t2.Name, PFV.fieldValue\
+\
+FROM ProfileFieldValues PFV\
+\
+INNER JOIN (\
+\	SELECT S.studentId\
+\	\	, CONCAT(S.firstName, ' ', S.lastName) AS Name\
+\	FROM Students S\
+    WHERE S.isActive = 1\
+) t2\
+ON t2.studentId = PFV.userId\
+\
+WHERE PFV.profileFieldNameId = 4002278   -- ID for teacher's TEAM_NAME field\
+AND PFV.<ADMINID>\
+\
+ORDER BY fieldValue

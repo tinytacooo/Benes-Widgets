@@ -1,0 +1,6 @@
+SELECT DATE_FORMAT(startDate, '%W')\
+FROM Registrations R, Students S\
+WHERE\
+S.<ADMINID> AND\
+S.StudentId = [STUDENTID] AND\
+R.StudentId = S.StudentId;

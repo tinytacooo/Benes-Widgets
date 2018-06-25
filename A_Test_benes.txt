@@ -1,0 +1,2 @@
+SELECT * FROM Attendance WHERE <ADMINID> AND studentId=4043774\
+

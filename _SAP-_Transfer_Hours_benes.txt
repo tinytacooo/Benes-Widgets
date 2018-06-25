@@ -1,0 +1,7 @@
+SELECT transferUnits  \
+FROM Registrations  \
+WHERE <ADMINID>\
+ and isActive=1 \
+and studentId=[STUDENTID] \
+Order By registrationDate Desc Limit 1\
+

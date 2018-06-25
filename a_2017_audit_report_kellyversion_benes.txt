@@ -1,0 +1,69 @@
+-- This is a revised version of the 2017 audit code. \
+-- This code allows the user to filter by student start dates and payment dates.\
+\
+SELECT S.studentId 'ID'\
+\	 , CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(S.studentId AS CHAR), '">', CONCAT(UCASE(SUBSTRING(S.firstname, 1, 1)),LCASE(SUBSTRING(S.firstname, 2))," ",CONCAT(UCASE(SUBSTRING(S.lastName, 1, 1)),LCASE(SUBSTRING(S.lastName, 2)))), '</a>') 'Name'\
+\	 , SSQ.statusName 'Status'\
+\	 , DATE_FORMAT(R.startDate,'%m/%d/%Y')'Start Date'\
+         , MAX(IF(docs.docType = 12 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Enrollment Agreement'\
+         , MAX(IF(docs.docType = 1  AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'IDs'\
+         , MAX(IF(docs.docType = 5  AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'School Verification'\
+\	 , MAX(IF(docs.docType = 4  AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Social Security Card'\
+\	 , MAX(IF(docs.docType = 6  AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Pre-Enrollment'\
+\	 , MAX(IF(docs.docType = 52 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'SAP1'\
+\	 , MAX(IF(docs.docType = 53 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'SAP2'\
+\	 , MAX(IF(docs.docType = 60 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Contract/LOA'\
+\	 , MAX(IF(docs.docType = 49 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'statements'\
+\	 , MAX(IF(docs.docType = 77 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'zero bal'\
+\	 , MAX(IF(docs.docType = 28 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Loan Entrance'\
+\	 , MAX(IF(docs.docType = 19 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'MPN'\
+\	 , MAX(IF(docs.docType = 23 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Start Form'\
+\	 , MAX(IF(docs.docType = 109 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Signed CS'\
+\	 , MAX(IF(docs.docType = 35 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Award Notice'\
+\	 , MAX(IF(docs.docType = 36 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Disb1'\
+\	 , MAX(IF(docs.docType = 38 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Disb2'\
+\	 , MAX(IF(docs.docType = 39 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Disb2 Hours'\
+\	 , MAX(IF(docs.docType = 41 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Disb3'\
+\	 , MAX(IF(docs.docType = 42 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Disb3 Hours'\
+\	 , MAX(IF(docs.docType = 44 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Disb4'\
+\	 , MAX(IF(docs.docType = 45 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Disb4 Hours'\
+\	 , MAX(IF(docs.docType = 65 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Grades'\
+\	 , MAX(IF(docs.docType = 74 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Service Sheet'\
+\	 , MAX(IF(docs.docType = 70 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Final Hours'\
+\	 , MAX(IF(docs.docType = 75 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Loan Exit'\
+\	 , MAX(IF(docs.docType = 68 AND docs.docCount >= 1, "Yes","<font color='red'>No</font>")) 'Final Transcript'    \
+\
+FROM Students S\
+\
+INNER JOIN StatusSequences SSQ\
+ON SSQ.statusId = S.isActive\
+AND SSQ.<ADMINID>               -- --------- UNCOMMENT TO USE ON LOCAL MYSQL SERVER\
+\
+INNER JOIN Registrations R\
+ON R.studentId = S.studentId\
+AND R.<ADMINID>                  -- --------- UNCOMMENT ""\
+AND R.isActive = 1\
+AND R.regStatus = 1\
+AND R.startDate BETWEEN [?Student Start Date] AND CURDATE()\
+\
+INNER JOIN Receipts RP\
+ON S.studentId = RP.studentId\
+AND RP.<ADMINID>                -- ------------ UNCOMMENT ""\
+AND RP.paymentDate BETWEEN [?Payment Date From] AND [?Payment Date To]\
+\
+-- THIS BIT SELECTS WHICH DOCUMENTS TO SELECT\
+LEFT JOIN\
+\	(SELECT FFR.userId\
+\	\	      , COUNT(FFR.documentTypeId) AS docCount\
+                      , FFR.documentTypeId AS docType\
+\	\	      , FFR.fileName\
+\	 FROM FolderFileReltn FFR\
+         WHERE FFR.userType = 1\
+\	       AND FFR.documentTypeId IN (12, 1, 5, 4, 6, 52, 53, 60, 49, 77, 28, 19, 23, 109, 35, 36, 37,\
+\	   \	                          38, 39, 41, 42, 44, 45, 65, 74, 70, 75, 68)\
+\	   AND FFR.<ADMINID>\
+\	  GROUP BY FFR.userId, FFR.documentTypeId\
+) AS docs\
+ON docs.userId = S.studentId\
+\
+GROUP BY docs.userId

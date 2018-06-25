@@ -1,0 +1,16 @@
+select \	er.userId as "[RECIPIENT_ID]",\
+\	\	sa.email as "[RECIPIENT_EMAIL]"\
+From   EmailGroups eg,\
+            EmailGroupUserReltn er,\
+\	\	\	 (SELECT sa.subAdminId as userid,\
+\	\	\	\	\	   sa.email      \
+\	\	\	\	FROM SubAdmins sa\
+\	\	\	UNION\
+\	\	\	SELECT    te.teacherId as userid,\
+\	\	\	\	\	    te.email\
+\	\	\	\	from Teachers te) sa\
+where 1=1\
+and   er.<ADMINID>\
+and   er.emailGroupId = eg.emailGroupId\
+and   sa.userid = er.userId\
+and   eg.groupName = 'Executive'

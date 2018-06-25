@@ -1,0 +1,27 @@
+-- Returns a single value.\
+-- Calculates difference in daily hours for a student who left class more than an hour early.\
+\
+SELECT TIME_FORMAT(CAST(TIMEDIFF(CAST(class.endTime AS TIME), CAST(EXTRACT(HOUR_MINUTE FROM TIME(clock.punchTime)) AS TIME))*100 AS TIME), '%H:%i')\
+\
+FROM (\
+        SELECT cp.userId\
+\	\	     , cp.punchTime AS punchTime\
+\	\	     , cp.clockPunchId AS timeid\
+                     , COUNT(cp.clockPunchId) AS count\
+                     , cp.clockedStatus\
+        FROM ClockPunches cp\
+        WHERE cp.userId = [STUDENTID]\
+              AND DATE(cp.punchTime) = CURDATE()\
+              AND cp.clockedStatus%2 != 1\
+              AND cp.<ADMINID>\
+        GROUP BY cp.userId) clock\
+\
+LEFT JOIN ClassStudentReltn csr\
+ON csr.studentId = clock.userId\
+\
+INNER JOIN (\
+        SELECT cs.endTime AS endTime\
+   \	\	     , cs.classId\
+                     , cs.isActive\
+\	FROM ClassSchedules cs) class\
+ON csr.classId = class.classId AND NOT class.isActive = 0

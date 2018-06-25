@@ -1,0 +1,14 @@
+SELECT  CMP.CampusName,\
+sum(case WHEN REG.enrollmentType  = '0.5' then 1 else 0 end) AS 'Part Time',\
+sum(case WHEN REG.enrollmentType  = '0.75' then 1 else 0 end) AS '3/4Time',\
+sum(case WHEN REG.enrollmentType  = '1.0' then 1 else 0 end) AS 'Full Time'\
+\
+FROM Students STD\
+INNER JOIN Registrations REG ON REG.studentID = STD.studentID AND STD.isactive = 1 \
+INNER JOIN Campuses CMP ON CMP.CampusCode = REG.studentCampus \
+WHERE REG.enrollmentSemesterId = '4000441' AND STD.isactive = 1 AND REG.isactive = 1 AND STD.<ADMINID> AND  REG.endDate>=CURDATE() \
+GROUP BY CMP.campusname\
+\
+\
+\
+

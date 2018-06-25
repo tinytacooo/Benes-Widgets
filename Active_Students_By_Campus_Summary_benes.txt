@@ -1,0 +1,13 @@
+select COALESCE(ca.campusName,'Invalid Campus') as "Campus Name",\
+count(*) as "Active Students"\
+from Students st\
+LEFT JOIN Campuses ca \
+       ON ca.campusCode = st.studentcampus,\
+                   Registrations reg\
+where 1=1\
+and    ca.<ADMINID>\
+and   reg.studentId = st.studentId\
+and   st.isactive = 1   -- only active enrolled students \
+and   reg.enrollmentSemesterId = 4000441\
+and   reg.isActive = 1\
+group by ca.campusName

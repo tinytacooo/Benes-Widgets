@@ -1,0 +1,2 @@
+SELECT CONCAT('$', FORMAT((SUM(amountPayable)), 2))  AS TotalTuition FROM OutstandingPayments \
+\	\	WHERE isActive <> 0 AND [FORMUSERTYPE]  = 1 AND studentId = [FORMUSERID] LIMIT 1

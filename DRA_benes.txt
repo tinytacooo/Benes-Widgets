@@ -1,0 +1,127 @@
+SELECT (CURRENT_DATE - INTERVAL 0 DAY) AS Date\
+          , COUNT(Distinct CustomerName) AS '# Of Clients',\
+           , COUNT(CASE WHEN SC.parentcategory = 'Add On Services' THEN 1 END) AS 'Addon Sales'\
+\	  , COUNT(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN 1 END) AS 'Total Sales'\
+\	  , CONCAT('<div align="right">','$',ROUND(SUM(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service'\
+                            OR  SC.productID = 1215 THEN SC.tickettotal END),2),'</div>') AS 'Total $ Value'\
+          , CONCAT('$',ROUND(SUM(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN SC.tickettotal END)  \
+                       / COUNT(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN 1 END),2))  AS 'Daily Average'\
+\	\	FROM StudentServiceCustomerReltn SC\
+\	\	INNER JOIN Students STD \
+\	\	\	\	ON STD.StudentID = SC.studentID\
+\	\	INNER JOIN ProfileFieldValues PVF\
+\	\	\	\	ON PVF.userID = STD.studentID AND PVF.FieldName = 'TEAM_NAME'\
+\	       WHERE (SC.ParentCategory = 'Service' OR SC.ParentCategory = 'Retail') \
+               AND  DATE(SC.creationDtTm) = (CURRENT_DATE - INTERVAL 0 DAY) \
+               AND STD.studentId = 4047009 \
+               AND SC.<ADMINID>\
+               GROUP BY STD.studentID\
+UNION\
+SELECT (CURRENT_DATE - INTERVAL 1 DAY) AS Date\
+          , COUNT(Distinct CustomerName) AS '# Of Clients'\
+\	  , COUNT(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN 1 END) AS 'Total Sales'\
+\	  , CONCAT('<div align="right">','$',ROUND(SUM(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service'\
+            OR  SC.productID = 1215 THEN SC.tickettotal END),2),'</div>') AS 'Total $ Value'\
+          , CONCAT('$',ROUND(SUM(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN SC.tickettotal END)  \
+                       / COUNT(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN 1 END),2))  AS 'Daily Average'\
+\	\	FROM StudentServiceCustomerReltn SC\
+\	\	INNER JOIN Students STD \
+\	\	\	\	ON STD.StudentID = SC.studentID\
+\	\	INNER JOIN ProfileFieldValues PVF\
+\	\	\	\	ON PVF.userID = STD.studentID AND PVF.FieldName = 'TEAM_NAME'\
+\	       WHERE (SC.ParentCategory = 'Service' OR SC.ParentCategory = 'Retail') \
+               AND  DATE(SC.creationDtTm) = (CURRENT_DATE - INTERVAL 1 DAY) \
+               AND STD.studentId = 4047009 \
+               AND SC.<ADMINID>\
+               GROUP BY STD.studentID\
+UNION\
+SELECT (CURRENT_DATE - INTERVAL 2 DAY) AS Date\
+          , COUNT(Distinct CustomerName) AS '# Of Clients'\
+\	  , COUNT(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN 1 END) AS 'Total Sales'\
+\	  , CONCAT('<div align="right">','$',ROUND(SUM(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service'\
+                            OR  SC.productID = 1215 THEN SC.tickettotal END),2),'</div>') AS 'Total $ Value'\
+          , CONCAT('$',ROUND(SUM(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN SC.tickettotal END)  \
+                     / COUNT(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN 1 END),2))  AS 'Daily Average'\
+\	\	FROM StudentServiceCustomerReltn SC\
+\	\	INNER JOIN Students STD \
+\	\	\	\	ON STD.StudentID = SC.studentID\
+\	\	INNER JOIN ProfileFieldValues PVF\
+\	\	\	\	ON PVF.userID = STD.studentID AND PVF.FieldName = 'TEAM_NAME'\
+\	       WHERE (SC.ParentCategory = 'Service' OR SC.ParentCategory = 'Retail') \
+               AND  DATE(SC.creationDtTm) = (CURRENT_DATE - INTERVAL 2 DAY) \
+               AND STD.studentId = 4047009 \
+               AND SC.<ADMINID>\
+               GROUP BY STD.studentID\
+UNION\
+SELECT (CURRENT_DATE - INTERVAL 3 DAY) AS Date\
+          , COUNT(Distinct CustomerName) AS '# Of Clients'\
+\	  , COUNT(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN 1 END) AS 'Total Sales'\
+\	  , CONCAT('<div align="right">','$',ROUND(SUM(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service'\
+             OR  SC.productID = 1215 THEN SC.tickettotal END),2),'</div>') AS 'Total $ Value'\
+          , CONCAT('$',ROUND(SUM(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN SC.tickettotal END)  \
+                / COUNT(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN 1 END),2))  AS 'Daily Average'\
+\	\	FROM StudentServiceCustomerReltn SC\
+\	\	INNER JOIN Students STD \
+\	\	\	\	ON STD.StudentID = SC.studentID\
+\	\	INNER JOIN ProfileFieldValues PVF\
+\	\	\	\	ON PVF.userID = STD.studentID AND PVF.FieldName = 'TEAM_NAME'\
+\	       WHERE (SC.ParentCategory = 'Service' OR SC.ParentCategory = 'Retail') \
+               AND  DATE(SC.creationDtTm) = (CURRENT_DATE - INTERVAL 3 DAY) \
+               AND STD.studentId = 4047009 \
+               AND SC.<ADMINID>\
+               GROUP BY STD.studentID\
+UNION\
+SELECT (CURRENT_DATE - INTERVAL 4 DAY) AS Date\
+          , COUNT(Distinct CustomerName) AS '# Of Clients'\
+\	  , COUNT(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN 1 END) AS 'Total Sales'\
+\	  , CONCAT('<div align="right">','$',ROUND(SUM(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service'\
+                            OR  SC.productID = 1215 THEN SC.tickettotal END),2),'</div>') AS 'Total $ Value'\
+          , CONCAT('$',ROUND(SUM(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN SC.tickettotal END)  \
+                      / COUNT(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN 1 END),2))  AS 'Daily Average'\
+\	\	FROM StudentServiceCustomerReltn SC\
+\	\	INNER JOIN Students STD \
+\	\	\	\	ON STD.StudentID = SC.studentID\
+\	\	INNER JOIN ProfileFieldValues PVF\
+\	\	\	\	ON PVF.userID = STD.studentID AND PVF.FieldName = 'TEAM_NAME'\
+\	       WHERE (SC.ParentCategory = 'Service' OR SC.ParentCategory = 'Retail') \
+               AND  DATE(SC.creationDtTm) = (CURRENT_DATE - INTERVAL 4 DAY)\
+               AND STD.studentId = 4047009 \
+               AND SC.<ADMINID>\
+               GROUP BY STD.studentID\
+UNION\
+SELECT (CURRENT_DATE - INTERVAL 5 DAY) AS Date\
+          , COUNT(Distinct CustomerName) AS '# Of Clients'\
+\	  , COUNT(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN 1 END) AS 'Total Sales'\
+\	  , CONCAT('<div align="right">','$',ROUND(SUM(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service'\
+                            OR  SC.productID = 1215 THEN SC.tickettotal END),2),'</div>') AS 'Total $ Value'\
+          , CONCAT('$',ROUND(SUM(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN SC.tickettotal END)  \
+          / COUNT(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN 1 END),2))  AS 'Daily Average'\
+\	\	FROM StudentServiceCustomerReltn SC\
+\	\	INNER JOIN Students STD \
+\	\	\	\	ON STD.StudentID = SC.studentID\
+\	\	INNER JOIN ProfileFieldValues PVF\
+\	\	\	\	ON PVF.userID = STD.studentID AND PVF.FieldName = 'TEAM_NAME'\
+\	       WHERE (SC.ParentCategory = 'Service' OR SC.ParentCategory = 'Retail') \
+               AND  DATE(SC.creationDtTm) = (CURRENT_DATE - INTERVAL 5 DAY) \
+               AND STD.studentId = 4047009 \
+               AND SC.<ADMINID>\
+               GROUP BY STD.studentID\
+UNION\
+SELECT (CURRENT_DATE - INTERVAL 6 DAY) AS Date\
+          , COUNT(Distinct CustomerName) AS '# Of Clients'\
+\	  , COUNT(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN 1 END) AS 'Total Sales'\
+\	  , CONCAT('<div align="right">','$',ROUND(SUM(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service'\
+                            OR  SC.productID = 1215 THEN SC.tickettotal END),2),'</div>') AS 'Total $ Value'\
+          , CONCAT('$',ROUND(SUM(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN SC.tickettotal END)  \
+                      /COUNT(CASE WHEN SC.parentcategory = 'Retail' OR SC.parentcategory = 'Service' OR  SC.productID = 1215 THEN 1 END),2))  AS 'Daily Average'\
+\	\	FROM StudentServiceCustomerReltn SC\
+\	\	INNER JOIN Students STD \
+\	\	\	\	ON STD.StudentID = SC.studentID\
+\	\	INNER JOIN ProfileFieldValues PVF\
+\	\	\	\	ON PVF.userID = STD.studentID AND PVF.FieldName = 'TEAM_NAME'\
+\	       WHERE (SC.ParentCategory = 'Service' OR SC.ParentCategory = 'Retail') \
+               AND  DATE(SC.creationDtTm) = (CURRENT_DATE - INTERVAL 6 DAY) \
+               AND STD.studentId = 4047009 \
+               AND SC.<ADMINID>\
+               GROUP BY STD.studentID\
+ORDER BY Date

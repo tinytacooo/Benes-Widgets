@@ -1,0 +1,8 @@
+-- Written by Kelly\
+-- Everything about this code is temporary - it's just me running queries\
+\
+SELECT * \
+\
+FROM SubAdmins\
+\
+WHERE firstName = 'Kelly' AND <ADMINID>

@@ -1,0 +1,15 @@
+SELECT CASE SC.CampusCode\
+                  WHEN 34652 THEN 'New Port Richey'\
+                  WHEN 34606 THEN 'Spring Hill'\
+                  WHEN 34601 THEN 'Brooksville'\
+                  ELSE 'BAD CAMPUS CODE'\
+              END as Campus,\
+             SC.creationDtTm as Date, SC.serviceName as 'Service Name', CONCAT('<div align="right">','$',ROUND(SC.lineAmount,2),'</div>') AS 'Service Amount',\
+             SC.parentCategory as Category, SC.customerName as Customer               \
+  FROM StudentServiceCustomerReltn SC\
+  LEFT JOIN Students S ON S.studentId = SC.studentId\
+ WHERE SC.creationDtTm > DATE('2018-04-01') AND\
+               SC.ParentCategory IN ('Service','Retail', '1. Service') AND\
+               SC.studentId = 0 AND\
+               SC.<ADMINID>\
+    Order by Concat(S.FirstName, '  ', S.lastName), SC.creationDtTm

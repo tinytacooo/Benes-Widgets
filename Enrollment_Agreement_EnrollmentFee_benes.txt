@@ -1,0 +1,7 @@
+SELECT  CASE\
+\	\	\	WHEN EXISTS(SELECT FF.formFieldId, F.formId FROM Forms F, FormFields FF WHERE F.formId =16 AND  \
+                        FF.formFieldId = 203)\
+\
+\	\	\	THEN (SELECT CONCAT('$', FORMAT(OTF.fee, 2))  FROM  OneTimeFees OTF, Students S WHERE OTF.feeName LIKE  '%Registration Fees%'  AND OTF.semesterId IN(SELECT RT.enrollmentSemesterId FROM  Registrations RT INNER JOIN Students S ON RT.studentId = S.studentId) AND S.<ADMINID> AND\
+                        S.isActive <> 0 AND [FORMUSERTYPE]  = 1 AND S.studentId = [FORMUSERID] LIMIT 1) \
+\	\	END 

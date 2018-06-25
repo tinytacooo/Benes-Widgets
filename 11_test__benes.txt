@@ -1,0 +1,4 @@
+SELECT *.*\
+FROM Registrations R\
+WHERE R.<ADMINID> and R.isActive=1 \
+and R.studentId=[STUDENTID] 

@@ -1,0 +1,29 @@
+SELECT DISTINCT S.idNumber as 'ID#'\
+     , CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(S.studentId AS CHAR), '">', S.firstName, ' ', S.lastName, '</a>') AS 'Student Name'\
+     , (SELECT P.programmeName\
+\	    FROM Programmes P\
+\	    WHERE P.<ADMINID>\
+\	\	  AND RG.programmeId = P.programmeId) 'Program'\
+     , CASE WHEN RG.regStatus = 1 THEN 'Active'\
+\	\	    WHEN RG.regStatus = 0 THEN 'Dropped'\
+\	\	\	WHEN RG.regStatus = 3 THEN 'Graduated'\
+\	\	\	WHEN RG.regStatus = 14 THEN 'No Start'\
+\	\	\	WHEN RG.regStatus =12 THEN 'LOA'\
+       END AS 'Status'\
+\
+\
+\
+FROM Receipts R\
+\
+INNER JOIN Students S\
+ON R.studentId = S.studentId\
+\
+INNER JOIN Registrations RG\
+ON S.studentId = RG.studentId\
+AND RG.effectiveDate < '2018-01-01'\
+AND RG.regStatus = 3\
+\
+WHERE R.paymentDate BETWEEN '2017-01-01' AND '2018-01-01'\
+AND R.<ADMINID>\
+\
+GROUP BY S.studentId

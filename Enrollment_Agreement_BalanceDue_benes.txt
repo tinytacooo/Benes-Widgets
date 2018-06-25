@@ -1,0 +1,2 @@
+SELECT CONCAT('$', FORMAT((SUM(amountPayable)-SUM(amountPaid)), 2))  AS BalnceDue FROM OutstandingPayments \
+\	\	WHERE isActive <> 0 AND [FORMUSERTYPE]  = 1 AND studentId = [FORMUSERID]

@@ -1,0 +1,22 @@
+SELECT\
+\	SDT.idNumber,\
+\	CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(SDT.studentId AS CHAR), '">', SDT.firstName, ' ', SDT.lastName, '</a>') AS 'Student Name',\
+\	(Select PRG.programmeName From Programmes PRG Where PRG.<ADMINID> AND PRG.programmeId = REG.programmeId AND PRG.isActive=1) AS Program_Names,\
+\	CLS.className,\
+\	(SELECT CMP.campusName FROM Campuses CMP WHERE SDT.studentCampus = CMP.campusCode AND CMP.isActive = 1) AS Campus_Name,\
+\	CONCAT(TCH.firstName,' ',TCH.lastName) AS Instructor_Name\
+FROM Registrations REG\
+\	INNER JOIN Students SDT ON REG.studentId = SDT.studentId AND SDT.isActive=1\
+\	INNER JOIN ClassStudentReltn CSR ON SDT.studentId = CSR.studentId AND CSR.isActive=1\
+\	INNER JOIN Classes CLS ON CSR.classId = CLS.classId AND CLS.isActive=1\
+\	INNER JOIN Teachers TCH ON CLS.teacherId = TCH.teacherId AND TCH.isActive=1\
+WHERE\
+\	REG.<ADMINID> AND REG.isActive=1 AND\
+\	REG.endDate>=CURDATE() AND\
+\	REG.enrollmentSemesterId = 4000441 AND\
+\	\	CLS.subjectId IN\
+\	\	(SELECT subjectId\
+\	\	\	FROM CourseGroups CGP\
+\	\	\	INNER JOIN GroupSubjectReltn GSR ON CGP.courseGroupId=GSR.courseGroupId AND GSR.isActive=1\
+\	\	\	WHERE REG.programmeId = CGP.programmeId and CGP.isActive=1)\
+ORDER BY Instructor_Name, CLS.className

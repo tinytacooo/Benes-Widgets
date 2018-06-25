@@ -1,0 +1,34 @@
+SELECT SA.subAdminId\
+\	 , CONCAT(SA.firstName, ' ', SA.lastName)\
+         , SA.subAdminId\
+         , CASE\
+\	\	\	WHEN DAYOFWEEK('2018-03-30') = 5 AND monDay.monDur < 35\
+\	\	\	\	 THEN monDay.monDur\
+                        WHEN DAYOFWEEK('2018-03-30') = 6 AND tuesDay.tuesDur < 35\
+                                 THEN tuesDay.tuesDur\
+           END\
+         , monDay.monDur\
+         , tuesDay.tuesDur\
+         , \
+\
+FROM SubAdmins SA\
+\
+INNER JOIN\
+       ( SELECT SAA.attendanceDate\
+                      , SUM(SAA.duration) AS monDur\
+                      , SAA.subAdminId as subAdminId\
+         FROM SubAdminAttendance SAA\
+         WHERE SAA.attendanceDate = '2018-03-30'\
+         GROUP BY SAA.subAdminId ) AS monDay\
+ON monDay.subAdminId = SA.subAdminId\
+\
+INNER JOIN\
+       ( SELECT SAA.attendanceDate\
+                      , SUM(SAA.duration) AS tuesDur\
+                      , SAA.subAdminId as subAdminId\
+         FROM SubAdminAttendance SAA\
+         WHERE SAA.attendanceDate BETWEEN DATE_SUB('2018-03-30', INTERVAL 1 DAY) AND '2018-03-30'\
+         GROUP BY SAA.subAdminId ) AS tuesDay\
+ON tuesDay.subAdminId = SA.subAdminId\
+\
+WHERE SA.<ADMINID>

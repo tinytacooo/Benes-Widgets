@@ -1,0 +1,8 @@
+SELECT P.minClockHours as Program_Hours\
+\
+FROM Registrations R, Programmes P\
+\
+WHERE R.<ADMINID> and R.isActive=1 \
+and R.studentId=[STUDENTID] \
+and R.programmeId=P.programmeId \
+Order By R.registrationDate Desc Limit 1

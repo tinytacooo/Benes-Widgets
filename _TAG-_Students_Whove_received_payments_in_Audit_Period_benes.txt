@@ -1,0 +1,11 @@
+SELECT 1\
+\
+FROM Students S\
+\
+INNER JOIN Receipts RP\
+  ON S.studentId = RP.studentId\
+AND RP.<ADMINID>\
+AND RP.paymentDate BETWEEN CONCAT(DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 YEAR), '%Y'), '-01-01') AND CONCAT(DATE_FORMAT(CURDATE(), '%Y'), '-01-01')\
+\
+WHERE S.<ADMINID>\
+AND S.studentId = [STUDENTID]

@@ -1,0 +1,8 @@
+SELECT CONCAT('$', FORMAT(PLTR.rate, 2))  FROM  ProgrammeLevelTuitionRates AS PLTR INNER JOIN Registrations AS R ON\
+\	\	PLTR.programmeLevelId = R.programmeLevelId AND\
+\	\	PLTR.programmeId = R.programmeId AND \
+\	\	PLTR.levelId = R.levelId AND \
+\	\	PLTR.semesterId = R.enrollmentSemesterId \
+\	\	INNER JOIN Programmes  AS P ON\
+\	\	P.programmeId = R.programmeId\
+\	\	WHERE PLTR.<ADMINID> AND PLTR.isActive <> 0 AND [FORMUSERTYPE]  = 1 AND R.studentId = [FORMUSERID] LIMIT 1

@@ -1,0 +1,106 @@
+SELECT t1.teacherId AS teacherId\
+\	 , t1.Name 'Staff Member Name'\
+\	 , CASE WHEN t1.Campus = '34606' THEN 'Spring Hill' \
+\	 \	\	ELSE NULL\
+\	 \	\	END 'Staff Campus'\
+\	 , t1.DOW  'Day of Week'\
+\	 , t1.attDate 'Attendance Date'\
+\	 , t1.duration 'Duration'\
+\
+FROM (\
+\	SELECT T.teacherId AS teacherId\
+\	\	, CONCAT('<a href="admin_view_teacher.jsp?teacherid=' , CAST(T.teacherId AS CHAR) ,'"target="_blank">', T.firstName, ' ', T.lastName, '</a>') AS Name\
+\	\	, TA.attendanceDate AS attDate\
+\	\	, TA.duration\
+\	\	, T.campusCode AS Campus\
+\	\	, DAYNAME(TA.attendanceDate) AS DOW\
+\
+\	FROM Teachers T\
+\	\
+\	INNER JOIN TeacherAttendance TA\
+\	ON TA.teacherId = T.teacherId\
+\	AND TA.attendancedate BETWEEN '2018-05-14' AND '2018-05-20'\
+\	AND TA.isActive = 1\
+\	AND TA.duration > 0\
+\
+\	WHERE T.<ADMINID>\
+          AND T.isActive = 1\
+\	  AND T.CampusCode = 34606\
+\
+ \	GROUP BY T.teacherId -- , TA.attendanceDate\
+\
+    UNION\
+\
+\	SELECT SA.SubadminID AS teacherId\
+        , CONCAT('<a href="admin_view_subadmin.jsp?subadminid=', CAST(SA.subAdminId AS CHAR),'" target="_blank">', SA.firstName, ' ', SA.lastName, '</a>') AS Name\
+        , SAA.attendanceDate AS attDate\
+        , SAA.duration\
+        , SA.campusCode AS Campus\
+        , DAYNAME(SAA.attendanceDate) AS DOW\
+\
+    FROM SubAdminAttendance SAA\
+\
+    INNER JOIN SubAdmins SA\
+    ON SA.subAdminId = SAA.subAdminId\
+\
+    WHERE SAA.attendancedate BETWEEN '2018-05-14' AND '2018-05-20'\
+    AND SA.<ADMINID>\
+\	AND SA.CampusCode = 34606\
+\
+ \	GROUP BY SA.subAdminId -- , SAA.attendanceDate\
+\	) AS t1\
+\
+UNION\
+\
+SELECT t2.teacherId\
+\	, NULL\
+\	, NULL\
+\	, NULL\
+\	, NULL\
+\	, t2.Total\
+\
+FROM (\
+\	SELECT T.teacherId AS teacherId\
+\	\	, CONCAT(T.firstName,'  ', T.lastName) AS Name\
+\	\	, T.campusCode AS Campus\
+\	\	, SUM(TA.duration) AS Total\
+\
+\	FROM Teachers T\
+\	\
+\	INNER JOIN TeacherAttendance TA\
+\	ON TA.teacherId = T.teacherId\
+        AND TA.isActive = 1\
+\
+\	AND TA.attendanceDate BETWEEN '2018-05-14' AND '2018-05-20'\
+\	AND TA.isActive = 1\
+\	AND TA.duration > 0\
+\
+\	WHERE T.<ADMINID>\
+          AND T.isActive = 1\
+\	  AND T.CampusCode = 34606\
+\
+\	GROUP BY T.teacherId\
+\
+\	UNION\
+\
+\	SELECT SA.subAdminId AS teacherId\
+\	\	, CONCAT(SA.Firstname,'  ', SA.Lastname) AS Name\
+\	\	, SA.campusCode AS Campus\
+\	\	, SUM(SAA.duration) AS Total\
+\
+\	FROM SubAdmins SA\
+\	\
+\	INNER JOIN SubAdminAttendance SAA\
+\	ON SAA.subAdminId= SA.subAdminId\
+\	AND SAA.attendancedate BETWEEN '2018-05-14' AND '2018-05-20'\
+\	AND SAA.isActive = 1\
+\	AND SAA.duration > 0\
+\
+\	WHERE SA.isActive = 1\
+\	  AND SA.<ADMINID>\
+\	  AND SA.CampusCode = 34606\
+\
+\	GROUP BY SA.subAdminId\
+\	) AS t2\
+\
+order by teacherId

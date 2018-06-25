@@ -1,0 +1,21 @@
+/* Active Students By Campus Detail - Project 1\
+   M. Mulholland 02_28_2016  */\
+select  st.idnumber,\
+             CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(st.studentId AS CHAR), '">', st.firstName, ' ', st.lastName, '</a>') AS 'Student Name',\
+            COALESCE(ca.campusName,'Invalid Campus') as "Campus Name",\
+            st.isActive,\
+\	     reg.registrationId,\
+            reg.enrollmentSemesterId\
+from \
+Students st\
+LEFT JOIN Campuses ca \
+       ON ca.campusCode = st.studentcampus,\
+Registrations reg\
+where 1=1\
+and   ca.<ADMINID>\
+and   reg.studentId = st.studentId\
+and   st.isactive = 1   -- only active enrolled students \
+and   reg.isActive = 1\
+order by "Campus Name",\
+          st.studentId\
+

@@ -1,0 +1,6 @@
+SELECT  CASE\
+\	\	\	WHEN EXISTS(SELECT FF.formFieldId, F.formId FROM Forms F, FormFields FF WHERE F.formId = 16 AND \
+                         FF.formFieldId = 190)\
+\	\	\	THEN (SELECT TIMESTAMPDIFF(YEAR, dateOfBirth, CURDATE()) AS Age  FROM Students WHERE <ADMINID>  \
+                        AND isActive <> 0 AND [FORMUSERTYPE]  = 1 AND studentId = [FORMUSERID]) \
+\	\	END

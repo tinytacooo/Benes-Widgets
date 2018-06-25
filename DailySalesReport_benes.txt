@@ -1,0 +1,2 @@
+Select * From DailySalesReport Where <ADMINID> \
+order by DATE(creationdttm) desc

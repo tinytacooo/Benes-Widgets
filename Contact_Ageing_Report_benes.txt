@@ -1,0 +1,22 @@
+select ct.typeName "Contact Type",\
+            con.bucket 'Age',\
+            count(*) "Count"\
+from  (select contactId,\
+                       contactTypeId,\
+                       DATEDIFF(lastUpdateDtTm,creationDtTm) as 'NumberDays',\
+                       CASE when DATEDIFF(lastUpdateDtTm,creationDtTm)<=2 then '0-2 Days'\
+                      when DATEDIFF(lastUpdateDtTm,creationDtTm)>=3 and DATEDIFF(lastUpdateDtTm,creationDtTm)<=7 then '3-7 Days'\
+                      when DATEDIFF(lastUpdateDtTm,creationDtTm)>=8 and DATEDIFF(lastUpdateDtTm,creationDtTm)<=14 then '8-14 Days'\
+                      else '15+ Days'\
+                      END as 'bucket'\
+       FROM   Contacts\
+       where 1=1\
+       and contactTypeId not in(4000039,4000046,4000047) -- Vendor, Enrolled, Gain\
+       and isActive =1)con,\
+ContactTypes ct\
+where 1=1\
+and ct.<ADMINID>\
+and ct.contactTypeId = con.contactTypeId\
+group by ct.typeName,\
+         con.bucket\
+order by typename,bucket   

@@ -1,0 +1,1 @@
+Select * From StudentService Where <ADMINID> AND  studentName<>customerName;

@@ -1,0 +1,23 @@
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', CAST(STD.firstName AS CHAR), ' ', CAST(STD.lastName AS CHAR), '</a>')AS 'At Risk Student',\
+       STD.idNumber,\
+       CMP.CampusName,\
+       PRG.programmeName,\
+       CP.punchTime\
+FROM Students STD\
+     LEFT Join Campuses CMP ON CMP.CampusCode = STD.studentcampus\
+     LEFT Join Registrations REG on REG.studentID = STD.StudentID AND REG.regstatus = 1 And REG.Isactive = 1\
+\	 INNER JOIN Programmes PRG ON PRG.programmeId = REG.programmeId\
+     LEFT JOIN (SELECT CP.IDnumber, MAX(CP.punchTime) AS punchTime\
+                FROM ClockPunches CP\
+                WHERE CP.usertype = 1\
+                GROUP BY CP.IDnumber\
+                HAVING MAX(CP.punchTime) < CURRENT_DATE - INTERVAL 10 DAY) AS CP ON CP.IDnumber = STD.IDnumber\
+WHERE STD.Isactive = 1 AND REG.enrollmentSemesterID = '4000441' AND STD.<ADMINID> AND CP.punchtime IS NOT NULL AND PRG.programmeName NOT LIKE 'Careers Pathway' AND AND REG.startdate < CURDATE() \
+ORDER BY CMP.CampusName, STD.firstname\
+\
+\
+\
+\
+\
+\
+

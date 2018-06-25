@@ -1,0 +1,1 @@
+SELECT CONCAT('$', FORMAT(ITF.fee, 2))  FROM InstallmentFees ITF, Students S  WHERE ITF.isFirstTime <> 0 AND S.isActive <> 0 AND [FORMUSERTYPE]  = 1 AND S.studentId = [FORMUSERID]

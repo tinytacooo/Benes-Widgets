@@ -1,0 +1,28 @@
+-- Written by Kelly MJ\
+-- Displays all students in the current year who never clocked in on their start date. Filters by students who had start dates in the current year (extracted from the current date) before the current date and still have isActive = 1.\
+\
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(S.studentId AS CHAR), '">', S.firstName, ' ', S.lastName, '</a>') AS 'Student Name'\
+\	     , R.startDate 'Scheduled Start Date'\
+             , P.programmeName\
+, MAX(DATE(CP.punchTime))\
+     \
+FROM Students S\
+\
+INNER JOIN Registrations R\
+ON S.studentId = R.studentId\
+AND DATE(R.startDate) BETWEEN CONCAT(CAST(EXTRACT( YEAR FROM CURDATE() ) AS CHAR), '-01-01') AND CURDATE()\
+\
+INNER JOIN Programmes P\
+ON P.programmeId = R.programmeId\
+\
+LEFT JOIN ClockPunches CP\
+ON CP.userId = S.studentId\
+AND NOT MAX(DATE(CP.punchTime)) < R.startDate\
+\
+WHERE S.isActive = 1\
+      AND S.<ADMINID>\
+\
+GROUP BY S.studentId\
+\
+ORDER BY R.startDate DESC\
+

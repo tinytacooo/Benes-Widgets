@@ -1,0 +1,7 @@
+SELECT S.firstName, S.middleName, S.lastName, PV.fieldValue as "Size"\
+FROM ClassStudentReltn CR, ProfileFieldValues PV, Students S\
+WHERE CR.<ADMINID> AND CR.isActive=1 AND CR.status = 0\
+AND PV.<ADMINID> AND PV.userType = 1 AND PV.fieldName = 'TSHIRT_SIZE' AND PV.isActive = 1\
+AND CR.studentId = S.studentId \
+AND CR.studentId = PV.userId \
+AND CR.classId=[CLASS]

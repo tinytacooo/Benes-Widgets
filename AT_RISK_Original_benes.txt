@@ -1,0 +1,30 @@
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(SID AS CHAR), '">', firstName, ' ', lastName, '</a>') AS 'Student Name'\
+,LastAtt AS 'Last Day of Attendance'\
+, (Select PRG.programmeName FROM Programmes PRG Where PRG.programmeId = Attendance.programmeId AND PRG.isActive=1) AS 'Program'\
+\
+FROM(\
+SELECT STD.lastname, STD.firstname, REG.studentID AS SID, MAX(ATD.AttendanceDate) AS LastAtt, REG.programmeId\
+FROM Registrations REG\
+INNER JOIN Attendance ATD ON REG.StudentID = ATD.studentID AND ATD.isactive = 1\
+INNER JOIN Students STD ON STD.StudentID = ATD.studentID AND STD.isactive = 1\
+WHERE REG.regstatus = 1 AND REG.isactive = 1 AND STD.isactive = 1 AND ATD.isactive = 1 AND REG.startDate <= ATD.attendanceDate\
+AND REG.graduationDate IS NULL \
+AND REG.programmeID != 4000968 \
+AND REG.programmeID != 4000974 \
+AND REG.programmeID != 4000983 \
+AND REG.programmeID != 4000987 \
+AND REG.programmeID != 4000999\
+AND REG.programmeID != 4001005 \
+AND REG.programmeID != 4001011 \
+AND REG.programmeID != 4001005 \
+AND REG.programmeID != 4001005 \
+AND REG.enrollmentSemesterID = 4000441  \
+AND REG.<ADMINID>\
+AND ATD.Present = 1.0\
+GROUP BY REG.studentID) AS Attendance\
+WHERE LastAtt NOT IN (SELECT ATD.attendanceDate FROM Attendance ATD WHERE DATE(ATD.attendanceDate) >= (CURRENT_DATE - INTERVAL 7 DAY)) \
+AND SID NOT IN (SELECT LOA.StudentID FROM LeavesOfAbsence LOA WHERE LOA.isactive = 1 AND LOA.returnDate IS NULL OR LOA.returndate = '') \
+ORDER BY LastAtt\
+\
+\
+

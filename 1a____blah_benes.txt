@@ -1,0 +1,47 @@
+SELECT S.studentId, CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(S.studentId AS CHAR), '">', S.firstName, ' ', S.lastName, '</a>') AS 'Student Name'\
+\	 , SCH.scheduledHours\
+     , ACT.actualHours\
+     , ATT.aCount 'No. Absences'\
+\
+FROM Students S\
+\
+INNER JOIN (\
+\	SELECT A.studentId\
+         , COUNT(A.absent) as aCount\
+         , A.attendanceId\
+         , A.attendanceDate\
+\	FROM Attendance A\
+\	WHERE A.absent = 1\
+\	GROUP BY A.studentId\
+    ) AS ATT\
+ON ATT.studentId = S.studentId \
+\
+INNER JOIN (\
+    SELECT PFV.fieldValue AS actualHours\
+                 , PFV.userId\
+    FROM ProfileFieldValues PFV\
+    WHERE PFV.profileFieldNameId = 4002072\
+    ) AS ACT\
+ON ACT.userId = S.studentId\
+\
+INNER JOIN (\
+    SELECT PFV.fieldValue AS scheduledHours\
+                 , PFV.userId\
+    FROM ProfileFieldValues PFV\
+    WHERE PFV.profileFieldNameId = 4002074\
+    ) AS SCH\
+ON SCH.userId = S.studentId\
+\
+INNER JOIN (\
+    SELECT REG.studentId\
+\	\	 , MAX(REG.startDate) AS startDate\
+    FROM Registrations REG\
+    GROUP BY REG.studentId\
+    ) AS R\
+ON R.studentId = S.studentId\
+\
+WHERE S.<ADMINID>\
+     -- AND ATT.attendanceDate >= R.startDate\
+AND NOT S.studentId = 331 -- testBracken\
+\
+GROUP BY S.studentId

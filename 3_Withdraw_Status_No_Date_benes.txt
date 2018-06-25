@@ -1,0 +1,5 @@
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', CAST(STD.firstName AS CHAR), ' ', CAST(STD.lastName AS CHAR), '</a>') AS Name, REG.graduationDate\
+FROM Students STD\
+INNER JOIN Registrations REG ON REG.studentID = STD.StudentID\
+WHERE REG.regStatus = 0 AND REG.graduationDate IS NULL AND REG.<ADMINID>\
+ORDER BY STD.Lastname

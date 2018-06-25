@@ -1,0 +1,9 @@
+SELECT  CASE\
+\	\	\	WHEN EXISTS(SELECT FF.formFieldId, F.formId FROM Forms F, FormFields FF WHERE F.formId =16 AND  \
+                        FF.formFieldId = 194)\
+\
+\	\	\	THEN (SELECT fieldValue FROM  ProfileFieldValues  WHERE profileFieldNameId IN(SELECT profileFieldNameId FROM ProfileFieldNames WHERE LOWER(fieldTitle)=LOWER('DRIVER LICENSE NUMBER')) AND <ADMINID> AND\
+                        isActive <> 0 AND [FORMUSERTYPE]  = 1 AND userId = [FORMUSERID]) \
+\	\	END\
+\	\	\
+\	\	

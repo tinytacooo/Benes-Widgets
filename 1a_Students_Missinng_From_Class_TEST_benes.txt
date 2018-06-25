@@ -1,0 +1,30 @@
+SELECT S.studentId\
+             , CONCAT(S.firstName, ' ', S.lastName)\
+             , C.className\
+             , CONCAT(CS.startTime, ' - ', CS.endTime)\
+             , MAX(CP.punchTime)\
+             , CP.clockedStatus\
+             , IF (  TIME( MAX(CP.punchTime) ) < CAST(CS.startTime*100 AS TIME), 'Student is NOT in class', 'YES'  )\
+\
+FROM Students S\
+\
+INNER JOIN ClockPunches CP\
+ON CP.userId = S.studentId\
+AND DATE(CP.punchTime) = CURDATE() -- Only looks for punches from the current date\
+\
+\
+INNER JOIN ClassStudentReltn CSR\
+ON S.studentId = CSR.studentId\
+AND CSR.isActive = 1\
+\
+INNER JOIN Classes C\
+ON C.classId = CSR.classId\
+\
+INNER JOIN ClassSchedules CS\
+ON CSR.classId = CS.classId\
+AND '13:00:00' BETWEEN CS.startTime AND CS.endTime -- Filters by classes that are currently in session\
+AND CS.isActive = 1\
+\
+WHERE S.<ADMINID>\
+\
+GROUP BY S.studentId

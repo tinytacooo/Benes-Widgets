@@ -1,0 +1,14 @@
+SELECT  \
+ S.idNumber\
+, CONCAT(S.firstName, ' ' , S.lastName)\
+, L.expectedReturnDate\
+\
+FROM Students S\
+\
+INNER JOIN LeavesOfAbsence L\
+ON S.studentId = L.studentId\
+AND L.expectedReturnDate < CURDATE()\
+\
+WHERE S.<ADMINID>\
+\
+ORDER BY L.expectedReturnDate DESC 

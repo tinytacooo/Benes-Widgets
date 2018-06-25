@@ -1,0 +1,19 @@
+-- Written by Kelly MJ\
+-- This code flags students who have graduated 30 days prior to the current date and have no placement/licensure information.\
+-- This is a single-value query meant to be used with the "Graduation Documentation" automated spark.\
+\
+SELECT 1\
+\
+FROM Students S\
+\
+INNER JOIN ProfileFieldValues PFV\
+ON S.studentId = PFV.userId\
+AND PFV.profileFieldNameId = 4002140   -- Student's actual graduation date (I think)\
+AND fieldValue = DATE_SUB(CURDATE(), INTERVAL 30 DAY)\
+\
+INNER JOIN ProfileFieldValues PFV1\
+ON S.studentId = PFV1.userId\
+AND PFV1.profileFieldNameId IN (4002135, 4002127)\
+AND NOT PFV1.fieldValue > 'a'\
+\
+AND S.<ADMIND>

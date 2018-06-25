@@ -1,0 +1,10 @@
+Select CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', CAST(STD.firstName AS CHAR), ' ', CAST(STD.lastName AS CHAR), '</a>') AS Name, FFR.fileName, \
+CASE WHEN  FFR.DOCUMENTTYPEID = '0' THEN 'Undefined/removed'\
+ELSE '' END AS 'Document Type',\
+FR.folderName\
+FROM FolderFileReltn FFR\
+INNER JOIN Students STD ON FFR.userID = STD.studentID\
+LEFT JOIN FolderFolderReltn FR ON FFR.folderFolderReltnID =  FR.folderFolderReltnID\
+WHERE STD.<ADMINID> AND  FFR.DOCUMENTTYPEID = '0'\
+Order By STD.Lastname\
+

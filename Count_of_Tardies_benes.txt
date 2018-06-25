@@ -1,0 +1,17 @@
+-- Code created by Kelly Johnston\
+-- Counts the number of tardies each student has accrued since starting at the school.\
+\
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', STD.firstName, ' ', STD.lastName, '</a>') AS 'Student Name'\
+             , CONCAT('<div align="left">', COUNT(ATD.attendanceId), '</div>') AS '<div align = "left">Number of Tardies</div>'\
+\
+     \
+FROM Students STD\
+\
+INNER JOIN Attendance ATD\
+ON ATD.studentId = STD.studentId\
+      AND ATD.tardy > 0\
+    --  AND ATD.<ADMINID>\
+ \
+WHERE STD.isActive = 1\
+      AND STD.<ADMINID>\
+GROUP BY ATD.studentId

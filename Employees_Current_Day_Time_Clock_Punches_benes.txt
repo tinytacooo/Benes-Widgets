@@ -1,0 +1,47 @@
+Select \	r.name,\
+\	\	\	\	r.Position,\
+\	\	\	\	ca.campusId "Campus ID",\
+\	\	\	\	ca.campusName "Campus Name",\
+\	\	\	\	r.Punch_Date "Punch Date",\
+\	\	\	        r.Punch_Time "Punch Time"\
+FROM\
+\	(SELECT\	CONCAT(sa.firstName,' ',sa.lastName) "Name",\
+\	\	\	\	\	st.typeName "Position",\
+\	\	\	\	\	DATE_FORMAT(punchtime,'%m/%d/%Y') "Punch_Date",\
+\	\	\	\	\	DATE_FORMAT(punchtime, '%h:%i %p') "Punch_Time",\
+\	\	\	\	\	cp.clockPunchId,\
+\	\	\	\	\	cp.userId,\
+\	\	\	\	\	cp.campuscode\
+\	\	FROM \	ClockPunches cp,\
+\	\	\	\	\	Campuses ca,\
+\	\	\	\	\	SubAdmins sa,\
+\	\	\	\	\	SubAdminTypes st\
+\	\	WHERE 1 = 1\
+\	\	\	AND sa.subAdminId = cp.userId\
+\	\	\	AND st.subAdminTypeId = sa.subAdminTypeId\
+\	\	\	AND DATE(cp.punchTime) = CURDATE()                             -- > '2017-03-01'\
+\	UNION\
+\	\	SELECT\	CONCAT(th.firstName,' ',th.lastName) "Name",\
+\	\	\	\	\	('Teacher') "Position",\
+\	\	\	\	\	DATE_FORMAT(punchtime,'%m/%d/%Y') "Punch Date",\
+\	\	\	\	\	DATE_FORMAT(punchtime, '%h:%i %p') "Punch Time",\
+\	\	\	\	\	cp.clockPunchId,\
+\	\	\	\	\	cp.userId,\
+\	\	\	\	\	cp.campusCode\
+\	\	FROM \	ClockPunches cp,\
+\	\	\	\	Teachers th\
+\	\	WHERE 1 = 1\
+\	\	AND th.teacherId = cp.userId\
+\	\	AND DATE(cp.punchTime) = CURDATE() ) r,\
+\	\	Campuses ca\
+\	\	Where 1=1\
+                and ca.<ADMINID>\
+\	\	and ca.campusCode = r.campuscode\
+                and ca.campusid = [?CampusID_4_5_or_6]\
+    Order By r.campusCode,\
+\	\	     r.userid,\
+\	\	     r.clockPunchId\
+\
+\
+\
+

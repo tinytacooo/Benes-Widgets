@@ -1,0 +1,27 @@
+SELECT DISTINCT MAX(S.idNumber) as 'ID#'\
+     , CONCAT(S.firstName, ' ', S.lastName) AS 'Student Name'\
+     , (SELECT P.programmeName\
+\	    FROM Programmes P \
+\	\	  WHERE RG.programmeId = P.programmeId\
+                  AND P.<ADMINID>) 'Program'\
+     , CASE WHEN RG.regStatus = 1 THEN 'Active'\
+\	\	    WHEN RG.regStatus = 0 THEN 'Dropped'\
+\	\	\	WHEN RG.regStatus = 3 THEN 'Graduated'\
+\	\	\	WHEN RG.regStatus = 14 THEN 'No Start'\
+\	\	\	WHEN RG.regStatus =12 THEN 'LOA'\
+       END AS 'Status'\
+\
+FROM Receipts R\
+\
+INNER JOIN Students S\
+ON R.studentId = S.studentId\
+\
+INNER JOIN Registrations RG\
+ON S.studentId = RG.studentId\
+AND RG.effectiveDate < '2018-01-01'\
+AND RG.regStatus IN (0, 1, 3, 12)\
+\
+WHERE R.paymentDate BETWEEN '2017-01-01' AND '2018-01-01'\
+AND R.<ADMINID>\
+\
+GROUP BY S.studentId

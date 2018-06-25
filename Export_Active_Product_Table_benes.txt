@@ -1,0 +1,1 @@
+SELECT * FROM Products P WHERE P.isActive=1 AND <ADMINID>\	 ORDER BY productname, vendor, productline

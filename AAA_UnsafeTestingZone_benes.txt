@@ -1,0 +1,48 @@
+-- Developer: Zachary Bene\
+-- Version 1.0\
+-- Updated 03/28/2017\
+-- All Active Students From Attendance\
+-- The purpose of this query is to show\
+\	-- all active students who appear on the attendance record\
+\
+SELECT\
+\	CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(SDT.studentId AS CHAR), '">', CAST(SDT.firstName AS CHAR), ' ', CAST(SDT.lastName AS CHAR), '</a>') AS Name,\
+\	-- REG.registrationId AS KeyZ,\
+\	-- ATD.subjectId AS Subject_ID,\
+\	-- ATD.classId AS Class_ID,\
+\	PGM.programmeName AS Program_Name,\
+\	CMP.campusName AS Campus_Name,\
+\	\	\	(SELECT DISTINCT SSS.statusName\
+\	\	\	FROM StatusSequences\	SSS\
+\	\	\	WHERE SSS.statusId = SDT.isActive AND SSS.seqNum = 1 AND NOT SSS.isActive = 0) AS\
+\	Status,\
+\	FORMAT(SUM(ATD.duration),2) AS Hours_Attended\
+\
+FROM Attendance ATD\
+\	INNER JOIN Registrations\	REG ON ATD.studentId = REG.studentId AND NOT REG.isActive = 0\
+\	INNER JOIN Programmes \	\	PGM ON REG.programmeId = PGM.programmeId AND NOT PGM.isActive = 0\
+\	INNER JOIN Students \	\	SDT ON REG.studentId = SDT.studentId\
+\	LEFT JOIN  Campuses \	\	CMP ON SDT.studentCampus = CMP.campusCode AND NOT CMP.isActive = 0\
+\	INNER JOIN ProfileFieldValues PFV ON SDT.studentId = PFV.userId AND PFV.isActive = 1\
+\	\
+WHERE\
+\	REG.<ADMINID>\	\	\	\	\	\	AND\
+\	NOT REG.isActive = 0\	\	\	\	AND\
+\	REG.enrollmentSemesterId = 4000441\	AND\
+\	PFV.fieldName = 'OK_TO_PAY' \	\	AND\
+\	PFV.fieldValue = 'TRUE' \	\	\	AND\
+\	PFV.userType = 1\	\	\	\	\	AND \
+\	ATD.subjectId IN (SELECT GSR.subjectId\
+\	\	\	FROM CourseGroups CGP\
+\	\	\	INNER JOIN GroupSubjectReltn GSR ON CGP.courseGroupId=GSR.courseGroupId AND GSR.isActive=1\
+\	\	\	WHERE REG.programmeId = CGP.programmeId and CGP.isActive=1)\
+\	\	\	\	\	\	\	\	\	\	AND\
+\	ATD.classId IN (SELECT DISTINCT CRS.classId\
+\	\	\	From ClassStudentReltn CRS\
+\	\	\	Where CRS.studentId = ATD.studentId AND CRS.isActive=1)\
+GROUP BY ATD.studentId\
+ORDER BY SDT.firstName\
+\
+-- benesdb tables: AcademicFinancialHold,Accountants,ActivityLogs,AddressHistories,Admins,AlertCreditHistories,AlertReports,Alerts,Announcements,ApplicationForm,ApplicationSection,AppointmentPeopleReltn,Appointments,AssessmentAttempts,AssessmentQuestions,AssessmentResponses,AssessmentSections,Assessments,Attendance,AutoAlerts,AutoCharges,BankDeposits,BillingJournal,BookAccessions,BookCheckOutRecords,Books,CalendarEvents,CampusSubAdminReltn,Campuses,CareerPlacements,CategoryTuitionRates,ClassDateReltn,ClassExamReltn,ClassExclusionDates,ClassGroupClassList,ClassGroupCourseGroupReferences,ClassGroups,ClassReservationAttendees,ClassReservations,ClassSchedules,ClassStudentReltn,ClassTeacherReltn,ClassTopicClassroomReltn,ClassTopicTeacherReltn,ClassTopics,Classes,Classrooms,Clinics,ClockPunches,Comments,ConnectionSession,ContactForm,ContactFormSection,ContactTypeSubAdminReltn,ContactTypes,Contacts,Correspondences,CostOfAttendance,,Coupons,CourseCategories,CourseFees,CourseGroups,CourseInformation,CourseTextbookReltn,Curriculums,CustomColumns,CustomMessages,CustomReports,CustomStartPageQueries,DepartmentFees,Discounts,DiscussionMessages,DiscussionMessagesStatus,Discussions,DisplayGroupItems,DisplayGroups,DocuSignCredentials,DocusignEnvelopes,EmailGroupUserReltn,EmailGroups,EmailReports,EnrollmentLimits,EquipmentAccessions,EquipmentReservationRecords,Equipments,EvalForms,EvalQuestions,EvalResponseValues,EvalResponses,EvalStudentReltn,Evaluations,,EventTypes,FaApplication,FaApplicationAid,FaApplicationCostsOfAttendance,FeeStudentReltn,Fees,FieldSortOrder,Files,FinancialAidPrograms,FinancialAidSettings,FinancialAids,FinancialAidsDisbursements,FolderFileReltn,FolderFolderReltn,FolderPermission,FormFieldReltn,FormFields,FormInstanceValues,FormInstances,FormReview,FormReviewers,FormSend,FormTemplates,FormTemplatingSections,FormTypes,Forms,GradePolicies,GradePolicyGroups,GradebookOptions,Grades,GroupSubjectReltn,HighSchoolGrades,Honors,IndependentStudyCourses,IndependentStudySchedule,InstallmentFees,InterimEvalResponseValues,InterimReports,IntlCalendarMonths,IntlCalendarYearMonths,IntlCalendarYears,IntlCalendars,Invoices,IsirDataDictionary,IsirField,IsirInstance,IsirInstanceValue,IsirResponseSets,IsirResponses,Issues,Journals,LDAP_Settings,LTIExternalTools,Languages,LeavesOfAbsence,LessonPlanFieldNames,LessonPlanFieldValues,LessonPlans,LessonTuitionRates,LevelCourseFees,LevelSubAdminReltn,LevelTuitionRates,Levels,ListCodes,LoanAmount,LoanFees,LogReports,MakeupExamGrades,MessageFolders,MessageRecipients,Messages,MultiRecipientEmailReports,News,OneTimeFees,Options,OutstandingPayments,POProductForm,PayPeriod,PaymentPlans,PaymentSchedules,Payments,Periods,PopAlerts,ProductCampusReltn,ProductInventoryTransactions,Products,ProfileFieldNames,ProfileFieldValues,ProfileFieldValues_Audit,ProgramClinicalRotationRequirements,ProgramEvalCriteria,ProgramServices,ProgrammeCategories,ProgrammeCourses,ProgrammeFees,ProgrammeHistories,ProgrammeLevelCreditHourTuitionRates,ProgrammeLevelTuitionRates,ProgrammeLevels,Programmes,PublicUrls,PurchaseOrderForm,QB_ExportSettings,QB_ExportedCustomer,QB_ExportedInvoice,QB_ExportedPayment,QB_TaskQueue,Queries,QueryPermissions,Receipts,RefundPolicies,Registrations,Registrations_Audit,Relationships,Reminders,Reports,ResponseSets,Responses,RoomReservation,ScheduleDays,SemesterEvalResponseValues,SemesterGrades,SemesterSubjectTopicGrades,Semesters,SendAlerts,ServiceProgramRequirementsReln,Sessions,ShippingTickets,ShoppingCartLevelReltn,ShoppingCartLogs,Signatures,StaffNotices,StatusSequences,StudentBatches,StudentCharges,StudentClinicalRecords,StudentClinicalRotationRecords,StudentGrades,StudentPaymentPlanReltn,StudentPaymentSchedules,StudentRefunds,StudentRegistrationTuitionRates,StudentService,StudentSurveyReltn,StudentWorkHourRecords,StudentWorkRecords,Students,Students_Audit,SubAdminAttendance,SubAdminTypes,SubAdmins,SubjectCorequisiteReltn,SubjectPrerequisiteReltn,SubjectTopics,Subjects,SubmissionBoxes,Submissions,SurveyQuestions,SurveyResponses,SurveySections,Surveys,SystemWarnings,Taxes,TeacherAttendance,Teachers,Templates,TestCategories,TextBooks,TransferSemesters,Translations,TuitionRateTypes,TuitionRates,UniversalFees,Unsubscribes,UserStatusRecords,Words,WorkCategories,WorkCategoryTopics\
+-- benesdb common column names: firstName, lastName\
+-- styleZ commonly used names: First_Name, Last_Name

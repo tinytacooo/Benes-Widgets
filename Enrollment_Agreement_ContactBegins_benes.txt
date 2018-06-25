@@ -1,0 +1,7 @@
+SELECT  CASE\
+\	\	\	WHEN EXISTS(SELECT FF.formFieldId, F.formId FROM Forms F, FormFields FF WHERE F.formId =16 AND  \
+                        FF.formFieldId = 197)\
+\
+\	\	\	THEN (SELECT startDate FROM  Registrations R, Students S  WHERE S.<ADMINID> AND\
+                      R.studentId = S.studentId AND  S.isActive <> 0 AND [FORMUSERTYPE]  = 1 AND S.studentId = [FORMUSERID]  LIMIT 1) \
+\	\	END

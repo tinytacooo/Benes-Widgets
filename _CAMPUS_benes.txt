@@ -1,0 +1,5 @@
+SELECT CMP.campusName\
+FROM Students STD\
+INNER JOIN Campuses CMP ON STD.studentCampus = CMP.campusCode\
+WHERE STD.<ADMINID> AND STD.isActive=1 AND CMP.isactive = 1\
+and STD.studentId=[STUDENTID] 

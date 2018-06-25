@@ -1,0 +1,6 @@
+SELECT * FROM Attendance ATD WHERE NOT ATD.isActive = 0 AND YEAR(ATD.attendanceDate) => DATE_SUB(CURDATE(), INTERVAL 51 DAY)\
+\
+-- SELECT reasonText, classId, subjectId, studentId, attendanceDate, duration, attendanceId, creationDtTm\
+-- FROM Attendance\
+-- WHERE <ADMINID> AND isActive = 1 AND reasonText LIKE '{%'\
+-- ORDER BY attendanceDate DESC, studentId, attendanceId DESC

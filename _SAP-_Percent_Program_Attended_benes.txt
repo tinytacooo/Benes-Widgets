@@ -1,0 +1,13 @@
+SELECT FORMAT(SUM(A.duration)*100/P.minClockHours, 2) as Percent_Program_Attended\
+\
+FROM (SELECT RR.*  FROM Registrations RR WHERE RR.<ADMINID> and RR.isActive=1 and RR.studentId=[STUDENTID] Order By RR.registrationDate Desc Limit 1) R,\
+ Programmes P, Attendance A, Classes C, ClassStudentReltn CSR\
+WHERE R.<ADMINID> and R.isActive=1\
+and R.studentId=[STUDENTID] \
+and R.programmeId=P.programmeId \
+and R.studentId=A.studentId and A.attendanceDate>=R.startDate and A.isActive=1\
+and A.classId=C.classId and C.isActive=1 AND CSR.classId=C.classId AND CSR.studentId=A.studentId AND CSR.isActive<>0\
+and C.subjectId IN (SELECT subjectId FROM GroupSubjectReltn GSR, CourseGroups CG WHERE CG.programmeId=P.programmeId and CG.isActive=1 and CG.courseGroupId=GSR.courseGroupId and GSR.isActive=1)\
+\
+GROUP BY R.registrationId\
+

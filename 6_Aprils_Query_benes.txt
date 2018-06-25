@@ -1,0 +1,17 @@
+SELECT DISTINCT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', CAST(STD.firstName AS CHAR), ' ', CAST(STD.lastName AS CHAR), '</a>') AS ' Student Name', STD.studentCampus AS 'Campus'\
+, CLS.ClassName AS 'Enrolled Class'\
+, CASE WHEN REG.enrollmentType = 1.0 THEN "Full Time"\
+   WHEN REG.enrollmentType  = 0.75 THEN "3/4th Time"\
+   WHEN REG.enrollmentType = 0.5  THEN "Part Time"\
+   WHEN REG.enrollmentType = 0.6 THEN "Part Time"\
+   WHEN REG.enrollmentType = 0.25  THEN "1/4th Time"\
+   ELSE 'Part-Time'\
+ END AS 'Enrollment Status'\
+  \
+FROM Students STD\
+INNER Join Registrations REG on REG.studentID = STD.StudentID \
+INNER JOIN ClassStudentReltn CSR ON REG.studentID = CSR.StudentID\
+INNER JOIN Classes CLS ON CLS.classId = CSR.ClassId\
+WHERE STD.Isactive = 1  AND CLS.isactive = 1 AND REG.regstatus = 1 AND REG.Isactive = 1 AND  CSR.Isactive = 1  AND (CLS.ClassName NOT LIKE '%Grad%' AND CLS.ClassName NOT LIKE '%Instruct%' AND CLS.ClassName NOT LIKE '%Career%')\
+AND STD.<ADMINID> AND STD.studentCampus = [?Campus{34652|New Port Richey|34606|Spring Hill|34601|BrooksVille}] \
+ORDER BY  CLS.ClassName, STD.lastname

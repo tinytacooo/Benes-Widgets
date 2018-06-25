@@ -1,0 +1,6 @@
+SELECT     CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', STD.firstName, ' ', STD.lastName, '</a>')\
+             AS 'Student Name',STD.studentCampus, SS.serviceName, SS.ticketTotal, SS.creationDtTm, SS.paymentType, SS.customerName\
+FROM Students STD\
+INNER JOIN StudentServiceCustomerReltn SS ON STD.studentID = SS.studentId\
+WHERE SS.serviceName like '%Manne%' AND SS.tickettotal != 0 AND SS.<ADMINID> \
+ORDER BY STD.lastname, STD.firstname
