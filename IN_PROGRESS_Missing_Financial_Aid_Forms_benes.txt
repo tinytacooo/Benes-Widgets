@@ -1,0 +1,57 @@
+-- Writeen by Kelly MJ\
+-- Displays student name, ID and missing financial aid forms.\
+\
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(S.studentId AS CHAR), '">', CONCAT(UCASE(SUBSTRING(S.firstname, 1, 1)),LCASE(SUBSTRING(S.firstname, 2))," ",CONCAT(UCASE(SUBSTRING(S.lastName, 1, 1)),LCASE(SUBSTRING(S.lastName, 2)))), '</a>') 'Name'\
+\	 , DATE_FORMAT(R.startDate,'%m/%d/%Y')'Start Date'\
+\	 , MAX(IF(docs.docType = 18 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Cost Sheet'\
+     , MAX(IF(docs.docType = 19 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'MPN'\
+     , MAX(IF(docs.docType = 20 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Tax Documents'\
+     , MAX(IF(docs.docType = 21 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Florida Prepaid'\
+     , MAX(IF(docs.docType = 22 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'ISIR'\
+\	 , MAX(IF(docs.docType = 23 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Start Form'\
+\	 , MAX(IF(docs.docType = 24 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'VA Documents'\
+\	 , MAX(IF(docs.docType = 25 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Alternative Eligibility Affirmation'\
+\	 , MAX(IF(docs.docType = 26 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'ISIR Verification Worksheet'\
+\	 , MAX(IF(docs.docType = 27 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Survival Statement'\
+\	 , MAX(IF(docs.docType = 28 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Loan Entrance'\
+\	 , MAX(IF(docs.docType = 29 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Withdrawl Confirmation Letter'\
+\	 , MAX(IF(docs.docType = 30 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Award Notice Disclosure Student Statement'\
+\	 , MAX(IF(docs.docType = 31 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Work Study'\
+\	 , MAX(IF(docs.docType = 32 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Loan Documents'\
+\	 , MAX(IF(docs.docType = 33 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Loan Default Center'\
+\	 , MAX(IF(docs.docType = 33 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Loan Default Letter'\
+\	 , MAX(IF(docs.docType = 34 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Second Program Scholarship'\
+\	 , MAX(IF(docs.docType = 35 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Award Notice Disclosure Institutional Copy'\
+\	 , MAX(IF(docs.docType = 83 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Loan Application'\
+\	 , MAX(IF(docs.docType = 101 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Financial Aid Document'\
+\	 , MAX(IF(docs.docType = 109 AND docs.docCount >= 1, "Yes", "<font color='red'>No</font>")) 'Signed Cost Sheet'\
+     \
+FROM Students S\
+\
+INNER JOIN StatusSequences SSQ\
+ON SSQ.statusId = S.isActive\
+AND SSQ.<ADMINID>               -- --------- COMMENT TO USE ON LOCAL MYSQL SERVER\
+\
+INNER JOIN Registrations R\
+ON R.studentId = S.studentId\
+AND R.<ADMINID>                  -- --------- UNCOMMENT ""\
+AND R.isActive = 1\
+AND R.regStatus = 1\
+\
+LEFT JOIN\
+\	(SELECT FFR.userId\
+\	\	      , COUNT(FFR.documentTypeId) AS docCount\
+                      , FFR.documentTypeId AS docType\
+\	\	      , FFR.fileName\
+\	 FROM FolderFileReltn FFR\
+         WHERE FFR.userType = 1\
+\	       AND FFR.folderFolderReltnId = 115\
+\	  AND FFR.<ADMINID>\
+\	  GROUP BY FFR.userId, FFR.documentTypeId\
+\	) AS docs\
+ON docs.userId = S.studentId\
+\
+WHERE S.isActive = 1\
+     AND S.<ADMINID>\
+\
+GROUP BY S.studentId

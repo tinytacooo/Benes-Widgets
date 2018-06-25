@@ -1,0 +1,7 @@
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', STD.firstName, ' ', STD.lastName, '</a>') AS 'Student Name', STD.studentID AS 'Student ID', STD.studentCampus AS 'Students Table', REG.studentCampus AS 'Registrations Table'\
+FROM Students STD\
+LEFT OUTER JOIN Registrations REG ON STD.studentID = REG.studentID\
+WHERE STD.studentCampus = 0 OR STD.studentCampus = '' OR STD.studentCampus IS NULL OR STD.studentCampus < 3000 \
+OR REG.StudentCampus < 3000 OR REG.studentCampus  = 0 OR REG.studentCampus = '' OR REG.studentCampus IS NULL AND STD.<ADMINID>\
+ORDER BY STD.lastname\
+

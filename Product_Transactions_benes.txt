@@ -1,0 +1,9 @@
+Select pit.*, sscr.servicename, CONCAT(s.firstname,' ',s.lastname)\
+From ProductInventoryTransactions pit, StudentServiceCustomerReltn sscr, Students s\
+Where pit.campusCode=34601 AND\
+ pit.<ADMINID> and\
+ DATE(pit.creationdttm) = '2018-03-28' and\
+pit.productcode = sscr.productid and\
+s.studentid = sscr.studentid\
+order by creationdttm\
+;

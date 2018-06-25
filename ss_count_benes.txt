@@ -1,0 +1,7 @@
+Select DATE(ss.creationdttm), ss.campuscode, count(*)\
+  From StudentServiceCustomerReltn ss, Students s\
+ where ss.studentid = s.studentid and\
+            ss.<ADMINID> and\
+            DATE(ss.creationdttm) > '2018-03-22'\
+group by DATE(ss.creationdttm), ss.campuscode\
+ order by ss.creationdttm desc, ss.campuscode desc

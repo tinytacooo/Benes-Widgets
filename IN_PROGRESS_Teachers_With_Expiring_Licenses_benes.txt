@@ -1,0 +1,78 @@
+-- Written by: Kelly MJ\
+-- Last update: 05/30/2018\
+-- This code displays a list of teachers whose licenses are expiring within 30 days of the current date, currently hold an expired license, or have never uploaded their licensure information. If the teacher has additional licensure information which is about to expire/has already expired, this will appear on the list as necessary.\
+-- Licenses past their expiration date will be flagged in a red font.\
+\
+SELECT T.teacherId\
+     , CONCAT(T.firstName, ' ', T.lastName)\
+     , PFV.fieldName\
+     , IF (CURDATE() < PFV.fieldValue, PFV.fieldValue,  CONCAT('<font color="red">', PFV.fieldValue,'</font>'))\
+\
+FROM Teachers T\
+\
+INNER JOIN (\
+\	SELECT PFN.fieldName\
+         , PVF.profileFieldNameId\
+         , PVF.fieldValue\
+         , PVF.userId\
+    FROM ProfileFieldValues PVF\
+    INNER JOIN ProfileFieldNames PFN\
+    ON PVF.profileFieldNameId = PFN.profileFieldNameId\
+    WHERE PVF.profileFieldNameId = 4002159\
+    ) AS PFV\
+ON PFV.userId = T.teacherId\
+\
+WHERE (DATE_SUB(PFV.fieldValue, INTERVAL 1 MONTH) < CURDATE())\
+  AND T.isActive = 1\
+  AND T.<ADMINID>\
+  \
+UNION\
+\
+SELECT T.teacherId\
+     , CONCAT(T.firstName, ' ', T.lastName)\
+     , PFV.fieldName\
+     , 'NO LICENSURE INFORMATION UPLOADED'\
+\
+FROM Teachers T\
+\
+INNER JOIN (\
+\	SELECT PFN.fieldName\
+         , PVF.profileFieldNameId\
+         , PVF.fieldValue\
+         , PVF.userId\
+    FROM ProfileFieldValues PVF\
+    INNER JOIN ProfileFieldNames PFN\
+    ON PVF.profileFieldNameId = PFN.profileFieldNameId\
+    WHERE PVF.profileFieldNameId = 4002159\
+    ) AS PFV\
+ON PFV.userId = T.teacherId\
+\
+WHERE (PFV.fieldValue < '1900-01-01')\
+  AND T.isActive = 1\
+  AND T.<ADMINID>\
+  \
+UNION\
+\
+SELECT T.teacherId\
+     , CONCAT(T.firstName, ' ', T.lastName)\
+     , PFV.fieldName\
+     , PFV.fieldValue\
+\
+FROM Teachers T\
+\
+INNER JOIN (\
+\	SELECT PFN.fieldName\
+         , PVF.profileFieldNameId\
+         , PVF.fieldValue\
+         , PVF.userId\
+    FROM ProfileFieldValues PVF\
+    INNER JOIN ProfileFieldNames PFN\
+    ON PVF.profileFieldNameId = PFN.profileFieldNameId\
+    WHERE PVF.profileFieldNameId = 4002163\
+    ) AS PFV\
+ON PFV.userId = T.teacherId\
+\
+  WHERE DATE_SUB(PFV.fieldValue, INTERVAL 1 MONTH) < CURDATE() \
+AND NOT PFV.fieldValue < '1900-01-01'\
+  AND T.isActive = 1\
+  AND T.<ADMINID>

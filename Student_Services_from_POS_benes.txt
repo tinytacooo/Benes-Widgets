@@ -1,0 +1,7 @@
+Select ss.studentname, ss.service, s.studentcampus, DATE(ss.creationdttm) as CREATEDATE, ss.*\
+from StudentService ss, Students s\
+where DATE(ss.creationdttm) > '2018-04-01' and\
+          ss.<ADMINID> and\
+          ss.studentid = s.studentid\
+order by DATE(ss.creationdttm) desc\
+

@@ -1,0 +1,7 @@
+SELECT PR.productId AS 'Product Id', PR.productName As 'Name', PR.productLine AS 'Product Line', PR.productCategory AS 'Item Type', PR.barCode, CONCAT('$',PRR.salePrice) AS 'Sale Price', CAM.campusName AS 'Campus'\
+FROM Products PR\
+INNER JOIN ProductCampusReltn PRR ON PR.productId = PRR.productId \
+INNER JOIN Campuses CAM ON PRR.campusId = CAM.campusCode \
+WHERE PR.productCategory = '2. Retail'  AND PR.<ADMINID> \
+GROUP BY CAM.campusName, PR.productName \
+ORDER BY CAM.CampusName

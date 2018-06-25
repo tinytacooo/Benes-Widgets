@@ -1,0 +1,53 @@
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=',CAST(StudentID AS CHAR), '">',firstName, ' ', lastName, '</a>') AS Name\
+, StudentYear\
+\	\	\	\	\	\	\	\
+FROM\
+( SELECT CONCAT(UCASE(SUBSTRING(Firstname, 1, 1)),LCASE(SUBSTRING(Firstname, 2))) AS FirstName\
+               , CONCAT(UCASE(SUBSTRING(LastName, 1, 1)),LCASE(SUBSTRING(LastName, 2))) AS Lastname\
+               , ATD.studentid\
+               , ROUND(SUM(Duration),2) As Hours\
+               , CASE WHEN ROUND(SUM(Duration),2) <= 375 THEN 'Freshman' \
+\	                    WHEN ROUND(SUM(Duration),2) <= 750 THEN 'Sophomore' \
+                            WHEN ROUND(SUM(Duration),2) <= 1125 THEN 'Junior' \
+                            ELSE 'Senior'\
+                 END AS StudentYear\
+              \
+                , CASE WHEN ROUND(SUM(Duration),2) <= 375 THEN 1\
+\	                     WHEN ROUND(SUM(Duration),2) <= 750 THEN 2\
+                             WHEN ROUND(SUM(Duration),2) <= 1125 THEN 3\
+                              ELSE 4\
+                   END AS StudentY\
+                 , t1.ProgrammeName\
+ FROM Attendance ATD\
+ INNER JOIN \
+(SELECT REG.studentid\
+              , PRG.programmeID\
+              , REG.registrationID\
+              , REG.startDate\
+              , PRG.programmeName \
+FROM Registrations REG\
+INNER JOIN Programmes PRG \
+               ON PRG.programmeID = REG.ProgrammeID\
+ WHERE REG.GraduationDate IS NULL \
+AND REG.regstatus = 1\
+AND REG.IsActive = 1 \
+AND EnrollmentSemesterID = 4000441 \
+AND PRG.isactive = 1) AS t1 ON t1.StudentID = ATD.studentID\
+INNER JOIN Classes CL \
+               ON CL.classID = ATD.classID  AND CL.isactive = 1\
+INNER JOIN ClassStudentReltn CSR \
+               ON CSR.classId = CL.classId AND CSR.studentId=ATD.studentID AND CSR.Isactive = 1\
+INNER JOIN Students STD \
+               ON STD.studentID = CSR.studentID\
+\
+WHERE  CL.subjectId IN (SELECT subjectId FROM GroupSubjectReltn GSR, CourseGroups CG\
+                                          WHERE CG.programmeId=t1.programmeId\
+                                          AND CG.isActive=1 \
+                                          AND CG.courseGroupId=GSR.courseGroupId \
+                                          AND GSR.isActive=1)\
+AND ATD.isactive = 1 \
+AND t1.Startdate <= ATD.attendanceDate \
+AND ATD.<ADMINID>\
+GROUP BY t1.registrationID\
+ORDER BY StudentY, STD.Lastname) AS Totals\
+

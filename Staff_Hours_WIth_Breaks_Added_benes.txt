@@ -1,0 +1,97 @@
+SELECT AllData.TeacherID\
+\	,  AllData.Name AS 'Staff Member Name'\
+\	,  CASE WHEN AllData.Campus_Code = '34652' THEN 'New Port Richey'\
+\	\	    WHEN AllData.Campus_Code = '34606' THEN 'Spring Hill'\
+            WHEN AllData.Campus_Code = '34601' THEN 'BrooksVille'\
+\	\	    ELSE ''\
+\	   END AS 'Staff Campus'\
+\	,  AllData.DOW AS 'Day Of The Week'\
+    ,  AllData.ATDate AS 'Attendance Date'\
+\	,  AllData.Breaks\
+    ,  CONCAT('<div align="right">',FLOOR(AllData.duration),'.', LPAD(ROUND((AllData.duration- FLOOR(AllData.duration)) * 100)% 100,2,0),'</div>') AS Duration\
+\
+FROM\
+\	\	\	(SELECT T.teacherID AS TeacherID\
+                  , CONCAT('<a href="admin_view_teacher.jsp?teacherid=', CAST(T.teacherId AS CHAR),'"target="_blank">', T.firstName, ' ', T.lastName, '</a>') AS Name\
+                  , TA.attendanceDate AS ATdate\
+                  , duration - Breaks.FieldValue  AS duration\
+\	\	\	\	  , T.campusCode AS Campus_Code\
+                  , Breaks.FieldValue  AS Breaks\
+                  , DAYNAME(TA.attendanceDate) AS DOW\
+\	\	\	 FROM TeacherAttendance TA\
+\	\	\	 INNER JOIN Teachers T \
+\	\	\	\	\	 ON TA.teacherID = T.teacherID\
+\	\	\	 LEFT JOIN (SELECT UserID , FieldValue  FROM ProfileFieldValues PVF\
+\	\	\	\	\	\	WHERE FieldName = 'BREAK_TIME' and Usertype = 3) AS Breaks ON Breaks.UserID = T.TeacherID\
+\	\	\	 WHERE  DATE(TA.attendancedate)  BETWEEN '[?Start Date]' AND '[?End Date]'\
+                    AND  TA.isactive = 1 \
+                    AND T.isactive = 1  \
+                    AND duration > 0  \
+                    AND T.<ADMINID>  \
+                    AND T.CampusCode = [?Campus{34652|New Port Richey|34606|Spring Hill|34601|BrooksVille}] \
+             GROUP BY T.teacherID, TA.attendancedate\	\
+UNION\
+\	\	\	 SELECT SA.SubadminID AS TeacherID\
+\	\	\	\	  , CONCAT('<a href="admin_view_subadmin.jsp?subadminid=', CAST(SA.subAdminId AS CHAR),'" target="_blank">', SA.firstName, ' ', SA.lastName, '</a>') AS Name\
+                  , SAA.attendanceDate AS ATdate\
+\	\	\	\	  , duration - Breaks.FieldValue AS duration\
+                  , Breaks.FieldValue AS Breaks\
+\	\	\	\	  , SA.campusCode AS Campus_Code\
+                  , DAYNAME(SAA.attendanceDate) AS DOW\
+\	\	\	 FROM SubAdminAttendance SAA\
+\	\	\	 INNER JOIN SubAdmins SA \
+\	\	\	\	\	ON SA.SubAdminID = SAA.SubAdminID\
+\	\	\	 LEFT JOIN (SELECT UserID , Fieldvalue  FROM ProfileFieldValues PVF\
+\	\	\	\	\	\	 WHERE FieldName = 'BREAK_TIME' and Usertype = 6) AS Breaks ON Breaks.UserID = SA.SubAdminID\
+\	\	\	 WHERE  DATE(SAA.attendancedate)  BETWEEN '[?Start Date]' AND '[?End Date]'\
+                    AND SAA.isactive = 1 \
+                    AND SA.isactive = 1 \
+                    AND duration > 0 \
+                    AND SA.<ADMINID>\
+                    AND SA.CampusCode = [?Campus{34652|New Port Richey|34606|Spring Hill|34601|BrooksVille}] \
+             GROUP BY SA.subADminID, SAA.attendanceDate \
+             ) AS AllData  \
+UNION             \
+SELECT   SubTotal.TeacherID\
+\	   , NULL\
+       , NULL\
+\	   , NULL\
+\	   , SubTotal.n3\
+       , SubTotal.n4\
+       , CONCAT('</td></tr><tr><td></td><td colspan="7" style="text-align: right; font color: white; font-size: 150%; font-weight: bold;">','',\
+\	     CONCAT('</td></tr><tr><td></td><td colspan="7" style="text-align: right; font color: white; font-size: 150%; background-color: #A8D0E6; font-weight: bold;">','<div align="right">'\
+\	\	\	    ,SubTotal.Name,"'s" '  Weekly Hours Are','  ', FLOOR(SubTotal.Sdur),'.', LPAD(ROUND((SubTotal.Sdur- FLOOR(SubTotal.Sdur)) * 100)% 100,2,0),\
+         CONCAT('</td></tr><tr><td></td><td colspan="7" style="text-align: right; font color: white; font-size: 150%; font-weight: bold;">','','','</td></tr></font></div>')))\
+FROM\
+          \
+\	\	\	(SELECT  T.teacherID AS TeacherID, CONCAT(T.Firstname,'  ', T.Lastname) AS Name,  T.campusCode AS Campus_Code,SUM(Duration)-SUM(Breaks.FieldValue) AS Sdur, NULL AS n3, NULL AS n4\
+            FROM TeacherAttendance TA\
+            INNER JOIN Teachers T \
+\	\	\	\	\	 ON TA.teacherID = T.teacherID\
+\	\	\	LEFT JOIN (SELECT UserID ,  FieldValue  FROM ProfileFieldValues PVF\
+\	\	\	\	\	   WHERE FieldName = 'BREAK_TIME' and Usertype = 3) AS Breaks ON Breaks.UserID = T.TeacherID\
+\	\	\	WHERE DATE(TA.attendancedate)  BETWEEN '[?Start Date]' AND '[?End Date]'  \
+            AND TA.isactive = 1 \
+            AND T.isactive = 1 \
+            AND duration > 0 \
+            AND T.<ADMINID>\
+\	\	\	AND T.CampusCode = [?Campus{34652|New Port Richey|34606|Spring Hill|34601|BrooksVille}] \
+\	\	\	GROUP BY T.teacherID\
+            \
+UNION\
+\	\	   SELECT SA.SubadminID AS TeacherID, CONCAT(SA.FirstName,'  ', SA.Lastname) AS Name,  SA.campusCode AS Campus_Code,SUM(Duration)-SUM(Breaks.FieldValue) AS Sdur, NULL AS n3, NULL AS n4\
+           FROM SubAdminAttendance SAA\
+\	\	   INNER JOIN SubAdmins SA \
+\	\	\	\	   ON SA.SubAdminID = SAA.SubAdminID\
+\	\	   LEFT JOIN (SELECT UserID , Fieldvalue FROM ProfileFieldValues PVF\
+\	\	\	\	\	  WHERE FieldName = 'BREAK_TIME' and Usertype = 6) AS Breaks ON Breaks.UserID = SA.SubAdminID\
+\	\	   WHERE DATE(SAA.attendancedate)  BETWEEN '[?Start Date]' AND '[?End Date]' \
+           AND SAA.isactive = 1 \
+           AND SA.isactive = 1  \
+           AND duration > 0 \
+           AND SA.<ADMINID>\
+\	\	   AND SA.CampusCode = [?Campus{34652|New Port Richey|34606|Spring Hill|34601|BrooksVille}] \
+\	\	   GROUP BY SA.SubAdminID) AS SubTotal\
+ORDER BY TeacherID \
+\
+

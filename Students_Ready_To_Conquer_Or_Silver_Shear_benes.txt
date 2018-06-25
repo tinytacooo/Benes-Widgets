@@ -1,0 +1,27 @@
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=',CAST(StudentID AS CHAR), '">',firstName, ' ', lastName, '</a>') AS Name\
+, Hours\
+,CASE WHEN 1000-Hours < 20 THEN 'Ready To Conquer'\
+\	  WHEN 750-Hours < 20 THEN 'Silver Shear Reward'\
+\	\
+      END AS Approaching\
+\	\	\	\	\	\	\	\
+FROM(\
+SELECT CONCAT(UCASE(SUBSTRING(Firstname, 1, 1)),LCASE(SUBSTRING(Firstname, 2))) AS FirstName\
+, CONCAT(UCASE(SUBSTRING(LastName, 1, 1)),LCASE(SUBSTRING(LastName, 2))) AS Lastname\
+, ATD.studentid\
+, ROUND(SUM(Duration),2) As Hours\
+, t1.ProgrammeName\
+ FROM Attendance ATD\
+ INNER JOIN (SELECT REG.studentid, PRG.programmeID, REG.registrationID, REG.startDate, PRG.programmeName FROM Registrations REG\
+             INNER JOIN Programmes PRG ON PRG.programmeID = REG.ProgrammeID\
+\	\	\	 WHERE REG.GraduationDate IS NULL AND REG.regstatus = 1 and REG.IsActive = 1 AND EnrollmentSemesterID = 4000441 AND PRG.isactive = 1) AS t1 ON t1.StudentID = ATD.studentID\
+INNER JOIN Classes CL ON CL.classID = ATD.classID  AND CL.isactive = 1\
+INNER JOIN ClassStudentReltn CSR ON CSR.classId = CL.classId AND CSR.studentId=ATD.studentID AND CSR.Isactive = 1\
+INNER JOIN Students STD ON STD.studentID = CSR.studentID\
+\
+WHERE  CL.subjectId IN (SELECT subjectId FROM GroupSubjectReltn GSR, CourseGroups CG WHERE CG.programmeId=t1.programmeId and CG.isActive=1 and CG.courseGroupId=GSR.courseGroupId and GSR.isActive=1)\
+AND ATD.isactive = 1 AND t1.Startdate <= ATD.attendanceDate AND STD.<ADMINID>\
+GROUP BY t1.registrationID\
+HAVING ((750 - SUM(Duration)  <= 20) AND (750 - SUM(Duration)  >= 0)) OR ((1000 - SUM(Duration)  <= 20) AND (1000- SUM(Duration)  >= 0)) \
+ORDER BY STD.Lastname) AS Totals\
+

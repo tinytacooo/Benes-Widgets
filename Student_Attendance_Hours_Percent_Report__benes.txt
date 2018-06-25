@@ -1,0 +1,46 @@
+select st.idNumber "Student Id",\
+            CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(st.studentId AS CHAR), '">', st.firstName, ' ', st.lastName, '</a>') AS 'Student Name',\
+\	     COALESCE(ca.campusName,'Invalid Campus') as "Campus Name",\
+              hrs.className "Class",\
+\	      DATE_FORMAT(hrs.AttDay,'%m/%d/%Y') AS "Att Date",\
+\	      ROUND(hrs.ActualHours,2) "Actual Hrs",\
+              hrs.STDHours "Scheduled Hours",\
+              hrs.AttPercent "Att Percent"\
+from   Registrations reg\
+           LEFT JOIN Campuses ca ON ca.campusCode = reg.studentCampus,\
+           Students st,\
+\	   Programmes prog,\
+\	   (Select crel.studentId,\
+\	\	\	 crel.classId,\
+                         cl.className,\
+                         crel.registrationId,\
+\	\	\	 att.attendanceDate as AttDay,\
+                         att.duration as ActualHours,\
+                         cl.lessonDuration as STDHours,\
+                         CASE \
+                         WHEN cl.lessonDuration = 0 then 0\
+\	\	\	 ELSE ROUND(((att.duration / cl.lessonDuration)* 100),2) \
+                        END  as AttPercent\
+             from ClassStudentReltn crel,\
+\	\	         Attendance att,\
+                       Classes cl\
+            where 1=1\
+            and  att.studentid = crel.studentid\
+           and  att.classid = crel.classid \
+           and  cl.classId = crel.classId\
+           and  crel.isActive = 1) hrs\
+where  1=1\
+and    st.<ADMINID>\
+and    st.studentId = reg.studentId\
+and    prog.programmeId = reg.programmeId\
+and    hrs.registrationId = reg.registrationId\
+and    hrs.studentId = reg.studentId\
+and    reg.isActive = 1\
+and    st.isActive = 1\
+and    reg.graduationDate is null \
+and    prog.isActive = 1\
+and    (hrs.AttDay BETWEEN '[?BeginDate]' and '[?EndDate]')\
+and    hrs.AttPercent <=  70\
+order by reg.studentCampus,\
+                st.idNumber,\
+                hrs.AttDay

@@ -1,0 +1,27 @@
+SELECT   t1.Name AS 'Staff Member', t1.Campus AS 'Campus', t1.punch AS 'Last Punch', t1.last AS 'Clock Out On Record'\
+FROM\
+\
+(SELECT CONCAT('<a href="admin_view_teacher.jsp?teacherid=', CAST(T.teacherId AS CHAR),'"target="_blank">', T.firstName, ' ', T.lastName, '</a>') AS Name\
+\	\	,T.CampusCode AS Campus\
+\	\	,DATE_FORMAT(C.punchtime, '%D %M - %r') AS punch\
+\	\	,'No Clock Out On Record' as last\
+FROM Teachers T\
+INNER JOIN ClockPunches C \
+\	\	ON T.teacherID = C.userID\
+\	\	WHERE C.punchtime BETWEEN  (CURRENT_DATE - INTERVAL 7 DAY)  AND CURRENT_DATE  \
+                AND T.isactive = 1 AND C.isactive = 1 AND T.<ADMINID>\
+\	\	GROUP BY T.teacherID\	\	\
+\	\	HAVING  COUNT(C.punchtime) % 2 = 1\
+UNION\
+SELECT  CONCAT('<a href="admin_view_subadmin.jsp?subadminid=', CAST(SA.subAdminId AS CHAR),'" target="_blank">', SA.firstName, ' ', SA.lastName, '</a>') AS Name\
+\	\	, SA.CampusCode AS Campus\
+\	\	,DATE_FORMAT(C.punchtime, '%D %M - %r') AS punch\
+                ,'No Clock Out On Record' AS last\
+FROM SubAdmins SA\
+INNER JOIN ClockPunches C \
+\	        ON SA.SubAdminID = C.userID\
+\	        WHERE C.punchtime BETWEEN  (CURRENT_DATE - INTERVAL 7 DAY)  AND CURRENT_DATE  \
+                AND SA.isactive = 1 AND C.isactive = 1 AND SA.<ADMINID>\
+\	        GROUP BY SA.SubAdminID\	\	\
+\	        HAVING  COUNT(C.punchtime) % 2 = 1) AS t1\
+ORDER BY  t1.campus, t1.name

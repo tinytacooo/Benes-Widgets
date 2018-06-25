@@ -1,0 +1,54 @@
+SELECT\
+  Name, Format_Service_DateTime, Service,\
+\	CASE WHEN SSE_KeyZ = Personal_Max\
+\	\	THEN CONCAT(\
+\	\	\	Service_Count,\
+\	\	\	'</td></tr><tr><td></td><td colspan="3" style="text-align: right; background-color: SkyBlue; font-size: 150%; font-weight: bold;">',\
+\	\	\	Name,\
+\	\	\	' was here for a total of ', \
+\	\	\	CONCAT(FLOOR(Sub_Total),':', LPAD(FLOOR(Sub_Total*60 % 60),2,'0')), ' hours',\
+\	\	\	'</td></tr>')\
+\	\	ELSE Service_Count\
+\	END AS 'Service_Count'\
+FROM (\
+-- sdf\
+Select\
+  CONCAT(SDT.firstName, ' ', SDT.lastName) AS Name,\
+  (SELECT MAX(Z.serviceId) FROM (SELECT * FROM StudentService SSE WHERE '[?Date]' = SSE.serviceDateTime GROUP BY SSE.studentId, SSE.service) AS Z WHERE Z.studentId = SSE_User_ID ) AS Personal_Max,\
+  StudentServiceZ.*,\
+  AttendanceZ.*\
+FROM\
+  Students SDT\
+  \
+  JOIN\
+  (SELECT\
+    ATD.duration AS Duration,\
+    SUM(ATD.duration) AS Sub_Total,\
+    ATD.studentId AS ATD_User_ID,\
+    ATD.attendanceDate AS Attendance_Date\
+  FROM\
+    Attendance ATD\
+  WHERE\
+    ATD.<ADMINID> AND NOT ATD.isActive = 0 AND '[?Date]' = ATD.attendanceDate\
+  GROUP BY ATD_User_ID\
+  ) AS AttendanceZ ON SDT.studentId = ATD_User_ID\
+  \
+  JOIN\
+  (SELECT\
+    SSE.studentId AS SSE_User_ID,\
+    SSE.serviceId AS SSE_KeyZ,\
+    SSE.service AS Service,\
+    SSE.serviceDateTime AS Service_DateTime,\
+    DATE_FORMAT(SSE.serviceDateTime, '%m-%d-%Y') AS Format_Service_DateTime,\
+    COUNT(SSE.service) AS Service_Count\
+  FROM\
+    StudentService SSE\
+  WHERE\
+    SSE.<ADMINID> AND NOT SSE.isActive = 0 AND '[?Date]' = SSE.serviceDateTime\
+  GROUP BY Service\
+  ORDER BY SSE_KeyZ ASC\
+  ) AS StudentServiceZ ON SDT.studentId = SSE_User_ID\
+ORDER BY Name\
+-- asdf\
+) AS Wrapper\
+LIMIT 1000

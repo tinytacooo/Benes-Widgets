@@ -1,0 +1,1 @@
+Select * From Products Where isActive=0 AND barCode='884486222848' AND <ADMINID>;

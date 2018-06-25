@@ -1,0 +1,2 @@
+SELECT CONCAT('$',  FORMAT(PF.fee, 2))  FROM  ProgrammeFees PF, Students S WHERE UPPER(PF.feeName) = UPPER('KIT FEE + Tax') AND PF.programmeId IN(SELECT programmeId FROM  Registrations WHERE studentId = [FORMUSERID]) AND S.<ADMINID> AND\
+                        S.isActive <> 0 AND [FORMUSERTYPE]  = 1 AND S.studentId = [FORMUSERID] LIMIT 1

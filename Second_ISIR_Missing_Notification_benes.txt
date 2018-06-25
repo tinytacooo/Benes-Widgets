@@ -1,0 +1,44 @@
+select st.idNumber "Student Id Number",\
+          CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(st.studentId AS CHAR), '">', st.firstName, ' ', st.lastName, \
+          '</a>') AS 'Student Name',\
+          COALESCE(ca.campusName,'Invalid Campus') as "Campus Name",\
+          prog.programmeName "Program",      \
+          Round(hrs.totalhours,2) "Actual Hours",\
+          DATE_FORMAT(hrs.lastday,'%m/%d/%Y') "Last Day Of Attendance",\
+\	  COALESCE(fscount.isir_count,0) "ISIR Count"\
+from   Registrations reg\
+          LEFT JOIN Campuses ca ON ca.campusCode = reg.studentCampus,\
+          Students st\
+\	  LEFT JOIN (SELECT studentid,\
+\	\	\	                     count(distinct studentid,isirYear)isir_count\
+\	\	\	      FROM IsirInstance\
+\	\	\	      WHERE isActive = 1\
+\	\	\	      group by studentId)fscount ON fscount.studentid = st.studentid,\
+        Programmes prog,\
+        (Select crel.studentId,\
+                    crel.registrationId,\
+                    SUM(att.duration) as "TotalHours",\
+\	\	    MAX(attendanceDate) as "Lastday"\
+          from ClassStudentReltn crel,\
+\	\	  Attendance att\
+          where 1=1\
+          and  att.studentid = crel.studentid\
+          and  att.classid = crel.classid \
+          and  crel.isActive = 1\
+          Group by crel.studentId,\
+                         crel.registrationId) hrs\
+where  1=1\
+and    prog.<ADMINID>\
+and    st.studentId = reg.studentId\
+and    prog.programmeId = reg.programmeId\
+and    hrs.studentId = st.studentId\
+and    hrs.registrationId = reg.registrationId\
+and    reg.graduationdate IS NULL \
+and    reg.isActive = 1\
+and    st.isActive = 1\
+and    prog.isActive = 1\
+and    hrs.totalhours > 700\
+and \	 ((fscount.isir_count < 4) OR (fscount.isir_count is null))\
+ORDER BY ca.campusName,\
+\	\	    st.lastName,\
+\	\	    st.firstName

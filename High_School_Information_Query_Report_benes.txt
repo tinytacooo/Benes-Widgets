@@ -1,0 +1,9 @@
+SELECT DISTINCT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', CAST(STD.firstName AS CHAR), ' ', CAST(STD.lastName AS CHAR), '</a>') AS ' Student Name', camp.campusName AS 'Campus', DATE_FORMAT(STD.hsGraduationDate,'%m/%d/%Y') AS 'HS Graduation Date',\
+DATE_FORMAT(MAX(reg.startDate) ,'%m/%d/%Y') AS  'Program Start Date', DATE_FORMAT (reg.graduationDate,'%m/%d/%Y')  AS  'Graduation Date'\
+\
+FROM Students STD\
+INNER JOIN ProfileFieldValues pfv ON STD.studentId=pfv.userId\
+INNER JOIN Campuses camp ON camp.campusCode=STD.studentCampus\
+INNER JOIN Registrations reg ON STD.studentId=reg.studentId\
+WHERE DATE(STD.hsGraduationDate)  BETWEEN '[?Start Date]' AND '[?End Date]'   AND STD.isActive =1 AND pfv.isActive=1 AND reg.isActive=1 AND pfv.<ADMINID> AND STD.<ADMINID> AND reg.<ADMINID> AND pfv.fieldValue=[?School{4032234|Test School 1|4032235|ORS|4032236|AAAA}] \
+GROUP BY STD.firstName

@@ -1,0 +1,1 @@
+Select * From StudentServiceCustomerReltn WHERE DATE(creationDtTm) >= '2018-4-1' AND <ADMINID> order by creationDtTm desc

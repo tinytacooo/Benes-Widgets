@@ -1,0 +1,17 @@
+-- Written by Kelly MJ\
+-- This code selects the email of each student who may be subject to an audit for the current school year.\
+-- Note: The date range is hard coded.\
+\
+SELECT DISTINCT CONCAT(S.email, '; ')\
+\
+FROM Students S\
+\
+INNER JOIN Receipts RP\
+ON S.studentId = RP.studentId\
+AND RP.paymentDate BETWEEN '2017-01-01' AND '2018-01-01'\
+\
+INNER JOIN Registrations R\
+ON R.studentId = S.studentId\
+AND S.isActive = 1\
+\
+WHERE S.<ADMINID>

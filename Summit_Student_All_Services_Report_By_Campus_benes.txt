@@ -1,0 +1,15 @@
+SELECT  STD.studentCampus AS Campus\
+\	  , PVF.fieldValue AS Team\
+      , CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', CAST(STD.firstName AS CHAR), ' ', CAST(STD.lastName AS CHAR), '</a>') AS ' Student Name'\
+      , SC.ServiceName\
+      , SC.CustomerName\
+      , SC.TicketTotal\
+      , SC.CreationDtTm\
+\	\	FROM StudentServiceCustomerReltn SC\
+\	\	INNER JOIN Students STD \
+\	\	\	\	ON STD.StudentID = SC.studentID\
+\	\	INNER JOIN ProfileFieldValues PVF\
+\	\	\	\	ON PVF.userID = STD.studentID AND PVF.FieldName = 'TEAM_NAME'\
+\	\	WHERE SC.creationDtTm BETWEEN DATE('2018-02-01') AND DATE('2018-04-01') AND (SC.ParentCategory = 'Service' OR SC.ParentCategory = 'Retail') AND\
+        STD.studentCampus = [?Campus{34652|New Port Richey|34606|Spring Hill|34601|BrooksVille|}] AND SC.<ADMINID> AND PVF.FieldValue IS NOT NULL AND PVF.FieldValue != ''\
+        ORDER BY Team, STD.lastname

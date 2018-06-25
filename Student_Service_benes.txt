@@ -1,0 +1,6 @@
+Select SSE.studentName, DATE_FORMAT(SSE.serviceDateTime, '%m-%d-%Y'), ATD.duration, SSE.service, COUNT(SSE.service)\
+From StudentService SSE, Attendance ATD\
+WHERE SSE.<ADMINID> AND SSE.serviceDateTime = '[?Date]' AND NOT SSE.isActive = 0 AND NOT ATD.isActive = 0 AND SSE.studentId = ATD.studentId AND SSE.serviceDateTime = ATD.attendanceDate\
+GROUP BY SSE.service, SSE.serviceDateTime\
+ORDER BY SSE.studentName DESC\
+LIMIT 1000

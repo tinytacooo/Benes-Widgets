@@ -1,0 +1,16 @@
+SELECT CONCAT('Team Name:','<div style="float: right;">', PVF.Fieldvalue, '</div>') AS ''\
+FROM ProfileFieldValues PVF\
+WHERE PVF.FieldNAme = 'TEAM_NAME' AND PVF.Fieldvalue  != '' AND usertype = 1  AND PVF.<ADMINID> AND PVF.Userid = 4043944\
+UNION\
+SELECT CASE WHEN PVF.fieldvalue = 'Level 1' THEN CONCAT('<font color="white">','<div style="background-color:#5AA5DD; width: 100%; height:100%; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px"> ','Current Level:','<div style="float: right;">' 'Level 1', '</div>','</font>')  \
+\	\	\	\
+            WHEN PVF.fieldvalue = 'Level 2' THEN CONCAT('<font color="white">','<div style="background-color:#045C4D; width: 100%; height:100%; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px"> ' ,'Current Level:','<div style="float: right;">' 'Level 2', '</div>','</font>') \
+\	\	\	\
+            WHEN PVF.fieldvalue = 'Level 3' THEN CONCAT('<font color="white">','<div style="background-color:#C43235; width: 100%; height:100% ; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px"> ' ,'Current Level:','<div style="float: right;">' 'Level 3', '</div>','</font>') \
+\	\	\	\
+            ELSE CONCAT('<font color="white">','<div style="background-color:#FFBD3F; width: 100%; height:100%; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px"> ' ,'Current Level:','<div style="float: right;">' 'Level 4', '</div>','</font>') \
+\	\	\	\
+            END AS 'Student Level'\
+            \
+FROM ProfileFieldValues PVF\
+WHERE PVF.FieldName = 'STUDENT_LEVEL' AND PVF.Fieldvalue  != '' AND usertype = 1  AND PVF.<ADMINID> AND PVF.Userid = 4043944

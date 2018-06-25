@@ -1,0 +1,1 @@
+Select studentId From Students Where idNumber=3750 AND <ADMINID>;

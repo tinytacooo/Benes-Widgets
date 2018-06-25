@@ -1,0 +1,7 @@
+SELECT DATE_FORMAT(R.paymentDate, "%b %d, %Y") AS "Date",\
+CONVERT(CONCAT("<a target='_blank' href='admin_view_student.jsp?studentid=",S.studentId, "'>",S.firstName, ' ', S.lastName, "</a>") USING utf8) AS 'Student',\
+concat('$', format(R.paymentAmount, 2)) as "Amount"\
+FROM Receipts R, Students S\
+WHERE R.<ADMINID> AND S.<ADMINID>\
+ AND R.isActive=1 AND R.studentId=S.studentId\
+LIMIT 100

@@ -1,0 +1,14 @@
+SELECT DISTINCT \
+CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">'\
+                 ,CONCAT(UCASE(SUBSTRING(STD.Firstname, 1, 1)),LCASE(SUBSTRING(STD.Firstname, 2))," "\
+                 ,CONCAT(UCASE(SUBSTRING(STD.LastName, 1, 1)),LCASE(SUBSTRING(STD.LastName, 2)))), '</a>') AS Name\
+,CASE WHEN SAP_1.ID >= 1 THEN 'OK' Else "<font color='red'>MISS</font>" END AS 'SAP 1'\
+,CASE WHEN SAP_2.ID >= 1 THEN 'OK' Else "<font color='red'>MISS</font>" END AS 'SAP 2'\
+FROM Students STD\
+INNER JOIN Registrations REG ON STD.StudentiD = REG.StudentID\
+LEFT JOIN (Select FFR.userId 'studentId', COUNT(FFR.documentTypeId) 'ID' From FolderFileReltn FFR \
+           Where FFR.folderFolderReltnId = 116 AND FFR.userType=1 AND FFR.documentTypeId =52  GROUP BY FFR.userId ) SAP_1 ON SAP_1.studentID = REG.StudentID\
+LEFT JOIN (Select FFR.userId 'studentId', COUNT(FFR.documentTypeId) 'ID' From FolderFileReltn FFR \
+           Where FFR.folderFolderReltnId = 117 AND FFR.userType=1 AND FFR.documentTypeId =53  GROUP BY FFR.userId ) SAP_2 ON SAP_2.studentID = REG.StudentID\
+WHERE STD.isactive = 1 AND REG.Regstatus = 1 AND STD.<ADMINID>\
+ORDER BY LastName

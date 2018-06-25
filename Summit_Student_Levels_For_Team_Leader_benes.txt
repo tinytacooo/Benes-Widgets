@@ -1,0 +1,29 @@
+Select DISTINCT CONCAT(STD.firstName, ' ', STD.lastName, '</a>') AS 'Student Name'\
+, PVF.FieldValue AS Team\
+, PRG.programmeName AS Program\
+, CASE WHEN StudentLevel.Level = 'Level 1' THEN CONCAT('<font color="white">','<div style="background-color:#5AA5DD; ; width: 100%; height:100%; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px""> ' , 'Level 1', '</div>','</font>')  \
+             WHEN StudentLevel.Level = 'Level 2' THEN CONCAT('<font color="white">','<div style="background-color:#045C4D; ; width: 100%; height:100%; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px"> ' , 'Level 2', '</div>','</font>') \
+             WHEN StudentLevel.Level = 'Level 3' THEN CONCAT('<font color="white">','<div style="background-color:#C43235; ; width: 100%; height:100%; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px"> ' , 'Level 3', '</div>','</font>') \
+             WHEN StudentLevel.Level = 'Level 4' THEN CONCAT('<font color="white">','<div style="background-color:#FFBD3F; ; width: 100%; height:100%; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px""> ' , 'Level 4', '</div>','</font>') \
+\	     ELSE CONCAT(' <font color="white">','<div style="background-color:#ff8533; ; width: 100%; height:100%; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px""> ' , 'No Level', '</div>','</font>')\
+             END AS 'Student Level'\
+FROM ProfileFieldValues PVF\
+INNER JOIN Students STD \
+               ON  PVF.UserID = STD.StudentID \
+INNER JOIN Registrations REG \
+               ON REG.studentID = STD.studentID\
+INNER JOIN Programmes PRG \
+               ON PRG.programmeID = REG.ProgrammeID AND PRG.programmeName NOT LIKE 'Career%' AND PRG.programmeName NOT LIKE 'Instruct%' AND REG.enrollmentSemesterId = 4000441\
+\
+INNER JOIN \
+                     (SELECT PVF.usertype as UT, PVF.userID, PVF.fieldValue AS FV  \
+                      FROM ProfileFieldValues PVF \
+                      WHERE PVF.usertype = 3 AND PVF.userID = 4001259) AS TeamLeader ON TeamLeader.FV = PVF.fieldValue \
+\
+INNER JOIN \
+                     (SELECT PVF.userID AS UID, Fieldvalue AS Level  \
+                      FROM ProfileFieldValues PVF\
+                      WHERE FieldName = 'STUDENT_LEVEL' ) AS StudentLevel ON StudentLevel.UID = PVF.userID\
+WHERE FieldName = 'Team_name' and PVF.fieldValue != '' AND PVF.usertype != 3 AND REG.isActive = 1 AND STD.Isactive = 1 AND PVF.<ADMINID> \
+GROUP BY STD.lastname, STD.Firstname\
+

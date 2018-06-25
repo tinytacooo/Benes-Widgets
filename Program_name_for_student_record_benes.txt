@@ -1,0 +1,6 @@
+SELECT (Select P.programmeName From Programmes P Where P.<ADMINID> AND P.programmeId=R.programmeId)\
+ FROM Registrations R\
+WHERE R.isActive=1 \
+AND R.studentId= [STUDENTID]  \
+AND R.<ADMINID>\
+ORDER BY registrationDate DESC

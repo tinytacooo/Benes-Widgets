@@ -1,0 +1,49 @@
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=',CAST(StudentID AS CHAR), '">',firstName, ' ', lastName, '</a>') AS Name\
+             , Hours\
+              ,CASE WHEN 1126 - Hours < 20   THEN CONCAT('<font color ="#4B0082">','Senior','</font>')\
+\	\	\	\	\	WHEN 751 - Hours  < 20   THEN CONCAT('<font color ="#8A2BE2">','Junior','</font>')\
+                    WHEN 376 - Hours   < 20  THEN CONCAT('<font color ="#8B008B">','Sophomore','</font>')\
+               END AS 'Approaching Grade Lvl'\	\	\	\	\	\	\
+FROM\
+(SELECT CONCAT(UCASE(SUBSTRING(Firstname, 1, 1)),LCASE(SUBSTRING(Firstname, 2))) AS FirstName\
+              , CONCAT(UCASE(SUBSTRING(LastName, 1, 1)),LCASE(SUBSTRING(LastName, 2))) AS Lastname\
+              , ATD.studentid\
+              , ROUND(SUM(Duration),2) As Hours\
+              , t1.ProgrammeName\
+ FROM Attendance ATD\
+ INNER JOIN\
+ (SELECT REG.studentid\
+               , PRG.programmeID\
+               , REG.registrationID\
+               , REG.startDate\
+               , PRG.programmeName\
+FROM Registrations REG\
+INNER JOIN Programmes PRG\
+               ON PRG.programmeID = REG.ProgrammeID\
+WHERE REG.GraduationDate IS NULL \
+              AND REG.regstatus = 1\
+              AND REG.IsActive = 1 \
+              AND EnrollmentSemesterID = 4000441 \
+              AND PRG.isactive = 1) AS t1 ON t1.StudentID = ATD.studentID\
+INNER JOIN Classes CL \
+               ON CL.classID = ATD.classID  AND CL.isactive = 1\
+INNER JOIN ClassStudentReltn CSR \
+               ON CSR.classId = CL.classId \
+               AND CSR.studentId=ATD.studentID \
+               AND CSR.Isactive = 1\
+INNER JOIN Students STD \
+               ON STD.studentID = CSR.studentID\
+WHERE  CL.subjectId IN (SELECT subjectId FROM GroupSubjectReltn GSR, CourseGroups CG \
+                                          WHERE CG.programmeId=t1.programmeId \
+                                          AND CG.isActive=1 \
+                                          AND CG.courseGroupId=GSR.courseGroupId \
+                                          AND GSR.isActive=1)\
+AND ATD.isactive = 1 \
+AND t1.Startdate <= ATD.attendanceDate AND STD.<ADMINID>\
+GROUP BY t1.registrationID\
+HAVING ((376 - SUM(Duration) < 20) AND (376 - SUM(Duration)  > 0)) \
+               OR ((751 - SUM(Duration)  < 20) AND (751- SUM(Duration)  > 0)) \
+               OR ((1126 - SUM(Duration)  < 20) AND (1126 - SUM(Duration)  > 0)) \
+ORDER BY STD.Lastname) AS Totals\
+\
+

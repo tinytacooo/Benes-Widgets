@@ -1,0 +1,33 @@
+Select \
+(Select idNumber From Students Where studentId = VIEWTABLE.studentId ) 'Student ID'\
+ ,CONVERT(CONCAT("<a target='_blank' href='admin_view_student.jsp?studentid=", VIEWTABLE.studentId, "'>", (Select concat(lastName," ", firstName) From Students Where studentId = VIEWTABLE.studentId ), "</a>") USING utf8) AS 'Name'\
+\
+,(Select homePhone From Students Where studentId = VIEWTABLE.studentId ) as Phone\
+\
+,IFNULL(DATE_FORMAT(LUDT,"%M %d, %Y"),'') 'Last Act. Date'\
+FROM (\
+Select \
+\	studentId\
+\	,registrationId\
+\	,startDate\
+\	,MAX(LUDT) 'LUDT'\
+\	From \
+\	(\
+\	\	Select Distinct R.studentId\
+\	\	, R.registrationId\
+\	\	, R.startDate\
+\	\	, CSR.classId \
+\	\	,(Select MAX(SG.creationDtTm) From Grades G, StudentGrades SG\
+\	\	WHERE SG.<ADMINID> AND G.isActive = 1 AND SG.isActive = 1 AND G.classId = CSR.classId \
+\	\	AND G.GradeId = SG.gradeId AND SG.studentId = R.studentId AND G.classId = CSR.classId Group By SG.studentId) 'LUDT'\
+\	\	From Registrations R, ClassStudentReltn CSR\
+\	\	WHERE R.<ADMINID> AND R.isActive = 1 AND DATEDIFF(CURDATE(), R.startDate) > 150 \
+\	\	AND (R.graduationDate='1900-01-01' OR R.graduationDate='' OR R.graduationDate IS NULL)\
+\	\	AND CSR.isActive = 1 AND CSR.studentId = R.studentId AND CSR.registrationId = R.registrationId\
+                AND R.studentId NOT IN (SELECT userId FROM ProfileFieldValues \
+                         WHERE fieldName="5_MONTH_COMMUNICATION_COMPLETED" AND userType=1\
+                         AND fieldValue="TRUE")\
+\	) DATATABLE \
+\	Group by studentId, registrationId\
+) VIEWTABLE \
+WHERE (LUDT IS NULL OR DATEDIFF(CURDATE(), LUDT) > 150)

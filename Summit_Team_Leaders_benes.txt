@@ -1,0 +1,11 @@
+SELECT TeamData.Team AS 'Team Name' ,CONCAT(TeamData.First,' ', TeamData.Last) AS 'Team Leader'\
+FROM \
+           (SELECT PVF.Fieldvalue AS Team\
+           ,CONCAT(UCASE(MID(T.firstname,1,1)),LCASE(MID(T.firstname,2))) AS First\
+\	   ,CONCAT(UCASE(MID(T.lastname,1,1)),LCASE(MID(T.lastname,2))) AS Last\
+\	    FROM ProfileFieldValues PVF \
+\	    INNER JOIN Teachers T \
+                           ON T.TeacherID = PVF.userID\
+\	   WHERE PVF.FieldName = 'TEAM_NAME' AND PVF.<ADMINID>) AS TeamData\
+ORDER BY TeamData.Team, TeamData.Last\
+

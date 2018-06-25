@@ -1,0 +1,17 @@
+select st.idnumber "Student Id",\
+           CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(st.studentId AS CHAR), '">', st.firstName, ' ', st.lastName, '</a>') AS 'Student Name',\
+           prog.programmeName "Program",\
+           st.isActive "ISActive Code",\
+           DATE_FORMAT(reg.registrationdate,'%m/%d/%Y') "Registration Date",\
+          COALESCE(reg.graduationDate, 'Missing Graduation Date') "Graduation Date"\
+From Students st,\
+           Registrations reg,\
+           Programmes prog \
+where 1=1\
+and   reg.<ADMINID>\
+and   reg.studentId = st.studentId\
+and   prog.programmeId = reg.programmeId\
+and   st.isActive = 3\
+and   reg.isActive = 1\
+and   reg.graduationDate is null \
+ORDER BY st.studentId

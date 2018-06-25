@@ -1,0 +1,7 @@
+Select CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', STD.firstName, ' ', STD.lastName, '</a>') AS 'Student Name',\
+STD.IDnumber AS 'ID', DATE_FORMAT(fi.creationDtTm,'%m/%d/%Y') AS 'Signing Date',\
+CMP.campusName AS 'Campus'\
+FROM FormInstances fi\
+INNER JOIN Students STD ON STD.studentID = fi.userID\
+INNER JOIN Campuses CMP ON STD.studentCampus = CMP.campusCode\
+where formid='16' AND STD.<ADMINID> And fi.creationDtTm >= DATE_SUB(NOW(), INTERVAL 30 day) 

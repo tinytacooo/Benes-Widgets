@@ -1,0 +1,38 @@
+SELECT  DISTINCT C.contactID\
+, CASE WHEN C.ContactTypeID = 4000040 THEN 'New Leads'\
+\	   WHEN C.ContactTypeID = 4000041 THEN 'In Financial AId'\
+\	   WHEN C.ContactTypeID = 4000042 THEN 'Nuturing'\
+\	   WHEN C.ContactTypeID = 4000043 THEN 'Left Message'\
+\	   WHEN C.ContactTypeID = 4000044 THEN 'Working'\
+\	   WHEN C.ContactTypeID = 4000045 THEN 'Made Appointment'\
+\	   WHEN C.ContactTypeID = 4000048 THEN 'In Financial'\
+\	   WHEN C.ContactTypeID = 4000049 THEN 'Future Attend Date'\
+\	   WHEN C.ContactTypeID = 4000050 THEN 'Lost - Not Interested'\
+\	   WHEN C.ContactTypeID = 4000051 THEN 'Mailed Catalog'\
+\	\	\	ELSE '' END AS 'Contact Type'\
+            \
+, CASE WHEN C.ContactTypeID = 4000040 AND REG.startdate IS NULL AND STD.studentID IS NULL THEN 'Lost'  \
+\	\	WHEN C.ContactTypeID = 4000041 AND REG.startdate IS NULL AND STD.studentID IS NULL THEN 'Lost'  \
+        WHEN C.ContactTypeID = 4000042 AND REG.startdate IS NULL AND STD.studentID IS NULL THEN 'Lost' \
+        WHEN C.ContactTypeID = 4000043 AND REG.startdate IS NULL AND STD.studentID IS NULL THEN 'Lost' \
+        WHEN C.ContactTypeID = 4000044 AND REG.startdate IS NULL AND STD.studentID IS NULL THEN 'Lost' \
+        WHEN C.ContactTypeID = 4000045 AND REG.startdate IS NULL AND STD.studentID IS NULL THEN 'Lost' \
+\	\	WHEN C.ContactTypeID = 4000048 AND REG.startdate IS NULL AND STD.studentID IS NULL THEN 'Lost'\
+\	\	WHEN C.ContactTypeID = 4000049 AND REG.startdate IS NULL AND STD.studentID IS NULL THEN 'Lost'\
+\	\	WHEN C.ContactTypeID = 4000050 AND REG.startdate IS NULL AND STD.studentID IS NULL THEN 'Lost'\
+\	\	WHEN C.ContactTypeID = 4000051 AND REG.startdate IS NULL AND STD.studentID IS NULL THEN 'Lost'\
+        ELSE 'Enrolled' END AS 'Status'\
+, CASE WHEN C.creationDTtm >= (DATE_SUB(CURDATE(), INTERVAL 1.5 MONTH)) THEN CONCAT('<font color="red">', 'Change Within 1 1/2 months', '</font>') ELSE '' END AS 'Change Within 1 and 1/2 Months'\
+, C.lastname\
+, C.firstname\
+, C.username\
+, STD.studentID\
+, MIN(REG.startdate)\
+, REG.graduationDate\
+, C.creationDTtm\
+FROM Contacts C\
+LEFT OUTER JOIN Students STD ON STD.username = C.username\
+LEFT OUTER JOIN Registrations REG ON REG.studentID = STD.studentID\
+WHERE ContactTypeID BETWEEN 4000040 AND 4000045 OR ContactTypeID BETWEEN 4000048 AND 4000051  AND C.<ADMINID>\
+GROUP BY C.contactID\
+ORDER BY C.contactTYPEID, REG.startdate DESC

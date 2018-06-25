@@ -1,0 +1,9 @@
+Select  TCH.lastname, TCH.Firstname,TCH.username, TCH.password\
+From Teachers TCH\
+Where TCH.isactive ='1'\
+Group By TCH.lastname AND TCH.<ADMINID>\
+UNION\
+Select SA.lastname, SA.firstname, SA.username, SA.password\
+From SubAdmins SA\
+Where SA.isactive ='1' AND SA.<ADMINID>\
+Group By SA.lastname

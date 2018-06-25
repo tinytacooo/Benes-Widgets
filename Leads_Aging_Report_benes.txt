@@ -1,0 +1,28 @@
+/*Leads Aging Rreport  M Mulholland 3_15_2017*/\
+select leads.typename "Category",\
+           COALESCE(MAX(CASE WHEN bucket = '0-2'  THEN catcount END),0)as '0-2 Days',\
+           COALESCE(MAX(CASE WHEN bucket = '3-7' THEN catcount END),0)as '3-7 Days',\
+           COALESCE(MAX(CASE WHEN bucket = '8-14' THEN catcount END),0)as '8-14 Days',   \
+\	   COALESCE(MAX(CASE WHEN bucket = '15+' THEN catcount END),0)as '15+ Days'\
+from   (select contactId,\
+               ct.typeName,\
+               count(*) as catcount,\
+               case when DATEDIFF(con.lastUpdateDtTm,con.creationDtTm)<=2 then '0-2'\
+               when DATEDIFF(con.lastUpdateDtTm,con.creationDtTm)>=3 and DATEDIFF(con.lastUpdateDtTm,con.creationDtTm)<=7 then '3-7'\
+               when DATEDIFF(con.lastUpdateDtTm,con.creationDtTm)>=8 and DATEDIFF(con.lastUpdateDtTm,con.creationDtTm)<=14 then '8-14'\
+               else '15+'\
+               end as 'bucket'\
+        FROM   Contacts con,\
+               ContactTypes ct\
+        where 1=1\
+        and ct.contactTypeId = con.contactTypeId\
+        and con.contactTypeId not in(4000039,4000046,4000047) \
+        and con.isActive =1\
+        group by ct.typeName,   \
+                 bucket)leads,\
+ContactTypes ctt\
+where 1=1\
+and      ctt.<ADMINID>\
+and   ctt.typeName = leads.typeName\
+group by leads.typename\
+

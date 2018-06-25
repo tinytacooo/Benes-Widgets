@@ -1,0 +1,2 @@
+SELECT fieldValue FROM  ProfileFieldValues  WHERE profileFieldNameId IN(SELECT profileFieldNameId FROM ProfileFieldNames WHERE LOWER(fieldTitle)=LOWER('DRIVER LICENSE NUMBER')) AND <ADMINID> AND\
+isActive <> 0 AND [FORMUSERTYPE]  = 1 AND userId = [FORMUSERID]

@@ -1,0 +1,4 @@
+select programmeName as Program, count(*) as "Students Enrolled"\
+from Registrations R, Programmes P\
+where R.<ADMINID> and R.programmeId=P.programmeId and R.isActive=1\
+group by R.programmeId

@@ -1,0 +1,41 @@
+/* 21 Day Registration Report\
+   M. Mulholland 03_9_2017  */\
+select  st.studentId as "Student ID",\
+\	      st.lastName as "Last Name", \
+\	      st.firstName as "First Name",\
+              COALESCE(ca.campusName,'Invalid Campus') as "Campus Name",\
+              prog.programmeName as "Program",\
+              ROUND(hrs.TotalHours,2) as "Hours",\
+\	      reg.startDate\
+from \
+Students st\
+LEFT JOIN Campuses ca \
+       ON ca.campusCode = st.studentcampus,\
+Registrations reg,\
+Programmes prog,\
+Semesters sem,\
+  /*Registratio Student Total Hours */\
+   (Select crel.studentId,\
+                crel.registrationId,\
+                SUM(att.duration) as "TotalHours"\
+      from ClassStudentReltn crel,\
+\	\	Attendance att\
+      where 1=1\
+       and  att.studentid = crel.studentid\
+       and  att.classid = crel.classid \
+            Group by crel.studentId,\
+\	                   crel.classId,\
+                     crel.registrationId) hrs\
+where 1=1\
+and   ca.<ADMINID>\
+and   reg.studentId = st.studentId\
+and   prog.programmeId = reg.programmeId\
+and   sem.semesterId = reg.enrollmentSemesterId\
+and   hrs.studentId = st.studentId\
+and   hrs.registrationId = reg.registrationId\
+and   st.isactive = 1   -- only active enrolled students \
+and   reg.enrollmentSemesterId = 4000441  -- Current Semester \
+and   reg.isActive = 1\
+and   reg.startDate >= (DATE_ADD(CURDATE(),INTERVAL -21 DAY))\
+order by "Campus Name",\
+          st.studentId

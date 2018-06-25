@@ -1,0 +1,1 @@
+SELECT * FROM Attendance WHERE <ADMINID> AND creationDtTm > '2017-02-15' AND reasonText <> '' ORDER BY attendanceDate DESC

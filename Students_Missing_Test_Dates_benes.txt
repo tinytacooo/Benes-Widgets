@@ -1,0 +1,20 @@
+SELECT  CONCAT('<a href="admin_view_progress_report.jsp?studentid=', CAST(TableData.SID AS CHAR), '&semesterid=4000441&classid=', CAST(TableData.CID AS CHAR), '&subjectid=', CAST(TableData.SBID AS CHAR), '">', CAST(TableData.firstName AS CHAR), ' ', CAST(TableData.lastName AS CHAR), '</a>') AS ' Student Name'\
+    , CONCAT('<a href="admin_view_gradebook.jsp?semesterid=4000441&classid=', CAST(TableData.CID AS CHAR), '&subjectid=', CAST(TableData.SBID AS CHAR), '">', CAST(TableData.test AS CHAR), '</a>') AS 'Test Name'\
+    , TableData.Score AS 'Score'\
+    , TableData.DateData AS 'Date Test Taken'\
+    \
+    FROM(\
+    SELECT\
+    CASE WHEN SG.individualTestDate = '1900-01-01' THEN 'TEST DATE NOT ON FILE'\
+    END AS DateData,\
+    CONCAT(UCASE(SUBSTRING(Firstname, 1, 1)),LCASE(SUBSTRING(Firstname, 2))) AS FirstName\
+\	, CONCAT(UCASE(SUBSTRING(LastName, 1, 1)),LCASE(SUBSTRING(LastName, 2))) AS Lastname\
+    , STD.StudentID AS SID\
+    , SG.score AS Score\
+    , GRD.testName AS test\
+    , GRD.classId AS CID\
+    , GRD.subjectId AS SBID\
+    FROM Students STD\
+    JOIN StudentGrades SG ON STD.studentId = SG.studentId\
+    JOIN Grades GRD ON GRD.gradeId = SG.gradeId\
+    WHERE score > 0.0 AND individualTestDate = '1900-01-01' AND STD.<ADMINID>) AS TableData;

@@ -1,0 +1,2 @@
+SELECT  CONCAT('$', FORMAT(OTF.fee, 2))   FROM  OneTimeFees OTF, Students S WHERE UPPER(OTF.feeName) LIKE '%REGISTRATION FEES%' AND OTF.semesterId IN(SELECT RT.enrollmentSemesterId FROM  Registrations RT INNER JOIN Students S ON RT.studentId = S.studentId) AND S.<ADMINID> AND\
+                        S.isActive <> 0 AND [FORMUSERTYPE]  = 1 AND S.studentId = [FORMUSERID] LIMIT 1

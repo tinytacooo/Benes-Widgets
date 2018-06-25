@@ -1,0 +1,2 @@
+SELECT CONCAT('$', FORMAT(fieldValue, 2))  FROM  ProfileFieldValues  WHERE profileFieldNameId IN(SELECT profileFieldNameId FROM ProfileFieldNames WHERE LOWER(fieldTitle)=LOWER('Monthly Payment')) AND <ADMINID> AND\
+                        isActive <> 0 AND [FORMUSERTYPE]  = 1 AND userId = [FORMUSERID]

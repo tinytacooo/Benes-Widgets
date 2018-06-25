@@ -1,0 +1,6 @@
+Select CONCAT(s.firstname,' ',s.lastname), ss.* \
+  From StudentServiceCustomerReltn ss, Students s\
+ where ss.studentid = s.studentid and\
+            ss.<ADMINID> and\
+            DATE(ss.creationdttm) > '2018-03-28'\
+ order by creationdttm desc, campuscode desc

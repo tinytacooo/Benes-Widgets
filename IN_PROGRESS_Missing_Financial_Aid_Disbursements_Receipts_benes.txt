@@ -1,0 +1,13 @@
+SELECT CONCAT(S.firstName, ' ', S.lastName)\
+\	 , FAD.*\
+\
+FROM FinancialAidsDisbursements FAD\
+\
+INNER JOIN Students S\
+ON S.studentId = FAD.studentId\
+\
+WHERE receiptId = 0\
+  AND dateReceived IS NOT NULL\
+  AND FAD.<ADMINID>\
+\
+ORDER BY dateExpected DESC

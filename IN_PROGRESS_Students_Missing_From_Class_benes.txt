@@ -1,0 +1,72 @@
+-- Written by Kelly\
+-- This is a basis for the multi-recipient email report that will be sent to each teacher 2 hours into their scheduled class time if he/she is missing students. Each email will display the class name, times, and a list of absent students and their contact information.\
+\
+-- This part displays the class name and time\
+\
+/*\
+SELECT 'Class: '\
+\	 , C.className\
+     , null\
+     , 'Class Times:'\
+     , CONCAT(TIME_FORMAT(CAST(CS.startTime*100 AS TIME), '%r'), ' - ', TIME_FORMAT(CAST(CS.endTime*100 AS TIME), '%r'))\
+     , null, null, null\
+     \
+FROM Students S\
+\
+INNER JOIN ClockPunches CP\
+ON CP.userId = S.studentId\
+AND CP.clockedStatus IN (0, 2)\
+AND DATE(CP.punchTime) = '2017-11-03' -- Only looks for clock punches from the current date\
+\
+\
+INNER JOIN ClassStudentReltn CSR\
+ON S.studentId = CSR.studentId\
+AND CSR.isActive = 1\
+\
+INNER JOIN Classes C\
+ON C.classId = CSR.classId\
+AND C.teacherId = 4001234 -- To make it specific to each teacher\
+\
+INNER JOIN ClassSchedules CS    -- Only selects classes that are currently 2 hours into their session\
+ON CSR.classId = CS.classId\
+AND '19:01:00' BETWEEN ADDTIME(CAST(100*CS.startTime AS TIME), '02:00:00') AND CAST(100*CS.endTime AS TIME) -- Filters by classes that are currently in session\
+AND CS.isActive = 1\
+\
+WHERE S.<ADMINID>\
+\
+UNION\
+*/\
+\
+-- This part lists the absent students and includes a link to their attendance page and contact information.\
+\
+SELECT CONCAT('<a href="view_attendance.jsp?semesterid=', CAST(C.semesterId AS CHAR), '&classid=', CAST(C.classId AS CHAR), '&subjectid=', CAST(C.subjectId AS CHAR), '&studentid=', CAST(S.studentId AS CHAR), '">', S.firstName, ' ', S.lastName, '</a>') 'Update attendance record'\
+         , CONCAT(IFNULL(S.cellPhone, CONCAT(S.homePhone, ' (Home Phone)')), '   |   ', S.email)\
+\	 , CASE WHEN TIME(MAX(CP.punchTime)) < CAST(CS.startTime AS TIME)      -- If the student's last punch was a clock out and it\
+\	\	\	\	\	\	 THEN 'Student DID NOT come to class'                        -- occurred before their class started, they never showed\
+\	\	      WHEN TIME(MAX(CP.punchTime)) > CAST(CS.startTime AS TIME)      -- up. If they clocked out during class, they may have\
+\	\	\	\	\	\	 THEN 'Student left early'                                                 -- shown up for part of class.\
+\	\	END AS Attendance\
+\
+FROM Students S\
+\
+INNER JOIN ClockPunches CP\
+ON CP.userId = S.studentId\
+AND CP.clockedStatus IN (0, 2)                       -- Filters by clock punches that were clock outs.\
+AND DATE(CP.punchTime) = CURDATE()      -- Filters by clock punches from the current date\
+\
+INNER JOIN ClassStudentReltn CSR\
+ON S.studentId = CSR.studentId\
+AND CSR.isActive = 1\
+\
+INNER JOIN Classes C\
+ON C.classId = CSR.classId\
+-- AND C.teacherId = 4001234 -- To make it specific to each teacher\
+\
+INNER JOIN ClassSchedules CS    -- Only selects classes that are currently 2 hours into their session\
+ON CSR.classId = CS.classId\
+AND CURTIME() BETWEEN ADDTIME(CAST(100*CS.startTime AS TIME), '02:00:00') AND CAST(100*CS.endTime AS TIME) -- Filters by classes that are currently in session\
+AND CS.isActive = 1\
+\
+WHERE S.<ADMINID>\
+\
+GROUP BY S.studentId

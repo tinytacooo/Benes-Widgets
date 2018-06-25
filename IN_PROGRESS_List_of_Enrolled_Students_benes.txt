@@ -1,0 +1,47 @@
+-- Written by Kelly MJ\
+-- Last Update: 4:21PM 5/16/2018\
+-- Shows currently enrolled students who are not on LOA, his/her programme name and total hours attended.\
+\
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(Q.studentId AS CHAR), '">', Q.firstName, ' ', Q.lastName, '</a>') AS 'Student Name'\
+            -- , S.idNumber, S.studentId\
+             , Q.programmeName 'Program'\
+             , Q.totalHours 'Total Hours'\
+\
+FROM (\
+\	SELECT S.firstName\
+         , S.lastName\
+         , S.studentId\
+         , MAX(R.startDate) AS startDate\
+         , P.programmeName\
+         , PFV.fieldValue AS totalHours\
+         \
+\	FROM Students S\
+\
+\	INNER JOIN Registrations R\
+\	ON S.studentId = R.studentId\
+\	AND R.regStatus = 1\
+\	AND R.isActive = 1\
+\	AND NOT R.programmeId IN (4000968, 4000979, 4000983, 4000999, 4001011)\
+\
+\	INNER JOIN Programmes P\
+\	ON R.programmeId = P.programmeId\
+\	AND P.isActive = 1\
+\
+\	LEFT JOIN ProfileFieldValues PFV\
+    ON PFV.userId = S.studentId\
+    AND PFV.profileFieldNameId = 4002072 \
+\
+\	WHERE S.isActive = 1\
+ \	AND S.<ADMINID>\
+\
+\	AND S.studentId Not In (\
+\	\	Select Distinct L.studentId\
+\	\	From LeavesOfAbsence L\
+\	\	WHERE L.isActive = 1\
+\	\	AND (leaveDate < CURDATE() AND (L.returnDate IS NULL OR L.returnDate > NOW()))\
+ \	\	AND L.<ADMINID>)\
+\
+\	GROUP BY S.studentId\
+\	\	) AS Q\
+\
+GROUP BY Q.studentId

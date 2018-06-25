@@ -1,0 +1,1 @@
+Select contactId OPTIONVALUE , firstName OPTIONTEXT FROM Contacts WHERE <ADMINID> AND contactTypeId=4000057 ORDER BY firstName

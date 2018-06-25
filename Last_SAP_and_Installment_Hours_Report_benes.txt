@@ -1,0 +1,109 @@
+Select \
+\	\	\	\	st.idNumber,\
+\	\	\	\	st.firstName,\
+\	\	\	\	st.lastName,\
+\	\	\	\	cam.campusName,\
+\	\	\	\	pr.programmeName "Program",\
+\	\	\	\	hrs.TotalHours,\
+\	\	\	\	nex.nextinstallment "Next Installment No",\
+\	\	\	\	ppr.InstallmentHours "Installment Hours",\
+\	\	\	\	ppr.PeriodPercent "InstallPct",\
+\	\	\	\	ppr.InstallAmount "InstallAmount",\
+\	\	\	\	DATE_FORMAT(lsap.last_sap,'%m/%d/%Y') "Last SAP Report"\
+From \	\	Registrations reg,\
+\	\	\	\	Students st,\
+\	\	\	\	Programmes pr,\
+\	\	\	\	Campuses cam,\
+/* ---------------------Total Hours------------------------------------ */\
+\	\	\	\	\	(Select crel.studentId,\
+\	\	\	\	\	\	\	\	\	crel.registrationId,\
+\	\	\	\	\	\	\	\	\	ROUND(SUM(att.duration),0) as "TotalHours"\
+\	\	\	\	\	\	from ClassStudentReltn crel,\
+\	\	\	\	\	\	\	\	\	Attendance att\
+\	\	\	\	\	where 1=1\
+\	\	\	\	\	and  att.studentid = crel.studentid\
+\	\	\	\	\	and  att.classid = crel.classid \
+\	\	\	\	\	and  crel.isActive = 1\
+\	\	\	\	\	Group by crel.studentId,\
+\	\	\	\	\	\	\	\	\	 crel.registrationId) hrs, \
+/* -----------------------Last SAP Report Generation-------------------------------- */\
+\	\	\	\	\	(Select st.studentid,\
+\	\	\	\	\	\	\	\	\	ca.last_sap\
+\	\	\	\	\	\	from   Students st \
+\	\	\	\	\	\	\	\	\	 LEFT JOIN (select \	toUserId AS 'studentid',\
+\	\	\	\	\	\	\	\	\	\	\	\	\	\	\	max(sendingDate)AS 'last_sap'\
+\	\	\	\	\	\	\	\	\	\	\	\	\	\	\	from Correspondences\
+\	\	\	\	\	\	\	\	\	\	\	\	\	\	\	where\	1=1 \
+\	\	\	\	\	\	\	\	\	\	\	\	\	\	\	and title like '%SAP%'\
+\	\	\	\	\	\	\	\	\	\	\	\	\	\	\	group by toUserId) ca \
+\	\	\	\	\	\	\	\	\	\	ON ca.studentid = st.studentid \
+\	\	\	\	\	\	\	\	\	\	where 1=1\
+\	\	\	\	\	\	\	\	\	\	and    st.isActive = 1) lsap,\
+\	\	\	\	\	\	\	\
+/* -----------------------Next Installment------------------------------------------ */\
+\	\	\	\	\	\	(Select \	st.studentid,\
+\	\	\	\	\	\	\	\	\	\	\	reg.registrationid,\
+\	\	\	\	\	\	\	\	\	\	\	reg.programmeId,\
+\	\	\	\	\	\	\	\	\	\	\	COALESCE(ni.NextInstallment,1)nextinstallment\
+\	\	\	\	\	\	\	From\	Registrations reg    \
+\	\	\	\	\	\	\	LEFT JOIN (\	Select pay.studentid,\
+\	\	\	\	\	\	\	\	\	\	\	\	\	pay.registrationid,\
+\	\	\	\	\	\	\	\	\	\	\	\	\	reg.programmeId,\
+\	\	\	\	\	\	\	\	\	\	\	\	\	(MAX(pay.installmentNumber)+ 1) as NextInstallment\
+\	\	\	\	\	\	\	\	\	from\	\	Payments pay,\
+\	\	\	\	\	\	\	\	\	\	\	\	\	Registrations reg\
+\	\	\	\	\	\	\	\	\	where 1=1\
+\	\	\	\	\	\	\	\	\	and   reg.registrationId = pay.registrationId\
+\	\	\	\	\	\	\	\	\	and \	pay.isActive = 1\
+\	\	\	\	\	\	\	\	\	and \	reg.isActive = 1\
+\	\	\	\	\	\	\	\	\	Group By  pay.studentId,\
+\	\	\	\	\	\	\	\	\	\	\	\	\	\	pay.registrationid) ni\
+\	\	\	\	\	\	\	\	\	ON ni.studentid = reg.studentid AND ni.registrationid = reg.registrationId,\
+\	\	\	\	\	\	\	\	\	Students st\
+\	\	\	\	\	\	Where\	1=1\
+\	\	\	\	\	\	and \	st.studentid = reg.studentId\
+\	\	\	\	\	\	and   st.isactive = 1\
+\	\	\	\	\	\	and \	reg.isActive = 1) nex,\
+/* -----------------Program Hours and installments\	-------------------- */\
+\	\	\	\	\	(SELECT\
+\	\	\	\	\	\	\	\	\	pay.programmeid,\
+\	\	\	\	\	\	\	\	\	pay.payperiodhours as InstallmentHours,\
+\	\	\	\	\	\	\	\	\	pay.payPeriodDisbPercent as PeriodPercent,\
+\	\	\	\	\	\	\	\	\	(pay.payPeriodDisbPercent / 100) * plr.rate InstallAmount,\
+\	\	\	\	\	\	\	\	\	(CASE pay.programmeid\
+\	\	\	\	\	\	\	\	\	\	WHEN @curCode THEN\
+\	\	\	\	\	\	\	\	\	\	@curRow := @curRow + 1\
+\	\	\	\	\	\	\	\	\	ELSE\
+\	\	\	\	\	\	\	\	\	\	@curRow := 1\
+\	\	\	\	\	\	\	\	\	AND @curCode := pay.programmeid\
+\	\	\	\	\	\	\	\	\	END) AS InstallmentNumber\
+\	\	\	\	\	from PayPeriod pay,\
+\	\	\	\	\	Programmes prog,\
+\	\	\	\	\	ProgrammeLevelTuitionRates plr,\
+\	\	\	\	\	(SELECT\
+\	\	\	\	\	\	@curRow := 0,\
+\	\	\	\	\	\	@curCode := '') rt\
+\	\	\	\	\	where 1=1\
+\	\	\	\	\	and \	prog.programmeId = pay.programmeid\
+\	\	\	\	\	and   plr.programmeId = prog.programmeid\
+\	\	\	\	\	and   pay.isactive = 1\
+\	\	\	\	\	and \	prog.isactive = 1\
+\	\	\	\	\	and \	plr.semesterId = 4000441\
+\	\	\	\	\	order by pay.programmeid,\
+\	\	\	\	\	\	\	\	\	InstallmentNumber) ppr\
+Where \	1=1\
+and          reg.<ADMINID>\
+and \	\	st.studentid = reg.studentid \
+and \	\	pr.programmeId = reg.programmeId\
+and \	\	cam.campusCode = st.studentCampus\
+and \	\	hrs.studentId  = reg.studentId\
+and \	\	hrs.registrationId = reg.registrationId\
+and \	\	lsap.studentid \	\	 = reg.studentId\
+and \	        nex.studentid = reg.studentId\
+and \	\	nex.registrationid = reg.registrationId\
+and          ppr.programmeid = reg.programmeId\
+and \	\	ppr.installmentnumber = nex.nextinstallment\
+and \	\	st.isActive = 1\
+and \	\	reg.isactive = 1\
+and \	\	hrs.TotalHours >= ppr.InstallmentHours\
+

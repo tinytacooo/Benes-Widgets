@@ -1,0 +1,39 @@
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(t1.SID AS CHAR), '">',t1.Name, '</a>') AS 'Student Name'\
+, t1.Newcount AS '# Of New Guests'\
+, t1.Totalcount-t1.Newcount AS '# Of Repeat Guest'\
+, t1.Totalcount AS 'Total Customers'\
+, t2.Servicecount As '# Of Services'\
+, t2.Totalsales As 'Total Service Sales'\
+, t3.Retailcount AS '# of Retail Units'\
+, CONCAT('$',ROUND(t3.Retailtotal,2)) AS 'Total Retail Sales'\
+, t4.Giftcount AS '# of Gift Certificates Sold'\
+FROM\
+(SELECT COUNT(DISTINCT CustomerName) AS Newcount , SC.studentiD AS SID, Concat(STD.FirstName, '  ', STD.lastName) AS Name, COUNT(CustomerName) AS Totalcount\
+\	\	FROM StudentServiceCustomerReltn SC\
+\	\	INNER JOIN Students STD \
+\	\	\	\	ON STD.StudentID = SC.studentID\
+                WHERE STD.<ADMINID>\
+                GROUP BY SC.studentID) AS t1 \
+INNER JOIN (SELECT SC.StudentID AS SID, CONCAT('$',ROUND(SUM(SC.tickettotal),2)) AS Totalsales, COUNT(serviceName) AS Servicecount\
+\	\	\	FROM StudentServiceCustomerReltn SC\
+            INNER JOIN Products P \
+\	\	\	\	\	ON SC.productID = P.ProductId\
+            INNER JOIN Students STD \
+\	\	\	\	\	ON STD.StudentID = SC.studentID\
+\	\	\	WHERE P.ProductCategory != '2. Retail' \
+            GROUP BY SC.studentID) AS t2 ON t2.SID = t1.SID \
+LEFT JOIN (SELECT STD.StudentID AS SID, COUNT(SC.serviceName) AS Retailcount,  SUM(tickettotal) AS Retailtotal\
+\	\	\	FROM Students STD\
+            INNER JOIN StudentServiceCustomerReltn SC \
+\	\	\	\	\	ON STD.StudentID = SC.studentID\
+            INNER JOIN Products P ON SC.productID = P.ProductId\
+\	\	\	WHERE  P.ProductCategory  = '2. Retail' \
+            GROUP BY STD.studentID) AS t3 ON t3.SID = t2.SID \
+Left JOIN (SELECT STD.StudentID AS SID, COUNT(SC.serviceName) AS Giftcount\
+\	\	\	FROM Students STD\
+            INNER JOIN StudentServiceCustomerReltn SC \
+\	\	\	\	\	ON STD.StudentID = SC.studentID\
+\	\	\	WHERE  SC.productID = 1215\
+            GROUP BY STD.studentID) AS t4 ON t4.SID = t3.SID \
+ORDER BY t1.NAME\
+

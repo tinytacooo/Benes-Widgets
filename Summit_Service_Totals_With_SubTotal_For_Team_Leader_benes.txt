@@ -1,0 +1,103 @@
+SELECT CustomerVisit.NAME AS 'Student Name'\
+, CONCAT('<div align="center">', CustomerVisit.Newcount, '</div>') AS 'New Guests'\
+, CONCAT('<div align="center">', (CustomerVisit.Totalcount - CustomerVisit.Newcount), '</div>') AS 'Return Customers'\
+, Services.Servicecount AS 'Total Services'\
+, Services.Totalsales As 'Total Service Sales'\
+, RetailTotal.Retailcount AS '# of Retail Units'\
+, CONCAT('$',ROUND(RetailTotal.Retailtotal,2)) AS 'Total Retail Sales'\
+, GiftCards.Giftcount AS '# of Gift Certificates Sold'\
+FROM\
+\	(SELECT COUNT(DISTINCT CustomerName) AS Newcount, COUNT(CustomerName) As Totalcount, SC.studentiD AS SID, Concat(STD.FirstName, '  ', STD.lastName) AS NAME\
+\	FROM ProfileFieldValues PVF\
+\	INNER JOIN Students STD \
+\	\	\	ON PVF.UserID = STD.StudentID \
+\	INNER JOIN StudentServiceCustomerReltn SC \
+\	\	\	ON STD.StudentID = SC.studentID\
+\
+\	INNER JOIN  (SELECT PVF.usertype as UT, PVF.userID, PVF.fieldValue AS FV  \
+\	\	\	       FROM ProfileFieldValues PVF \
+                               WHERE PVF.usertype = 3 AND PVF.userID = 4001259) AS t1 ON t1.FV = PVF.fieldValue \
+\	INNER JOIN  (SELECT PVF.userID AS UID, Fieldvalue AS Level  \
+\	\	\	       FROM ProfileFieldValues PVF \
+                               WHERE FieldName = 'STUDENT_LEVEL') AS t2 ON t2.UID = PVF.userID\
+        WHERE FieldName = 'TEAM_NAME' and PVF.fieldValue != '' AND PVF.usertype != 3 AND STD.<ADMINID>\
+        GROUP BY SC.studentID) AS CustomerVisit\
+\
+         INNER JOIN   (SELECT SC.StudentID AS SID, CONCAT('$',ROUND(SUM(SC.tickettotal),2)) AS Totalsales, COUNT(serviceName) AS Servicecount\
+\	                         FROM StudentServiceCustomerReltn SC\
+\	\	           \	 INNER JOIN Products P \
+\	\	\	\	                ON SC.productID = P.ProductId\
+\	\	\	         INNER JOIN Students STD \
+\	\	\	\	                ON STD.StudentID = SC.studentID\
+\	\	\	        WHERE SC.ParentCategory  = 'Service'  AND SC.creationDTtm BETWEEN DATE('2018-02-01') AND DATE('2018-04-01') \
+\	\	\	        GROUP BY SC.studentID) AS Services ON Services.SID = CustomerVisit.SID \
+            \
+          LEFT JOIN    (SELECT STD.StudentID AS SID, COUNT(SC.serviceName) AS Retailcount,  SUM(tickettotal) AS Retailtotal\
+\	\	                 FROM Students STD\
+\	\	                 INNER JOIN StudentServiceCustomerReltn SC \
+\	  \	\	\	                ON STD.StudentID = SC.studentID\
+\	\	                 INNER JOIN Products P \
+\	\	\	\	                ON SC.productID = P.ProductId\
+\	\	                 WHERE  SC.ParentCategory  = 'Retail'  AND SC.creationDTtm BETWEEN DATE('2018-02-01') AND DATE('2018-04-01')  \
+\	\	                 GROUP BY STD.studentID) AS RetailTotal ON RetailTotal.SID = Services.SID \
+            \
+          LEFT JOIN    (SELECT STD.StudentID AS SID, COUNT(SC.serviceName) AS Giftcount\
+\	\	                 FROM Students STD\
+\	\	                 INNER JOIN StudentServiceCustomerReltn SC \
+\	\	\	\	                ON STD.StudentID = SC.studentID\
+\	\	                 WHERE  SC.productID = 1215 AND SC.creationDTtm BETWEEN DATE('2018-02-01') AND DATE('2018-04-01')  \
+\	\	                 GROUP BY STD.studentID) AS GiftCards ON GiftCards.SID = RetailTotal.SID \
+UNION\
+SELECT NULL, NULL , NULL , NULL , NULL , NULL , NULL , NULL\
+UNION\
+SELECT CONCAT(SubTotal.Team, ' Team Totals')\
+, CONCAT('<div align="center">', SubTotal.Newcount, '</div>')\
+, CONCAT('<div align="center">', (SubTotal.TotalCount-SubTotal.Newcount), '</div>')\
+, SubTotal.ServiceCount\
+, CONCAT('$',SubTotal.TicketTotal)\
+, IFNULL(SubTotal.Retailcount, 0)\
+, CASE WHEN SubTotal.Retailtotal IS NULL THEN CONCAT('$', 0) ELSE CONCAT('$',SubTotal.Retailtotal) END AS ''\
+, IFNULL(SubTotal.Giftcount, 0)\
+FROM\
+         (SELECT  COUNT(DISTINCT CustomerName) AS Newcount\
+                         ,COUNT(CustomerName) As Totalcount\
+                         ,PVF.fieldvalue AS Team\
+                         ,Services.tickettotal AS Tickettotal\
+                         ,Services.Servicecount AS Servicecount\
+                         ,RetailTotal.Retailcount AS Retailcount\
+                         ,RetailTotal.Retailtotal as Retailtotal\
+                         ,GiftCards.Giftcount AS Giftcount\
+\	  FROM ProfileFieldValues PVF\
+\	  INNER JOIN StudentServiceCustomerReltn SC \
+\	\	         ON PVF.UserId = SC.studentID\
+\	  \
+     INNER JOIN    (SELECT PVF.usertype as UT, PVF.userID, PVF.fieldValue AS FV \
+\	\	\	      FROM ProfileFieldValues PVF \
+                              WHERE PVF.usertype = 3 AND PVF.userID = 4001259) AS TeacherData ON TeacherData.FV = PVF.fieldValue \
+\	  \
+     INNER JOIN    (SELECT PVF.fieldValue AS Team, ROUND(SUM(SC.TicketTotal),2) AS Tickettotal, COUNT(serviceName) AS Servicecount\
+\	\	\	     FROM ProfileFieldValues PVF\
+\	\	             INNER JOIN StudentServiceCustomerReltn SC \
+\	\	\	\	             ON PVF.UserID = SC.studentID\
+\	\	\	     INNER JOIN Products P \
+\	\	\	\	\	     ON SC.productID = P.ProductId\
+\	\	\	     WHERE SC.ParentCategory  = 'Service'  AND SC.creationDTtm BETWEEN DATE('2018-02-01') AND DATE('2018-04-01')  AND FieldName = 'TEAM_NAME' \
+\	\	\	     GROUP BY PVF.fieldValue) AS Services ON Services.Team = TeacherData.FV \
+\	 \
+     LEFT JOIN    (SELECT PVF.FieldValue AS Team, COUNT(SC.serviceName) AS Retailcount,  SUM(tickettotal) AS Retailtotal\
+\	\	           FROM ProfileFieldValues PVF\
+\	\	\	   INNER JOIN StudentServiceCustomerReltn SC \
+\	\	\	\	\	  ON PVF.UserID = SC.studentID\
+\	\	           INNER JOIN Products P \
+\	\	\	\	\	  ON SC.productID = P.ProductId\
+\	\	           WHERE SC.ParentCategory  = 'SRetail'  AND SC.creationDTtm BETWEEN DATE('2018-02-01') AND DATE('2018-04-01')  AND FieldName = 'TEAM_NAME' \
+\	\	\	   GROUP BY PVF.fieldValue) AS RetailTotal ON RetailTotal.Team = Services.Team\
+\	   \
+    LEFT JOIN    (SELECT PVF.FieldValue AS Team, COUNT(SC.serviceName) AS Giftcount\
+\	\	\	   FROM ProfileFieldValues PVF\
+\	\	\	   INNER JOIN StudentServiceCustomerReltn SC \
+\	\	\	\	\	   ON PVF.UserID = SC.studentID\
+\	\	\	   WHERE  SC.productID = 1215 AND FieldName = 'TEAM_NAME' AND SC.creationDTtm BETWEEN DATE('2018-02-01') AND DATE('2018-04-01')\
+\	\	\	   GROUP BY PVF.fieldValue) AS GiftCards ON GiftCards.Team = RetailTotal.Team  \
+WHERE FieldName = 'TEAM_NAME' and PVF.fieldValue != '' AND PVF.usertype != 3 AND PVF.<ADMINID>\
+GROUP BY PVF.fieldValue) AS SubTotal

@@ -1,0 +1,2 @@
+select * from Attendance att\
+where <ADMINID>

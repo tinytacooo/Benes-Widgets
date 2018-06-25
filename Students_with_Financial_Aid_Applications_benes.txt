@@ -1,0 +1,6 @@
+Select distinct S.studentId, idNumber, \
+CONCAT('<a target=_blank href="financial_aids_instances.jsp?usertype=1&userId=', CAST(S.studentId AS CHAR), '">', S.firstName, ' ', S.lastName, '</a>') AS Name\
+From FaApplication FA, Students S \
+Where FA.<ADMINID> and FA.isActive=1\
+and FA.studentId=S.studentId\
+

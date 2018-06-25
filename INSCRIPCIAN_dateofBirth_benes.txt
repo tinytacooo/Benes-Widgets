@@ -1,0 +1,3 @@
+SELECT dateOfBirth FROM Students WHERE <ADMINID>  AND isActive <> 0 AND [FORMUSERTYPE]  = 1 AND \
+studentId = [FORMUSERID]\
+\	

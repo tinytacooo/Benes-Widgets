@@ -1,0 +1,18 @@
+/* Leads Status Query - Mike Mulholland*/\
+Select con.lastName,\
+\	    con.firstName,\	\	\
+\	    ct.typeName "Contact Type",\
+\	    DATE_FORMAT(con.lastUpdateDtTm,'%m/%d/%Y') "Last Updated",\
+            con.homePhone,\
+            con.cellPhone,\
+            con.workPhone\
+from Contacts con,\
+\	 ContactTypes ct\
+where 1=1\
+and   ct.<ADMINID>\
+and   ct.contactTypeId = con.contactTypeId\
+and   con.isActive = 1\
+and   con.contactTypeId not in(4000039,4000046,4000047) \
+and   ct.typeName <> 'Vendor'\
+order by CONCAT(con.lastName,con.firstName),\
+\	\	\	   ct.typeName
