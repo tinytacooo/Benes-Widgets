@@ -1,0 +1,43 @@
+SELECT  PVF.fieldValue AS Team\
+      , CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', CAST(STD.firstName AS CHAR), ' ', CAST(STD.lastName AS CHAR), '</a>') AS NAME\
+      , SC.ServiceName\
+      , SC.CustomerName\
+      , CONCAT('$',SC.TicketTotal)\
+      , SC.CreationDtTm\
+\	\	FROM StudentServiceCustomerReltn SC\
+\	\	INNER JOIN Students STD \
+\	\	\	\	ON STD.StudentID = SC.studentID\
+\	\	INNER JOIN ProfileFieldValues PVF\
+\	\	\	\	ON PVF.userID = STD.studentID AND PVF.FieldName = 'TEAM_NAME'\
+\	\	WHERE SC.creationDtTm BETWEEN DATE('2017-02-01') AND DATE('2018-04-01') AND (SC.ParentCategory = 'Service' OR SC.ParentCategory = 'Retail') AND\
+        STD.studentCampus = 34652  AND PVF.FieldValue IS NOT NULL AND PVF.FieldValue != '' AND SC.<ADMINID>\
+UNION \
+SELECT PVF.fieldValue AS Team\
+\	   , CONCAT('<b>',"Service's Sub Total",'</b>')\
+       , CONCAT('<b>',COUNT(SC.ServiceName),'</b>')\
+       , NULL\
+       , CONCAT('<b>','$', SUM(SC.TicketTotal),'</b>')\
+       , NULL\
+FROM StudentServiceCustomerReltn SC\
+\	\	INNER JOIN Students STD \
+\	\	\	\	ON STD.StudentID = SC.studentID\
+\	\	INNER JOIN ProfileFieldValues PVF\
+\	\	\	\	ON PVF.userID = STD.studentID AND PVF.FieldName = 'TEAM_NAME'\
+\	\	WHERE SC.creationDtTm BETWEEN DATE('2017-02-01') AND DATE('2018-04-01') AND (SC.ParentCategory = 'Service' OR SC.ParentCategory = 'Retail') AND\
+        STD.studentCampus = 34652  AND PVF.FieldValue IS NOT NULL AND PVF.FieldValue != '' AND SC.<ADMINID>\
+        GROUP BY PVF.fieldValue \
+UNION \
+SELECT PVF.fieldValue AS Team\
+\	   , NULL \
+       , NULL\
+       , NULL\
+       , NULL\
+       , NULL\
+FROM StudentServiceCustomerReltn SC\
+\	\	INNER JOIN Students STD \
+\	\	\	\	ON STD.StudentID = SC.studentID\
+\	\	INNER JOIN ProfileFieldValues PVF\
+\	\	\	\	ON PVF.userID = STD.studentID AND PVF.FieldName = 'TEAM_NAME'\
+\	\	WHERE SC.creationDtTm BETWEEN DATE('2017-02-01') AND DATE('2018-04-01') AND (SC.ParentCategory = 'Service' OR SC.ParentCategory = 'Retail') AND\
+        STD.studentCampus = 34652  AND PVF.FieldValue IS NOT NULL AND PVF.FieldValue != '' AND SC.<ADMINID>\
+ORDER BY Team 

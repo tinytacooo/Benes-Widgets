@@ -1,0 +1,92 @@
+SELECT\
+\	-- ' ', -- possible blank column for improved formatting\
+Name,\
+\	Designation,\
+\	Campus_Name,\
+\	Attendance_Date,\
+\	Day_of_the_Week,\
+        Reason,\
+        Break,\
+\	-- (SELECT SUM(Duration)),\
+CASE WHEN Attendance_Date = Personal_Max\
+\	\	THEN CONCAT(\
+\	\	\	CONCAT(FLOOR(Duration),':', LPAD(FLOOR(Duration*60 % 60),2,'0')),\
+\	\	\	'</td></tr><tr><td></td><td colspan="5" style="text-align: right; background-color: SkyBlue; font-size: 150%; font-weight: bold;">',\
+\	\	\	Name,\
+\	\	\	' has an hours subtotal of ', \
+\	\	\	CONCAT(FLOOR(Sub_Total)),\
+\	\	\	'</td></tr>')\
+\	\	ELSE CONCAT(FLOOR(Duration),':', LPAD(FLOOR(Duration*60 % 60),2,'0'))\
+\	END AS 'Duration'\
+\
+FROM\
+\	(SELECT -- This table makes variables for each staff member from staff data for the CASE statement above\
+\	\	CONCAT('<a href="admin_view_teacher.jsp?teacherid=', CAST(TRA.teacherId AS CHAR),'"target="_blank">', TCH.firstName, ' ', TCH.lastName, '</a>') AS Name,\
+\	\	TCH.firstName AS First_Name,\
+\	\	TCH.lastName AS Last_Name,\
+\	\	'Instructor' AS Designation,\
+\	\	TCH.campusCode AS Campus_Code,\
+\	\	TRA.teacherAttendanceId AS KeyZ,\
+\	\	TRA.teacherId AS userID,\
+\	\	DAYNAME(TRA.attendanceDate) AS Day_of_the_Week,\
+\	\	TRA.attendanceDate AS Attendance_Date,\
+\	\	TRA.duration-(PVF.FieldValue) AS Duration,\
+\	\	CMP.campusName AS Campus_Name,\
+                TRA.reasonText AS Reason,\
+\	\	PVF.FieldValue AS Break,\
+                SUM(PVF.fieldValue) AS Break1,\
+\	\	CAST([?Campus_Zip_Code_OR_0_For_All] AS SIGNED) AS Match_Code,\
+\	\	(SELECT MAX(TRA.attendanceDate) FROM TeacherAttendance TRA WHERE userID = TRA.teacherId AND TRA.attendanceDate BETWEEN '[?Start Date]' AND '[?End Date]') AS Personal_Max,\
+\	\	(SELECT MIN(TRA.attendanceDate) FROM TeacherAttendance TRA WHERE userID = TRA.teacherId AND TRA.attendanceDate BETWEEN '[?Start Date]' AND '[?End Date]') AS Personal_Min,\
+\	\	(SELECT SUM(TRA.duration)-(Break1) FROM TeacherAttendance TRA WHERE userID = TRA.teacherId AND TRA.attendanceDate BETWEEN '[?Start Date]' AND '[?End Date]') AS Sub_Total\
+\	FROM\
+\	\	TeacherAttendance TRA\
+\	\	JOIN Teachers TCH ON TRA.teacherId = TCH.teacherId  AND TCH.isActive = 1\
+\	\	LEFT JOIN Campuses CMP ON TCH.campusCode = CMP.campusCode AND CMP.isActive = 1\
+\	\	INNER JOIN ProfileFieldValues PVF ON TRA.teacherID = PVF.userID AND PVF.isactive = 1 AND PVF.fieldName LIKE 'BREAK_TIME'\
+\	WHERE\
+\	\	TRA.isActive = 1 AND TRA.<ADMINID> AND TRA.attendanceDate BETWEEN '[?Start Date]' AND '[?End Date]'\
+\	UNION\
+\	SELECT\
+\	\	CONCAT('<a href="admin_view_subadmin.jsp?subadminid=', CAST(SAA.subAdminId AS CHAR),'" target="_blank">', SAN.firstName, ' ', SAN.lastName, '</a>') AS Name,\
+\	\	SAN.firstName as First_Name,\
+\	\	SAN.lastName as Last_Name,\
+\	\	SAN.designation AS Designation,\
+\	\	SAN.campusCode AS Campus_Code,\
+\	\	SAA.subAdminAttendanceId AS KeyZ,\
+\	\	SAA.subAdminId AS userID,\
+\	\	DAYNAME(SAA.attendanceDate) AS Day_of_the_Week,\
+\	\	SAA.attendanceDate AS Attendance_Date,\
+\	\	SAA.duration-(PVF.FieldValue) AS Duration,\
+\	\	CMP.campusName AS Campus_Name,\
+\	\	SAA.reasonText AS Reason,\
+\	\	PVF.FieldValue AS Break,\
+                SUM(PVF.fieldValue) AS Break1,\
+\	\	CAST([?Campus_Zip_Code_OR_0_For_All] AS SIGNED) AS Match_Code,\
+\	\	(SELECT MAX(SAA.attendanceDate) FROM SubAdminAttendance SAA WHERE userID = SAA.subAdminId AND SAA.attendanceDate BETWEEN '[?Start Date]' AND '[?End Date]') AS Personal_Max,\
+\	\	(SELECT MIN(SAA.attendanceDate) FROM SubAdminAttendance SAA WHERE userID = SAA.subAdminId AND SAA.attendanceDate BETWEEN '[?Start Date]' AND '[?End Date]') AS Personal_Min,\
+\	\	(SELECT SUM(SAA.duration)-(Break1)  FROM SubAdminAttendance SAA WHERE userID = SAA.subAdminId AND SAA.attendanceDate BETWEEN '[?Start Date]' AND '[?End Date]') AS Sub_Total\
+\	FROM\
+\	\	SubAdminAttendance SAA\
+\	\	JOIN SubAdmins SAN ON SAA.subAdminId = SAN.subAdminId AND SAN.isActive = 1\
+\	\	LEFT JOIN Campuses CMP ON SAN.campusCode = CMP.campusCode AND CMP.isActive = 1\
+\	\	INNER JOIN ProfileFieldValues PVF ON SAN.subadminID = PVF.userID AND PVF.isactive = 1 and PVF.fieldName LIKE 'BREAK_TIME'\
+\	WHERE\
+\	\	SAA.isActive = 1 AND SAA.<ADMINID> AND SAA.attendanceDate BETWEEN '[?Start Date]' AND '[?End Date]' \
+\	) AS userZ,\
+\	(SELECT -- This table creates variables for use in the CASE statement\
+\	\	@firstListed := -- this is a trick to find the first table entry using LIMIT 1\
+\	\	\	(SELECT TCH.firstName AS thisName FROM TeacherAttendance TRA JOIN Teachers TCH ON TRA.teacherId = TCH.teacherId  AND TCH.isActive = 1\
+\	\	\	WHERE TRA.isActive = 1 AND TRA.attendanceDate BETWEEN '[?Start Date]' AND '[?End Date]'\
+\	\	\	\	\	\	UNION\
+\	\	\	SELECT SAN.firstName AS thisName FROM SubAdminAttendance SAA JOIN SubAdmins SAN ON SAA.subAdminId = SAN.subAdminId AND SAN.isActive = 1\
+\	\	\	WHERE SAA.isActive = 1 AND SAA.attendanceDate BETWEEN '[?Start Date]' AND '[?End Date]'\
+\	\	\	ORDER BY thisName LIMIT 1),\
+\	\	@grandTotal := (SELECT SUM(thisDuration) FROM -- double layer query because UNION operator\
+\	\	\	(SELECT TRA.duration AS thisDuration FROM TeacherAttendance TRA WHERE TRA.isActive = 1 AND TRA.attendanceDate BETWEEN '[?Start Date]' AND '[?End Date]'\
+\	\	\	\	\	\	UNION\
+\	\	\	SELECT SAA.duration AS thisDuration FROM SubAdminAttendance SAA WHERE SAA.isActive = 1 AND SAA.attendanceDate BETWEEN '[?Start Date]' AND '[?End Date]'\
+\	\	\	) AS INR_TBL) AS OTR_TBL\
+\	) AS variableZ\
+WHERE Match_Code = Campus_Code OR Match_Code = 0\
+ORDER BY Last_Name, First_Name, Attendance_Date

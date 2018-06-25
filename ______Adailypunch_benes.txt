@@ -1,0 +1,6 @@
+SELECT * FROM ClockPunches\
+WHERE punchTime >= DATE_SUB(NOW(), INTERVAL 30 day) \
+AND <ADMINID>\
+\
+\
+

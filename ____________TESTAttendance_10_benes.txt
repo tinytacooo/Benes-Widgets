@@ -1,0 +1,4 @@
+SELECT *\
+FROM StudentServiceCustomerReltn\
+WHERE StudentID = 4046600 AND <ADMINID>\
+

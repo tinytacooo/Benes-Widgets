@@ -1,0 +1,5 @@
+SELECT  CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(Students.studentId AS CHAR), '">', Students.firstName, ' ', Students.lastName, '</a>') AS 'Student Name', userId, userType, fieldName, Students.IsActive, Students.studentCampus\
+FROM ProfileFieldValues\
+INNER JOIN Students\
+ON ProfileFieldValues.userID =Students.studentID\
+Where fieldName = 'VA_student' AND fieldValue = 'TRUE' AND Students.Isactive = 1 AND Students.studentCampus = '34652' AND  Students.<ADMINID> 

@@ -1,0 +1,1 @@
+Select * From Products Where isActive=1 AND <ADMINID>;

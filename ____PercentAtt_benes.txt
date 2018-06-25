@@ -1,0 +1,22 @@
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(SDT.studentId AS CHAR), '">', SDT.firstName, ' ', SDT.lastName, '</a>') AS 'Student Name',\
+SDT.idNumber AS 'Student ID',\
+\	PRG.programmeName AS Program,\
+\	CMP.campusName AS 'Campus',\
+\	CAST(SUM(ATD.duration) AS dec(10)) as 'Hours Attended',\
+    PRG.minClockhours AS 'Program Hours',\
+    Concat((Cast(SUM((ATD.duration)/PRG.minClockhours)* 100 AS dec(10,1))),'%') as 'Percent Completed'\
+    \
+FROM Registrations REG\
+INNER JOIN Attendance ATD ON REG.studentId=ATD.studentId AND ATD.isActive=1\
+INNER JOIN Classes CLS ON ATD.classId = CLS.classId AND CLS.isActive=1\
+INNER JOIN Students SDT ON REG.studentId = SDT.studentId AND SDT.isActive=1\
+INNER JOIN Campuses CMP ON SDT.studentCampus = CMP.campusCode AND CMP.isActive=1\
+INNER JOIN Programmes PRG ON PRG.programmeId = REG.programmeId AND PRG.isActive=1\
+WHERE\
+\	REG.<ADMINID> AND REG.isActive=1 AND\
+\	REG.endDate>=CURDATE() AND\
+\	REG.enrollmentSemesterId = 4000441 AND\
+\	ATD.attendanceDate>=REG.startDate \
+\	\
+GROUP BY SDT.studentId\
+ORDER BY CMP.campusName, SDT.lastName

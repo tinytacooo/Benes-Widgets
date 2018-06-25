@@ -1,0 +1,55 @@
+SELECT Name\
+, NewCustomers.Newcustomer\
+, SUM(TotalCustomers)- NewCustomers.NewCustomer  AS 'Repeat Guests'\
+, SalesData.PreBook AS 'Pre-Books'\
+, SalesData.Referral AS 'Refferals'\
+, SalesData.AddOn AS 'Add-Ons'\
+, SalesData.TotalService AS '# Of Services'\
+, CONCAT('<div align="right">','$',SalesData.ServiceSUM,'</div>') AS 'Total Services'\
+, SalesData.TotalRetail  AS '# Of Retail Sales'\
+, CONCAT('$', SalesData.RetailSum) As 'Total Retail Sales'\
+, SalesData.TotalGift  AS '# Of GiftCard Sales'\
+, CONCAT('$', SalesData.GiftSum) As 'Total GiftCard Sales'\
+\
+\
+FROM( SELECT SC.studentiD AS SID, COUNT(Distinct CustomerName) AS TotalCustomers, Concat(STD.FirstName, '  ', STD.lastName) AS Name,\
+\	\	COUNT(CustomerName) As TotalCustomer, DATE_FORMAT(SC.creationDtTm, '%Y-%m-%d') AS DATE, CustomerName\
+\	FROM ProfileFieldValues PVF\
+\	INNER JOIN Students STD \
+\	\	\	ON PVF.UserID = STD.StudentID \
+\	INNER JOIN StudentServiceCustomerReltn SC \
+\	\	\	ON STD.StudentID = SC.studentID\
+\	INNER JOIN  (SELECT PVF.usertype as UT, PVF.userID, PVF.fieldValue AS FV  \
+\	\	\	       FROM ProfileFieldValues PVF \
+                               WHERE PVF.usertype = 3 AND PVF.userID = 4001259) AS t1 ON t1.FV = PVF.fieldValue \
+\	INNER JOIN  (SELECT PVF.userID AS UID, Fieldvalue AS Level  \
+\	\	\	       FROM ProfileFieldValues PVF \
+                               WHERE FieldName = 'STUDENT_LEVEL') AS t2 ON t2.UID = PVF.userID\
+        WHERE FieldName = 'TEAM_NAME' and PVF.fieldValue != '' AND PVF.usertype != 3 AND SC.creationDtTm BETWEEN DATE('2017-02-01') AND DATE('2018-04-01')  AND\
+            (SC.ParentCategory = 'Service' OR SC.ParentCategory = 'Retail') AND SC.<ADMINID>\
+        GROUP BY STD.studentID,SC.CustomerName, MONTH(SC.creationDTtm), DAY(SC.creationDTtm)) AS DistinctDate\
+\
+INNER  JOIN (SELECT COUNT(Distinct CustomerName) AS NewCustomer, SC.studentiD AS SID,\
+\	\	\	DATE_FORMAT(SC.creationDtTm, '%Y-%m') AS DATE\
+\	\	\	FROM StudentServiceCustomerReltn SC\
+\	\	\	INNER JOIN Students STD \
+\	\	\	\	\	ON STD.StudentID = SC.studentID\
+\	\	\	WHERE SC.creationDtTm BETWEEN DATE('2017-02-01') AND DATE('2018-04-01') AND\
+            (SC.ParentCategory = 'Service' OR SC.ParentCategory = 'Retail') \
+\	\	\	GROUP BY STD.studentID) AS NewCustomers ON NewCustomers.SID = DistinctDate.SID\
+\
+INNER JOIN (SELECT  SC.studentID AS SID\
+\	\	\	, COUNT(CASE WHEN SC.parentcategory = 'Retail' THEN 1 END) AS TotalRetail \
+\	\	\	, SUM(CASE WHEN SC.parentcategory = 'Retail' THEN SC.tickettotal END) AS RetailSum\
+\	\	\	, COUNT(CASE WHEN SC.parentcategory = 'Service' THEN 1 END) AS TotalService\
+\	\	\	, SUM(CASE WHEN SC.parentcategory = 'Service' THEN SC.tickettotal END) AS ServiceSum\
+\	\	\	, COUNT(CASE WHEN SC.productID = 1215 THEN 1 END) AS TotalGift\
+\	\	\	, SUM(CASE WHEN SC.productID = 1215 THEN SC.ticketTotal END) AS GiftSum\
+\	\	\	, COUNT(CASE WHEN SC.serviceName = 'Pre-Book Next Appointment' THEN 1 END) AS PreBook\
+\	\	\	, COUNT(CASE WHEN SC.serviceName = 'Referral Customer' THEN 1 END) AS Referral\
+\	\	\	, COUNT(CASE WHEN SC.serviceName = 'Add On Service' THEN 1 END) AS AddOn\
+\	\	\	FROM StudentServiceCustomerReltn SC\
+\	\	\	WHERE\
+            SC.creationDtTm BETWEEN DATE('2017-02-01') AND DATE('2018-04-01')\
+            GROUP BY SC.studentID) AS SalesData ON NewCustomers.SID = SalesData.SID \
+GROUP BY NewCustomers.SID

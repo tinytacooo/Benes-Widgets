@@ -1,0 +1,16 @@
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', STD.firstName, ' ', STD.lastName, '</a>') AS 'Student Name'\
+, CONCAT(STD.firstname, '  ', STD.lastname)\
+, PRG.programmeName\
+, CASE WHEN PVF.fieldvalue = 'Level 1' THEN CONCAT('<font color="white">','<div style="background-color:#5AA5DD; ; width: 100%; height:100%; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px"> ', 'Level 1', '</div>','</font>')  \
+             WHEN PVF.fieldvalue = 'Level 2' THEN CONCAT('<font color="white">','<div style="background-color:#045C4D; ; width: 100%; height:100%; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px"> ' , 'Level 2', '</div>','</font>') \
+             WHEN PVF.fieldvalue = 'Level 3' THEN CONCAT('<font color="white">','<div style="background-color:#C43235; ; width: 100%; height:100%; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px"> ' , 'Level 3', '</div>','</font>') \
+                         ELSE CONCAT('<font color="white">','<div style="background-color:#FFBD3F; ; width: 100%; height:100%; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px"> ' , 'Level 4', '</div>','</font>') \
+                         END AS 'Student Level'\
+\
+FROM ProfileFieldValues PVF\
+INNER JOIN Students STD ON  PVF.UserID = STD.StudentID \
+INNER JOIN Registrations REG ON REG.studentID = STD.studentID\
+INNER JOIN Programmes PRG ON PRG.programmeID = REG.ProgrammeID AND PRG.programmeName NOT LIKE 'Career%' AND PRG.programmeName NOT LIKE 'Instruct%'\
+INNER JOIN (SELECT PVF.UserID AS UID FROM ProfileFieldValues PVF WHERE PVF.FieldValue = 'Alpha' ) AS t1 ON t1.UID = STD.studentID\
+LEFT JOIN (SELECT T.TeacherID as TID FROM Teachers T WHERE T.teacherID = '4001235') AS t2 ON t2.TID = PVF.userID \
+WHERE  PVF.FieldName = 'STUDENT_LEVEL' AND PVF.<ADMINID>

@@ -1,0 +1,3 @@
+SELECT *\
+FROM Classes\
+WHERE <ADMINID> AND isActive=1

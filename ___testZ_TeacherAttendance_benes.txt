@@ -1,0 +1,4 @@
+SELECT *\
+FROM TeacherAttendance\
+WHERE <ADMINID> AND isActive = 1\
+LIMIT 100;

@@ -1,0 +1,5 @@
+Select CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(SDT.studentId AS CHAR), '">', CAST(SDT.firstName AS CHAR), ' ', CAST(SDT.lastName AS CHAR), '</a>') AS Name,\
+CONCAT('<a href="https://fafsa.ed.gov/">','FAFSA','</a>') AS 'FAFSA Link'\
+FROM Students SDT\
+WHERE SDT.<ADMINID>\
+

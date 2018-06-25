@@ -1,0 +1,4 @@
+SELECT CONCAT("<a href='admin_view_student.jsp?studentid=", SDT.studentId, "'>", SDT.firstName, ' ', SDT.lastName, "</a>") AS Name, LOA.*\
+FROM LeavesOfAbsence LOA\
+INNER JOIN Students SDT ON LOA.studentId = SDT.studentId\
+WHERE LOA.<ADMINID> AND LOA.isActive=1

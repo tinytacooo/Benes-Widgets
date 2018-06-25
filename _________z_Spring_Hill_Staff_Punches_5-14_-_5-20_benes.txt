@@ -1,0 +1,13 @@
+SELECT CONCAT(SA.firstName, SA.lastName)\
+, A.*\
+\
+FROM SubAdmins SA\
+\
+INNER JOIN SubAdminAttendance A\
+ON SA.subAdminId = A.subAdminId\
+\
+WHERE SA.campusCode = 34606\
+AND A.attendanceDate BETWEEN '2018-05-14' AND '2018-05-20'\
+AND SA.<ADMINID>\
+\
+order by SA.subAdminId, A.attendanceDate ASC

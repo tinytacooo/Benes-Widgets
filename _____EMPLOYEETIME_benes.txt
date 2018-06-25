@@ -1,0 +1,80 @@
+--Written by Zach \
+\
+\
+Select \	r.name,\
+\	\	\	\	r.Position,\
+\	\	\	\	ca.campusId "Campus ID",\
+\	\	\	\	ca.campusName "Campus Name",\
+\	\	\	\	r.Punch_Date "Punch Date",\
+\	\	\	        r.Punch_Time "Punch Time"\
+FROM\
+\	(SELECT\	CONCAT('<a href="admin_view_subadmin.jsp?subadminid=', CAST(sa.SubAdminID AS CHAR),'"target="_blank">', sa.firstName, ' ', sa.lastName, '</a>')  "Name",\
+\	\	\	\	\	st.typeName "Position",\
+\	\	\	\	\	DATE_FORMAT(punchtime,'%m/%d/%Y') "Punch_Date",\
+\	\	\	\	\	DATE_FORMAT(punchtime, '%h:%i %p') "Punch_Time",\
+\	\	\	\	\	cp.clockPunchId,\
+\	\	\	\	\	cp.userId,\
+\	\	\	\	\	cp.campuscode\
+\	\	FROM \	ClockPunches cp,\
+\	\	\	\	\	Campuses ca,\
+\	\	\	\	\	SubAdmins sa,\
+\	\	\	\	\	SubAdminTypes st\
+\	\	WHERE 1 = 1\
+\	\	\	AND sa.subAdminId = cp.userId\
+\	\	\	AND st.subAdminTypeId = sa.subAdminTypeId\
+\	\	\	AND DATE(cp.punchTime) = CURDATE()                            \
+\	UNION\
+\	\	SELECT\	CONCAT('<a href="admin_view_teacher.jsp?teacherid=', CAST(th.teacherId AS CHAR),'"target="_blank">', th.firstName, ' ', th.lastName, '</a>') "Name",\
+\	\	\	\	\	('Teacher') "Position",\
+\	\	\	\	\	DATE_FORMAT(punchtime,'%m/%d/%Y') "Punch Date",\
+\	\	\	\	\	DATE_FORMAT(punchtime, '%h:%i %p') "Punch Time",\
+\	\	\	\	\	cp.clockPunchId,\
+\	\	\	\	\	cp.userId,\
+\	\	\	\	\	cp.campusCode\
+\	\	FROM \	ClockPunches cp,\
+\	\	\	\	Teachers th\
+\	\	WHERE 1 = 1\
+\	\	AND th.teacherId = cp.userId\
+\	\	AND DATE(cp.punchTime) = CURDATE() ) r,\
+\	\	Campuses ca\
+\	\	Where 1=1\
+                and ca.<ADMINID>\
+\	\	and ca.campusCode = r.campuscode\
+    Order By r.name, \
+                   ca.CampusName\
+\
+\
+\
+\
+\
+       \
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+  \
+\
+\
+

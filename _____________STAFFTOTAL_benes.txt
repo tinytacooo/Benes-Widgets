@@ -1,0 +1,19 @@
+Select T.Name, T.Duration\
+FROM (SELECT \	CONCAT('<a href="admin_view_teacher.jsp?teacherid=', CAST(TCH.teacherId AS CHAR),'"target="_blank">', TCH.firstName, ' ', TCH.lastName, '</a>') AS Name, \
+ROUND(SUM(TRA.duration)-SUM(PVF.fieldValue),2) AS Duration\
+FROM TeacherAttendance TRA\
+INNER Join Teachers TCH ON TRA.teacherID = TCH.teacherID\
+INNER JOIN ProfileFieldValues PVF ON TRA.teacherID = PVF.userID AND PVF.isactive = 1 AND PVF.fieldName LIKE 'BREAK_TIME'\
+WHERE TRA.<ADMINID>  AND DATE(TRA.attendancedate)  BETWEEN '[?Start Date]' AND '[?End Date]'    AND TRA.isactive = 1 and TCH.isactive = 1 \
+Group BY TCH.lastname\
+Union \
+SELECT \	CONCAT('<a href="admin_view_subadmin.jsp?subadminid=', CAST(SA.subAdminID AS CHAR),'"target="_blank">', SA.firstName, ' ', SA.lastName, '</a>') AS Name, \
+ROUND(SUM(SAA.duration)-SUM(PVF.fieldValue),2) AS Duration\
+FROM SubAdminAttendance SAA\
+INNER Join SubAdmins SA ON SAA.SubadminID = SA.subAdminID\
+INNER JOIN ProfileFieldValues PVF ON SAA.subadminID = PVF.userID AND PVF.isactive = 1 and PVF.fieldName LIKE 'BREAK_TIME'\
+WHERE SAA.<ADMINID> AND DATE(SAA.attendancedate)  BETWEEN '[?Start Date]' AND '[?End Date]'   AND SAA.isactive = 1 and SA.isactive = 1\
+Group BY SA.lastname\
+) AS T\
+GROUP BY T.Name\
+ORDER BY T.Name ASC

@@ -1,0 +1,3 @@
+SELECT *\
+FROM GroupSubjectReltn\
+WHERE <ADMINID> AND isActive = 1

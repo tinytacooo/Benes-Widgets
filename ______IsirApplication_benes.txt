@@ -1,0 +1,9 @@
+SELECT ST.studentId, firstName, lastName, transactionNo, REG.programmeId\
+FROM Students ST\
+     LEFT OUTER JOIN Registrations REG ON REG.studentId  =  ST.studentId \
+     LEFT OUTER JOIN IsirInstance INS  ON REG.studentId = INS.studentId\
+WHERE ST.<ADMINID> AND REG.programmeId IS NULL \
+      AND firstName = BINARY UPPER(firstName) \
+      AND lastName = BINARY UPPER(lastName)\
+      AND DATE(ST.creationDtTm) BETWEEN (CURDATE() - INTERVAL 7 DAY) AND CURDATE()\
+ORDER BY lastName

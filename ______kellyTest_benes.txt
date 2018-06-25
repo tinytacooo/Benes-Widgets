@@ -1,0 +1,41 @@
+-- Written by Kelly Johnston\
+-- The purpose of this code is to identify students who have left their last class at least 1 hour early on the current day.\
+-- Last updated: 4/13/2018 4:09 PM\
+\
+SELECT DISTINCT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(st.studentId AS CHAR), '">', st.firstName, ' ', st.lastName, '</a>') AS 'Student Name'\
+    , TIME_FORMAT(MAX(TIME(clock.punchTime)), '%r') AS 'Student Out Time'\
+    , Classes.className AS 'Last Class'\
+    , CAST(MAX(class.endTime)*100 AS TIME) AS 'Class End Time'\
+    , CONCAT('Your clock out time was ', TIME_FORMAT(ABS(CAST(TIMEDIFF(CAST(MAX(class.endTime) AS TIME), CAST(EXTRACT(HOUR_MINUTE FROM TIME(clock.punchTime)) AS TIME))*100 AS TIME)), '%H:%i'), ' hours less than you were scheduled to be in school today.')\
+\
+\	FROM(\
+\	\	SELECT cp.userId\
+\	\	             , cp.punchTime AS punchTime\
+\	              \	     , cp.clockPunchId AS timeid\
+                             , COUNT(cp.clockPunchId) AS count\
+                             , cp.clockedStatus\
+                FROM ClockPunches cp\
+                WHERE cp.userType = 1\
+                      AND DATE(cp.punchTime) = CURDATE()\
+                      AND cp.clockedStatus%2 != 1\
+                GROUP BY cp.userId\
+                ) clock\
+\	INNER JOIN (SELECT stu.studentId\
+\	\	         , stu.isActive\
+                         , stu.firstName\
+                         , stu.lastName\
+                FROM Students stu\
+                WHERE stu.isActive = 1) st ON st.studentId = clock.userId\
+\	INNER JOIN ClassStudentReltn csr ON csr.studentId = clock.userId\
+\	INNER JOIN (\
+\	\	SELECT cs.endTime\
+\	\	\	     , cs.classId\
+                             , cs.isActive\
+\	\	FROM ClassSchedules cs) class ON csr.classId = class.classId\
+                                                           AND NOT class.isActive = 0\
+                                                                   AND TIME_FORMAT(TIMEDIFF(CAST(class.endTime AS TIME), CAST(EXTRACT(HOUR_MINUTE FROM TIME(clock.punchTime)) AS TIME)), '%H%i') \
+\	INNER JOIN Classes ON csr.classId = Classes.classId\
+\
+WHERE csr.<ADMINID>\
+GROUP BY clock.userId\
+ORDER BY clock.userId, clock.clockedStatus

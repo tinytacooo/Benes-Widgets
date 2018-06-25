@@ -1,0 +1,3 @@
+SELECT *\
+FROM CalendarEvents\
+WHERE <ADMINID> AND isActive = 1

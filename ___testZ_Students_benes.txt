@@ -1,0 +1,5 @@
+SELECT *\
+FROM Students\
+WHERE <ADMINID> AND isActive=1\
+ORDER BY studentId\
+

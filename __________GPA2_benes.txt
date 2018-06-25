@@ -1,0 +1,6 @@
+SELECT STD.Lastname, STD.firstname, SUM(SG.score), COUNT(SG.score)\
+FROM Students STD\
+INNER JOIN StudentGrades SG ON STD.studentID = SG.StudentID\
+WHERE STD.isactive =1 and SG.isactive = 1 AND STD.<ADMINID>\
+Group BY SG.StudentID\
+

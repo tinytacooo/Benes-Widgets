@@ -1,0 +1,8 @@
+Select CONCAT('<a href="files_and_documents.jsp?userid=', CAST(STD.studentId AS CHAR),'&usertype=1', '">', CAST(STD.firstName AS CHAR), ' ', CAST(STD.lastName AS CHAR), '</a>') AS Name\
+, DATE_FORMAT(REG.StartDate,'%m-%d-%Y') AS 'Start Date'\
+, CASE WHEN FFR.displayFileName IS NULL THEN Concat('<font color="red">','No File On Record' ,'</font>') \
+  ELSE FFR.displayFileName END AS 'File' \
+FROM Registrations REG\
+INNER JOIN Students STD ON REG.StudentID = STD.studentID AND curdate() BETWEEN REG.StartDate AND REG.StartDate + INTERVAL 30 DAY \
+LEFT OUTER JOIN FolderFileReltn FFR ON FFR.userID = STD.StudentID AND FFR.documentTypeID = '47' AND FFR.displayFileName IS NULL AND STD.<ADMINID>\
+ORDER BY REG.StartDate , STD.lastName ASC

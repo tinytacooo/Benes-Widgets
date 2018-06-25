@@ -1,0 +1,6 @@
+SELECT T.lastname, T.firstname, T.campusCode\
+,CASE WHEN [?Campus] = '34652' THEN 'New Port Richey'\
+   ELSE 'Null'\
+ END AS 'Staff Campus'\
+FROM Teachers T\
+WHERE T.CampusCode = [?Campus{0 OR 34606 OR 34652 OR 34601|All Campuses|34652|New Port Richey|34606|Spring Hill|34601|BrooksVille|}] AND T.<ADMINID>

@@ -1,0 +1,7 @@
+SELECT REG.Regstatus, STD.StudentID, STD.firstname, STD.lastname, ISR.transactionNO, PRG.programmeName\
+FROM  IsirInstance ISR\
+LEFT OUTER JOIN Students STD on ISR.studentId = STD.studentID\
+LEFT OUTER JOIN Registrations REG ON STD.studentID = REG.studentID\
+RIGHT OUTER JOIN Programmes PRG ON PRG.programmeID = REG.ProgrammeId\
+WHERE REG.regstatus = 1 AND REG.<ADMINID>\
+ORDER BY REG.startDate

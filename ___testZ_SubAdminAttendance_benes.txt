@@ -1,0 +1,4 @@
+SELECT *\
+FROM SubAdminAttendance\
+WHERE <ADMINID> AND isActive = 1 AND SubAdminID = 4000270\
+

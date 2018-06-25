@@ -1,0 +1,13 @@
+SELECT CONCAT(firstName, ' ', lastName) AS 'Sub Admin', \
+\	   CAM.campusName AS Campus, \
+       SUM(ROUND(duration, 2)) AS Duration,\
+       CASE WHEN  SUM(ROUND(duration, 2)) > 40.0 THEN CONCAT('<font color="red">', SUM(ROUND(duration, 2)) - 40.0, '</font>')\
+       ELSE '' END AS 'Over Time' \
+       \
+FROM SubAdminAttendance ATT\
+INNER JOIN SubAdmins SUB ON ATT.subAdminId = SUB.subAdminId \
+INNER JOIN Campuses CAM ON SUB.campusCode = CAM.campusCode\
+WHERE  ATT.<ADMINID> AND attendanceDate BETWEEN '2017-11-01' AND '2017-11-07' \
+GROUP BY SUB.subAdminId\
+ORDER BY lastName \
+

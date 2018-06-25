@@ -1,0 +1,5 @@
+SELECT *\
+FROM Students\
+WHERE <ADMINID> AND firstName = 'Amber' AND lastname = 'Perry'\
+ORDER BY lastName \
+

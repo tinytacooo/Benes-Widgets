@@ -1,0 +1,1 @@
+SELECT * FROM UserStatusRecords USR WHERE USR.<ADMINID>

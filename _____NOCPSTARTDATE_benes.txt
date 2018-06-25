@@ -1,0 +1,20 @@
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', CAST(STD.firstName AS CHAR), ' ', CAST(STD.lastName AS CHAR), '</a>')AS 'Student',\
+       CMP.CampusName AS 'Campus',\
+       PRG.programmeName AS 'Enrolled Program',\
+       CASE WHEN CP.punchtime IS NULL THEN Concat('<font color="red">','No Punch','</font>')\
+            ELSE CP.punchtime  END AS 'Punch Time',\
+       REG.startdate AS 'Start Date'\
+FROM Students STD\
+     LEFT Join Campuses CMP ON CMP.CampusCode = STD.studentcampus\
+     LEFT Join Registrations REG on REG.studentID = STD.StudentID AND REG.regstatus = 1 And REG.Isactive = 1\
+     INNER JOIN Programmes PRG ON PRG.programmeId = REG.programmeId\
+     LEFT JOIN ClockPunches CP ON STD.StudentID = CP.userID\
+WHERE NOT EXISTS(Select * From ClockPunches CP Where CP.Punchtime = REG.startdate) \
+AND STD.Isactive = 1 \
+AND REG.enrollmentSemesterID = '4000441' \
+AND STD.<ADMINID> AND CP.punchtime IS NULL\
+AND REG.startdate >= (DATE_ADD(CURDATE(),INTERVAL - 10 DAY))\
+AND REG.startdate <= CURDATE()\
+ORDER BY CMP.CampusName, STD.firstname\
+\
+

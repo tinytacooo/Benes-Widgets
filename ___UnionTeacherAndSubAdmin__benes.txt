@@ -1,0 +1,3 @@
+SELECT *\
+FROM ClassStudentReltn\
+WHERE StudentID = 4045623 AND <ADMINID>

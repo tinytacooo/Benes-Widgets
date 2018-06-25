@@ -1,0 +1,14 @@
+SELECT  CMP.campusname,\
+CASE WHEN REG.enrollmentType = '0.5' THEN STD.Lastname\
+ ELSE '' END AS 'Part Time',\
+ \
+ CASE WHEN REG.enrollmentType = '0.75' THEN STD.Lastname\
+ ELSE '' END AS '3/4 Time',\
+CASE WHEN REG.enrollmentType = '1.0' THEN STD.Lastname\
+ ELSE '' END AS 'Full Time'\
+FROM Students STD\
+INNER JOIN Registrations REG ON REG.studentID = STD.studentID \
+INNER JOIN Campuses CMP ON CMP.CampusCode = REG.studentCampus  \
+WHERE REG.enrollmentSemesterId = '4000441' AND STD.isactive = 1 AND REG.isactive = 1 AND STD.<ADMINID>\
+Group By STD.lastname\
+Order By CMP.campusname, STD.lastname ASC

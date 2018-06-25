@@ -1,0 +1,1 @@
+Select * From ProgramServices WHERE <ADMINID> LIMIT 1000

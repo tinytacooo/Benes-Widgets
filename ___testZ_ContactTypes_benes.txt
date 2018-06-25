@@ -1,0 +1,5 @@
+SELECT *\
+FROM C.ContactTypeId\
+WHERE <ADMINID>\
+\
+LIMIT 100

@@ -1,0 +1,3 @@
+SELECT *\
+FROM FFR.folderFolderReltnID\
+WHERE <ADMINID>

@@ -1,0 +1,22 @@
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(Hours.SID AS CHAR), '">', Hours.firstName, ' ', Hours.lastName, '</a>')\
+, Pay.Phours AS 'Approaching Period'\
+, Hours.Hours_Attended AS 'Current Hours'\
+, ROUND((Pay.Phours - Hours.Hours_Attended),2) AS 'Hours Till Period'\
+FROM\	\
+(SELECT FORMAT(SUM(A.duration),2) as Hours_Attended\
+\	      , A.studentID AS SID, R.programmeID AS PID\
+              , S.firstname AS firstname, S.lastname AS Lastname\
+FROM (SELECT RR.*  FROM Registrations RR WHERE RR.isActive=1  Order By RR.registrationDate) R,\
+ Attendance A, Classes C, ClassStudentReltn CSR, Students S\
+WHERE R.isActive=1 \
+AND R.studentId = A.studentId AND A.attendanceDate >= R.startDate AND A.isActive=1 \
+AND A.classId=C.classId and C.isActive=1 AND CSR.classId=C.classId AND CSR.studentId=A.studentId AND CSR.isActive = 1\
+AND C.subjectId IN (SELECT subjectId FROM GroupSubjectReltn GSR, CourseGroups CG WHERE CG.programmeId=R.programmeId and CG.isActive=1 and CG.courseGroupId=GSR.courseGroupId and GSR.isActive=1)\
+AND CSR.StudentID = S.StudentID AND R.<ADMINID> \
+GROUP BY R.registrationId) AS Hours\
+INNER JOIN (SELECT PP.PayperiodHours AS PHours\
+\	\	\	\	  ,PP.programmeID AS PID \
+\	\	      FROM PayPeriod PP \
+                      WHERE PP.<ADMINID>) AS Pay ON Pay.PID = Hours.PID \
+WHERE (Pay.PHours - Hours.Hours_Attended) <= 20 AND (Pay.PHours - Hours.Hours_Attended) >= 0\
+ORDER BY Hours.Lastname

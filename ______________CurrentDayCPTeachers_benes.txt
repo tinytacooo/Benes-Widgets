@@ -1,0 +1,13 @@
+SELECT CONCAT(T.lastname, ' ',T.firstname) AS Name,\
+\
+CASE WHEN COUNT(punchtime) % 2 = 1 THEN 'Clocked In'\
+           WHEN  COUNT(punchtime) % 2 = 0 THEN 'Clocked Out'\
+           WHEN punchtime IS NULL OR punchtime = '' THEN 'No Punch'\
+           END AS 'Last Punch Status',\
+MAX(punchtime) AS 'Last Punch Time'\
+FROM ClockPunches CP\
+RIGHT OUTER JOIN Teachers T ON CP.userID = T.teacherID\
+WHERE DATE(CP.punchtime) = CURDATE() AND CP.isactive = 1 and T.isactive =1 AND T.<ADMINID>\
+GROUP BY T.teacherID\
+\
+

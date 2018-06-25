@@ -1,0 +1,3 @@
+SELECT *\
+FROM ProfileFieldValues PVF\
+WHERE PVF.userId = 4001205 AND PVF.<ADMINID>

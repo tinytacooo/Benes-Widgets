@@ -1,0 +1,5 @@
+SELECT StudentID, Score, G.Testname, SG.individualTestDate , TG.testtype\
+FROM StudentGrades SG\
+INNER JOIN Grades G ON G.gradeID = SG.gradeID\
+INNER JOIN TestCategories TG ON TG.testCategoryId = G.testCategoryId \
+WHERE TG.testType = 'LAB' AND SG.individualTestDate > '1900-01-01'  AND G.<ADMINID> AND SG.studentID = 4046834

@@ -1,0 +1,9 @@
+SELECT *\
+FROM Attendance\
+WHERE studentid = 4046591 and <ADMINID>\
+UNION\
+SELECT *\
+FROM Attendance\
+WHERE studentid = 4046900 and <ADMINID>\
+\
+

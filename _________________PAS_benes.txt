@@ -1,0 +1,3 @@
+SELECT SA.lastname, SA.username, SA.password\
+FROM SubAdmins SA\
+Where SA.<ADMINID>

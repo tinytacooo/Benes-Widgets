@@ -1,0 +1,3 @@
+SELECT *\
+FROM CourseGroups\
+WHERE <ADMINID> AND isActive = 1

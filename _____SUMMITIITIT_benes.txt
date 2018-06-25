@@ -1,0 +1,68 @@
+SELECT CustomerData.Name AS 'Student Name', CustomerData.Cdis AS ' New Guests', CustomerData.Ref AS 'Referrals',CAST(CustomerData.PreBook AS CHAR) AS 'Reservations',CustomerData.Scount AS 'Total Services', RetailTotals.Rcount AS 'Total Retail Units', RetailTotals.GiftCount AS 'Gift Cards Sold'\
+FROM\
+    (SELECT CONCAT('Current Totals') AS Name\
+,   SC.studentID AS SID\
+,   COUNT(DISTINCT CustomerName) AS Cdis\
+,   COUNT(ServiceName) AS Scount\
+,   (SELECT COUNT(SC.ServiceName) AS Ref FROM  StudentServiceCustomerReltn SC INNER JOIN Students STD ON STD.StudentID = SC.studentID\
+\	WHERE ProductID = 2074 AND SC.ParentCategory = '1. Service' AND SC.StudentID = 4046099  AND SC.<ADMINID>) AS REF\
+,   (SELECT COUNT(SC.ServiceName) AS Ref FROM  StudentServiceCustomerReltn SC INNER JOIN Students STD ON STD.StudentID = SC.studentID\
+\	 WHERE ProductID = 2075 AND SC.ParentCategory = '1. Service' AND SC.StudentID = 4046099 AND SC.<ADMINID>) AS PreBook\
+FROM Students STD \
+INNER JOIN StudentServiceCustomerReltn SC \
+\	\	ON STD.StudentID = SC.studentID\
+INNER JOIN Products P \
+\	\	ON SC.productID = P.ProductId\
+WHERE SC.StudentID = 4046099  AND P.ProductCategory != '2. Retail' AND P.<ADMINID> AND SC.<ADMINID> AND STD.<ADMINID>\
+GROUP BY SC.StudentID) AS CustomerData\
+LEFT JOIN (SELECT STD.StudentID AS SID, COUNT(SC.serviceName) AS Rcount, CASE WHEN SC.productID = 1215 THEN COUNT(SC.serviceName) END AS GiftCount\
+\	\	\	FROM Students STD\
+            INNER JOIN StudentServiceCustomerReltn SC \
+\	\	\	\	\	ON STD.StudentID = SC.studentID\
+            INNER JOIN Products P ON SC.productID = P.ProductId\
+\	\	\	WHERE  P.ProductCategory  = '2. Retail' \
+            GROUP BY STD.studentID) AS RetailTotals ON RetailTotals.SID = CustomerData.SID \
+UNION\
+SELECT CONCAT(GL.GoalName, ' Requirements'), GL.NewGuests, CAST(GL.ReferralGuests AS CHAR),GL.PercentOfPreBook, GL.TotalOfService, GL.TotalOfRetail, GL.TotalGifCertificate\
+FROM GoalLevels GL\
+INNER JOIN ProfileFieldValues PVF ON GL.GoalName = PVF.FieldValue\
+WHERE PVF.UserID = 4046099 AND PVF.<ADMINID> AND GL.<ADMINID>\
+UNION\
+SELECT NULL, NULL, NULL, NULL, NULL, NULL, NULL\
+UNION\
+SELECT 'Totals Needed For Next Level', CASE WHEN (Status.NewGuests-CustomerData.Cdis) < 0 THEN 'Goal Met' ELSE (Status.NewGuests-CustomerData.Cdis) END AS ''\
+       ,CASE WHEN (Status.Ref-CustomerData.Ref) <= 0 THEN 'Goal Met' ELSE (Status.Ref-CustomerData.Ref) END AS ''\
+       ,CASE WHEN (Status.Prebook-CustomerData.PreBook) <= 0 THEN 'Goal Met' ELSE (Status.Prebook-CustomerData.PreBook) END AS ''\
+       ,CASE WHEN (Status.Scount-CustomerData.Scount) <= 0 THEN 'Goal Met' ELSE (Status.Scount-CustomerData.Scount) END AS ''\
+       ,CASE WHEN (RetailTotals.Rcount) IS NULL THEN Status.Rcount \
+\	\	\	 WHEN (Status.Rcount -RetailTotals.Rcount) <= 0 THEN 'Goal Met' ELSE (Status.Rcount -RetailTotals.Rcount) END AS ''\
+\	   ,CASE WHEN (RetailTotals.GiftCount) IS NULL THEN Status.GiftTotal \
+\	\	\	 WHEN (Status.Rcount -RetailTotals.Rcount) <= 0 THEN 'Goal Met' ELSE (Status.Rcount -RetailTotals.Rcount) END AS ''\
+FROM\
+    (SELECT CONCAT(Firstname, ' ', LastName) AS Name\
+,   SC.studentID AS SID\
+,   COUNT(DISTINCT CustomerName) AS Cdis\
+,   COUNT(ServiceName) AS Scount\
+,   (SELECT COUNT(SC.ServiceName) AS Ref FROM  StudentServiceCustomerReltn SC INNER JOIN Students STD ON STD.StudentID = SC.studentID\
+\	WHERE ProductID = 2074 AND SC.ParentCategory = '1. Service' AND SC.StudentID = 4046099 AND SC.<ADMINID>) AS REF\
+,   (SELECT COUNT(SC.ServiceName) AS Ref FROM  StudentServiceCustomerReltn SC INNER JOIN Students STD ON STD.StudentID = SC.studentID\
+\	 WHERE ProductID = 2075 AND SC.ParentCategory = '1. Service' AND SC.StudentID = 4046099 AND SC.<ADMINID>) AS PreBook\
+FROM Students STD \
+INNER JOIN StudentServiceCustomerReltn SC \
+\	\	ON STD.StudentID = SC.studentID\
+INNER JOIN Products P \
+\	\	ON SC.productID = P.ProductId\
+WHERE SC.StudentID = 4046099  AND P.ProductCategory != '2. Retail' AND P.<ADMINID> AND SC.<ADMINID> AND STD.<ADMINID>\
+GROUP BY SC.StudentID) AS CustomerData\
+INNER JOIN (SELECT PVF.userID AS SID, GL.GoalName AS GoalName, GL.NewGuests AS NewGuests, CAST(GL.ReferralGuests AS CHAR) AS REF,GL.PercentOfPreBook AS PreBook, GL.TotalOfService AS Scount, GL.TotalGifCertificate AS GiftTotal, GL.TotalOfRetail AS Rcount\
+            FROM GoalLevels GL\
+\	\	\	INNER JOIN ProfileFieldValues PVF \
+                    ON GL.GoalName = PVF.FieldValue AND PVF.<ADMINID> AND GL.<ADMINID>) AS Status ON Status.SID = CustomerData.SID\
+LEFT JOIN (SELECT STD.StudentID AS SID, COUNT(SC.serviceName) AS Rcount, CASE WHEN SC.productID = 1215 THEN COUNT(SC.serviceName) END AS GiftCount\
+\	\	\	FROM Students STD\
+            INNER JOIN StudentServiceCustomerReltn SC \
+\	\	\	\	\	ON STD.StudentID = SC.studentID\
+            INNER JOIN Products P ON SC.productID = P.ProductId\
+\	\	\	WHERE  P.ProductCategory  = '2. Retail' AND P.<ADMINID> AND SC.<ADMINID> AND STD.<ADMINID>\
+            GROUP BY STD.studentID) AS RetailTotals ON RetailTotals.SID = Status.SID\
+

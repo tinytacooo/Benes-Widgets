@@ -1,0 +1,28 @@
+SELECT \
+U.name AS 'Name',\
+U.Position AS Postion,\
+U.Punch_Date AS 'Punch Date',\
+U.Punch_Time AS  'Punch Time'\
+FROM (Select CONCAT('<a href="admin_view_subadmin.jsp?subadminid=', CAST(SA.SubAdminID AS CHAR),'"target="_blank">', SA.firstName, ' ', SA.lastName, '</a>')  AS Name,\
+DATE_FORMAT(CP.punchtime,'%m/%d/%Y') 'Punch_Date',\
+DATE_FORMAT(CP.punchtime, '%h:%i %p') 'Punch_Time',\
+Case When SA.subAdminTypeID = '28' then 'Campus Director'\
+When SA.subAdminTypeID = '29' then 'Admissions'\
+When SA.subAdminTypeID = '30'  then 'Front Desk Staff'\
+When SA.subAdminTypeID = '31' then 'Financial Aid'\
+When SA.subAdminTypeID = '32' then 'Admin'\
+When SA.subAdminTypeID = '33' then 'Business Office Manager'\
+Else '' END as Position\
+FROM ClockPunches CP\
+INNER Join SubAdmins SA ON CP.idnumber = SA.subAdminID\
+WHERE CP.<ADMINID> AND DATE(CP.punchTime)  BETWEEN (CURRENT_DATE - INTERVAL 14 DAY) AND CURRENT_DATE AND SA.isactive = 1\
+Union \
+SELECT \	CONCAT('<a href="admin_view_teacher.jsp?teacherid=', CAST(TCH.teacherId AS CHAR),'"target="_blank">', TCH.firstName, ' ', TCH.lastName, '</a>') AS Name, \
+DATE_FORMAT(CP.punchtime,'%m/%d/%Y') 'Punch_Date',\
+DATE_FORMAT(CP.punchtime, '%h:%i %p') 'Punch_Time',\
+Case When TCH.isactive = '1' then 'Teacher'\
+ELSE '' END as Position\
+FROM ClockPunches CP\
+INNER Join Teachers TCH ON CP.idnumber = TCH.teacherID\
+WHERE CP.<ADMINID> AND DATE(CP.punchTime)  BETWEEN (CURRENT_DATE - INTERVAL 14 DAY) AND CURRENT_DATE   AND CP.isactive = 1 and TCH.isactive = 1) AS U\
+Order By U.name, U.Punch_Time ASC

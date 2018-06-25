@@ -1,0 +1,23 @@
+SELECT Teacher,  Campus,  Tduration AS 'Teacher Hours', Sduration AS 'Student Hours', CONCAT(Round((Sduration)/(Tduration),2),  '  To 1') AS 'Student-Teacher Hourly Ratio'\
+FROM\
+  (Select CMP.CampusName AS Campus,\
+      ROUND(SUM(Distinct TRA.duration))  AS Tduration,\
+     CLS.Classname AS Classname,\
+      CONCAT('<a href="admin_view_teacher.jsp?teacherid=', CAST(TCH.teacherId AS CHAR),'"target="_blank">', TCH.firstName, ' ', TCH.lastName, '</a>') AS Teacher\
+  FROM Teachers TCH\
+INNER JOIN TeacherAttendance TRA ON TRA.teacherID = TCH.teacherID \
+INNER JOIN Campuses CMP ON CMP.Campuscode = TCH.Campuscode\
+INNER JOIN Classes CLS ON TCH.teacherid = CLS.teacherid \
+WHERE TCH.Isactive = 1 AND TRA.isactive = 1 AND CMP.isactive = 1 and TCH.<ADMINID> AND CLS.isactive = 1 AND TRA.attendanceDate  > (DATE_SUB(CURDATE(), INTERVAL 1 MONTH))\
+Group BY  TCH.lastname) as t1\
+Inner Join \
+  (Select CMP.CampusName AS Campus2\
+     , ROUND(SUM(Distinct ATD.duration)) AS Sduration\
+     , CLS.Classname AS Classname2\
+  FROM Students STD\
+INNER JOIN Attendance ATD ON ATD.studentID = STD.StudentID \
+INNER JOIN Campuses CMP ON CMP.Campuscode = STD.StudentCampus \
+INNER JOIN Classes CLS ON ATD.classId = CLS.classId \
+WHERE STD.Isactive = 1 AND ATD.isactive = 1 AND STD.<ADMINID> AND CLS.isActive=1 AND ATD.attendanceDate   > (DATE_SUB(CURDATE(), INTERVAL 1 MONTH))\
+Group BY CLS.Classname) as t2 ON t1.Classname = t2.Classname2\
+ORDER BY  t1.Campus, t1.Teacher

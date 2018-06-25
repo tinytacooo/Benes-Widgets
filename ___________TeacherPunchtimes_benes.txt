@@ -1,0 +1,16 @@
+Select T.Name, T.Punch_Date, T.Punch_Time\
+FROM (SELECT \	CONCAT('<a href="admin_view_teacher.jsp?teacherid=', CAST(TCH.teacherId AS CHAR),'"target="_blank">', TCH.firstName, ' ', TCH.lastName, '</a>') AS Name, \
+DATE_FORMAT(CP.punchtime,'%m/%d/%Y') AS Punch_Date,\
+DATE_FORMAT(CP.punchtime, '%h:%i %p') AS Punch_Time\
+FROM ClockPunches CP\
+INNER Join Teachers TCH ON CP.idnumber = TCH.teacherID\
+WHERE CP.<ADMINID> AND DATE(CP.punchTime)  BETWEEN (CURRENT_DATE - INTERVAL 1 DAY) AND CURRENT_DATE   AND CP.isactive = 1 and TCH.isactive = 1\
+Union \
+SELECT \	CONCAT('<a href="admin_view_subadmin.jsp?subadminid=', CAST(SA.subAdminID AS CHAR),'"target="_blank">', SA.firstName, ' ', SA.lastName, '</a>') AS Name, \
+DATE_FORMAT(CP.punchtime,'%m/%d/%Y') AS Punch_Date,\
+DATE_FORMAT(CP.punchtime, '%h:%i %p') AS Punch_Time\
+FROM ClockPunches CP\
+INNER Join SubAdmins SA ON CP.idnumber = SA.subAdminID\
+WHERE CP.<ADMINID> AND DATE(CP.punchTime)  BETWEEN (CURRENT_DATE - INTERVAL 1 DAY) AND CURRENT_DATE   AND CP.isactive = 1 and SA.isactive = 1\
+) AS T\
+ORDER BY T.Name, T.Punch_Date, T.Punch_Time ASC

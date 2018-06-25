@@ -1,0 +1,3 @@
+SELECT *\
+FROM ClassStudentReltn\
+WHERE <ADMINID> AND isActive=1

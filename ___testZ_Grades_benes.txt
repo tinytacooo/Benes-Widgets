@@ -1,0 +1,3 @@
+SELECT *\
+FROM clockpunches\
+WHERE <ADMINID> AND isActive=1

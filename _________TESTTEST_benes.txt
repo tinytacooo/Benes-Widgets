@@ -1,0 +1,6 @@
+SELECT FFR.userId, FFR.folderFolderReltnId, DOC.documentTypeId, DOC.documentType\
+FROM FolderFileReltn FFR\
+LEFT OUTER JOIN DocumentType DOC ON FFR.documentTypeId = DOC.documentTypeId\
+WHERE  FFR.<ADMINID> AND FFR.userId = 4046985 AND FFR.folderFolderReltnId = 114 AND DOC.isAuditDocuemnt = 1 \
+ORDER BY FFR.folderFolderReltnId, documentTypeId \
+

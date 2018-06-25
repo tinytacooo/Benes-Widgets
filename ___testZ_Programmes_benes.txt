@@ -1,0 +1,3 @@
+SELECT *\
+FROM Programmes\
+WHERE <ADMINID> AND isActive=1

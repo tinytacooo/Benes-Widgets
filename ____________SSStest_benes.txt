@@ -1,0 +1,40 @@
+SELECT StudentID, NULL AS 'Student Name', NULL AS 'Service Type', NULL AS 'Service Total'\
+       FROM StudentService\
+      WHERE  ServiceDateTime BETWEEN '2017-12-01' AND '2017-12-04' \
+      GROUP BY studentID\
+UNION\
+SELECT StudentID, StudentName, Service AS service,  CONCAT('<div align="right">',COUNT(service),'</div>')\
+        FROM StudentService\
+       WHERE  ServiceDateTime BETWEEN '2017-12-01' AND '2017-12-04' \
+       GROUP BY StudentID, Service\
+       UNION\
+     SELECT t2.SID, CONCAT('<div style="color:#990000">',t2.Sname, '</div>'), NULL\
+     , CONCAT('<div align="right">','<div style="color:#990000">','Sub Total', '    ', CAST(t2.cService AS CHAR), '</div>')\
+     FROM (SELECT StudentID AS SID, StudentName AS SName, Service AS service,  COUNT(service) AS cService\
+        FROM StudentService\
+       WHERE  ServiceDateTime BETWEEN '2017-12-01' AND '2017-12-04' \
+       GROUP BY StudentName) AS t2\
+\	 UNION \
+      SELECT t1.studentID,NULL, NULL, CONCAT('Weekly Hours','  ', ROUND(CAST(t2.Sdur AS CHAR),2))\
+FROM (Select StudentID \
+        FROM StudentService SS\
+       WHERE  ServiceDateTime BETWEEN '2017-12-01' AND '2017-12-04' \
+       GROUP BY StudentName, Service, StudentID\
+       ORDER BY SS.StudentID) AS t1\
+\	   INNER JOIN (Select StudentID , Sum(duration) as Sdur from Attendance \
+\	\	WHERE AttendanceDate BETWEEN '2017-12-01' AND '2017-12-04' AND <ADMINID>\
+\	\	GROUP BY StudentID) as t2 ON t2.StudentID = t1.studentID\
+        GROUP BY  t2.studentID\
+ORDER BY StudentID\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+

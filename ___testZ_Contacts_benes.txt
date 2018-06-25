@@ -1,0 +1,4 @@
+SELECT *\
+FROM Contacts CON\
+WHERE <ADMINID>\
+LIMIT 1000

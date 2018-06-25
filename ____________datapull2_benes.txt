@@ -1,0 +1,11 @@
+SELECT  CONCAT('<a href="admin_view_teacher.jsp?teacherid=', CAST(t1.TID AS CHAR),'"target="_blank">', t1.firstName, ' ', t1.lastName, '</a>') AS Name\
+,t1.atDate\
+, CASE WHEN t1.ATdate IS NULL THEN\
+ CONCAT('<font color="white"></td></tr><tr><td></td><td colspan="6" style="text-align: right; background-color: #A8D0E6; font color: white; font-size: 150%; font-weight: bold;">', t1.lastname, ' ', t1.firstname,' has an hours subtotal of ', duration,'</td></tr></font>') ELSE duration END AS Hours\
+FROM\
+(SELECT T.teacherID as TID, T.LastName AS Lastname, T.firstname AS firstname, TA.attendanceDate AS ATdate, ROUND(SUM(duration),2) AS duration\
+FROM TeacherAttendance TA\
+INNER JOIN Teachers T ON TA.teacherID = T.teacherID\
+WHERE TA.attendanceDate BETWEEN '2017-11-29' AND '2017-12-07' AND TA.isactive = 1 and T.isactive = 1 AND TA.<ADMINID>\
+GROUP BY TA.teacherID, TA.attendancedate WITH ROLLUP) AS t1\
+ORDER BY t1.lastname,t1.firstname, t1.ATdate DESC

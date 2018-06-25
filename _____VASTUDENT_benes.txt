@@ -1,0 +1,9 @@
+SELECT CONCAT(SA.lastname, ' ',SA.firstname) AS Name, CASE WHEN COUNT(punchtime) % 2 = 1 THEN 'Clocked In'\
+\	\	\	\	\	\	\	\	\	 WHEN  COUNT(punchtime) % 2 = 0 THEN 'Clocked Out'\
+                                     WHEN punchtime IS NULL OR punchtime = '' THEN 'No Punch'\
+                                        END AS 'Last Punch Status',\
+                                        DATE_FORMAT(MAX(CP.punchtime), '%M %d @ %h:%i %p') AS 'Last Punch Time'\
+FROM ClockPunches CP\
+RIGHT OUTER JOIN SubAdmins SA ON CP.userID = SA.SubAdminId\
+WHERE DATE(CP.punchtime) = CURDATE() AND CP.isactive = 1 AND SA.isactive =1 AND SA.<ADMINID>\
+GROUP BY SA.SubAdminId

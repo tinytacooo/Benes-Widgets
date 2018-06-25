@@ -1,0 +1,11 @@
+SELECT  CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', STD.firstName, ' ', STD.lastName, '</a>') AS 'Student Name', STD.idNumber AS 'ID Number', Sum(FAD.amountexpected) AS 'Amount Expected', Sum(FAD.amountReceived) AS 'Amount Recieved' ,FAP.ProgramName AS 'Financial Aid Program', FAP.fundType AS 'Type of Funds'\
+, CMP.CampusName\
+FROM Students STD\
+Inner JOIN FinancialAidsDisbursements FAD ON FAD.StudentID = STD.StudentID And FAD.isactive = 1  AND FAD.receiptId = '0' AND STD.Isactive ='1' AND STD.<ADMINID> AND FAD.Isactive\
+Left JOIN Registrations REG ON REG.registrationID = FAD.registrationID\
+Left Join Campuses CMP ON CMP.Campuscode = STD.studentCampus \
+LEFT Join FinancialAids FA ON FA.financialAidsid = FAD.financialAidsId\
+Left Join FinancialAidPrograms FAP ON FAP.financialAidProgramID = FA.financialAidProgramID\
+Group BY STD.FirstName, STD.lastname\
+\
+

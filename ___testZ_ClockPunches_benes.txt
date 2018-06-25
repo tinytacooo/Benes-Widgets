@@ -1,0 +1,5 @@
+SELECT *\
+FROM ClockPunches CP\
+WHERE  <ADMINID>\
+ORDER BY punchTime DESC\
+LIMIT 5000

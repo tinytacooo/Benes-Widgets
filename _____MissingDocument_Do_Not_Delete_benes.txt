@@ -1,0 +1,31 @@
+Select \
+(Select S.idNumber From Students S Where S.studentId = R.studentId) 'ID'\
+,(Select CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(S1.studentId AS CHAR), '">', S1.firstName, ' ', S1.lastName, '</a>') From Students S1 Where S1.studentId = R.studentId) 'Student Name'\
+, DATE_FORMAT(R.startDate,'%m/%d/%Y') 'Start Date'\
+, IF(D1.ID >= 1, "OK","<font color='red'>MISSING</font>") 'ID'\
+, IF(D4.ID >= 1, "OK","<font color='red'>MISSING</font>") 'Social Security Card'\
+, IF(D5.ID >= 1, "OK","<font color='red'>MISSING</font>") 'School Verification'\
+, IF(D6.ID >= 1, "OK","<font color='red'>MISSING</font>") 'Pre-Enrollment Agreement'\
+, IF(D7.ID >= 1, "OK","<font color='red'>MISSING</font>") 'VA-Forms'\
+, IF(D9.ID >= 1, "OK","<font color='red'>MISSING</font>") 'Letters/Emails'\
+, IF(D10.ID >= 1, "OK","<font color='red'>MISSING</font>") 'Additional License'\
+, IF(D11.ID >= 1, "OK","<font color='red'>MISSING</font>") 'VA-Attendance Policy'\
+, IF(D12.ID >= 1, "OK","<font color='red'>MISSING</font>") 'Enrollment Agreement'\
+, IF(D13.ID >= 1, "OK","<font color='red'>MISSING</font>") 'Student Agreements Rules/Kit List'\
+-- , IF(D14.ID >= 1, "OK","<font color='red'>MISSING</font>") 'Eval Student'\
+\
+From Registrations R \
+LEFT JOIN (Select F1.userId 'studentId', COUNT(F1.documentTypeId) 'ID' From FolderFileReltn F1 Where F1.folderFolderReltnId = 114 AND F1.userType=1 AND F1.documentTypeId =1 AND F1.isActive = 1 AND F1.<ADMINID> GROUP BY F1.userId ) D1 USING (studentId)\
+LEFT JOIN (Select F4.userId 'studentId', COUNT(F4.documentTypeId) 'ID' From FolderFileReltn F4 Where F4.folderFolderReltnId = 114 AND F4.userType=1 AND F4.documentTypeId =4 AND F4.isActive = 1 AND F4.<ADMINID> GROUP BY F4.userId ) D4 USING (studentId)\
+LEFT JOIN (Select F5.userId 'studentId', COUNT(F5.documentTypeId) 'ID' From FolderFileReltn F5 Where F5.folderFolderReltnId = 114 AND F5.userType=1 AND F5.documentTypeId =5 AND F5.isActive = 1 AND F5.<ADMINID> GROUP BY F5.userId ) D5 USING (studentId)\
+LEFT JOIN (Select F6.userId 'studentId', COUNT(F6.documentTypeId) 'ID' From FolderFileReltn F6 Where F6.folderFolderReltnId = 114 AND F6.userType=1 AND F6.documentTypeId =6 AND F6.isActive = 1 AND F6.<ADMINID> GROUP BY F6.userId ) D6 USING (studentId)\
+LEFT JOIN (Select F7.userId 'studentId', COUNT(F7.documentTypeId) 'ID' From FolderFileReltn F7 Where F7.folderFolderReltnId = 114 AND F7.userType=1 AND F7.documentTypeId =7 AND F7.isActive = 1 AND F7.<ADMINID> GROUP BY F7.userId ) D7 USING (studentId)\
+LEFT JOIN (Select F9.userId 'studentId', COUNT(F9.documentTypeId) 'ID' From FolderFileReltn F9 Where F9.folderFolderReltnId = 114 AND F9.userType=1 AND F9.documentTypeId =9 AND F9.isActive = 1 AND F9.<ADMINID> GROUP BY F9.userId ) D9 USING (studentId)\
+LEFT JOIN (Select F10.userId 'studentId', COUNT(F10.documentTypeId) 'ID' From FolderFileReltn F10 Where F10.folderFolderReltnId = 114 AND F10.userType=1 AND F10.documentTypeId =10 AND F10.isActive = 1 AND F10.<ADMINID> GROUP BY F10.userId ) D10 USING (studentId)\
+LEFT JOIN (Select F11.userId 'studentId', COUNT(F11.documentTypeId) 'ID' From FolderFileReltn F11 Where F11.folderFolderReltnId = 114 AND F11.userType=1 AND F11.documentTypeId =11 AND F11.isActive = 1 AND F11.<ADMINID> GROUP BY F11.userId ) D11 USING (studentId)\
+LEFT JOIN (Select F12.userId 'studentId', COUNT(F12.documentTypeId) 'ID' From FolderFileReltn F12 Where F12.folderFolderReltnId = 114 AND F12.userType=1 AND F12.documentTypeId =12 AND F12.isActive = 1 AND F12.<ADMINID> GROUP BY F12.userId ) D12 USING (studentId)\
+LEFT JOIN (Select F13.userId 'studentId', COUNT(F13.documentTypeId) 'ID' From FolderFileReltn F13 Where F13.folderFolderReltnId = 114 AND F13.userType=1 AND F13.documentTypeId =13 AND F13.isActive = 1 AND F13.<ADMINID> GROUP BY F13.userId ) D13 USING (studentId)\
+-- LEFT JOIN (Select F14.userId 'studentId', COUNT(F14.documentTypeId) 'ID' From FolderFileReltn F14 Where F14.folderFolderReltnId = 114 AND F14.userType=1 AND --\
+-- F14.documentTypeId =14 AND F14.<ADMINID> GROUP BY F14.userId ) D14 USING (studentId) \
+\
+Where R.startDate between (CURDATE() - INTERVAL 30 DAY) AND CURDATE()   AND R.isActive =1

@@ -1,0 +1,3 @@
+SELECT *\
+FROM Teachers TCH\
+WHERE <ADMINID> AND isActive=1

@@ -1,0 +1,22 @@
+SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', STD.firstName, ' ', STD.lastName, '</a>')\
+             AS 'Student Name',\
+REG.graduationDate AS 'Graduation Date',\
+MAX(ATD.AttendanceDate) AS 'Last Attendance Date',\
+CASE WHEN ATD.AttendanceDate > REG.graduationDate THEN ROUND(Sum(ATD.Duration),1) \
+ELSE '' END AS 'Hours Over',\
+PRG.programmeName AS 'Program Name',\
+PRG.overContactAmount AS 'Excess Hours Surcharge',\
+CASE WHEN ATD.AttendanceDate > REG.graduationDate THEN CONCAT('$',ROUND(Sum(ATD.Duration),1)* PRG.overContactAmount)\
+ELSE '' END AS 'Excess Hours Charge'\
+\
+\
+FROM Students STD\
+INNER JOIN Registrations REG ON STD.studentId = REG.studentId AND REG.isActive = 1\
+INNER JOIN Attendance  ATD    ON REG.studentId = ATD.StudentID AND ATD.isActive = 1 AND ATD.duration \
+INNER JOIN Campuses CMP     ON STD.studentCampus = CMP.campusCode AND  CMP.isActive = 1\
+INNER JOIN Programmes PRG ON PRG.programmeId = REG.programmeId AND PRG.isActive=1\
+WHERE ATD.AttendanceDate > REG.GraduationDate AND STD.<ADMINID> AND STD.Isactive = 1 AND REG.enrollmentSemesterId = 4000441\
+Group By STD.Lastname\
+ORDER BY STD.Lastname\
+\
+

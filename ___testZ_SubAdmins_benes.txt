@@ -1,0 +1,3 @@
+SELECT *\
+FROM SubAdmins\
+WHERE <ADMINID> AND isActive=1

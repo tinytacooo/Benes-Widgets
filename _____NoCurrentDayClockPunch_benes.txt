@@ -1,0 +1,14 @@
+SELECT   CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', STD.firstName, ' ', STD.lastName, '</a>')\
+             AS 'At Risk Student', STD.idNumber, CMP.CampusName, (Select PRG.programmeName From Programmes PRG Where PRG.<ADMINID> AND PRG.programmeId = REG.programmeId AND PRG.isActive=1) AS 'Enrolled Program'\
+  FROM Students STD\
+LEFT Join Campuses CMP ON CMP.CampusCode = STD.studentcampus\
+LEFT Join Registrations REG on REG.studentID = STD.StudentID AND REG.regstatus = 1 And REG.Isactive = 1\
+LEFT OUTER\
+  JOIN ClockPunches CP \
+    ON CP.IDnumber = STD.IDnumber\
+   AND CP.usertype = 1\
+   AND CP.punchTime >= CURRENT_DATE \
+WHERE STD.Isactive = 1 \
+  AND CP.Punchtime IS NULL AND STD.<ADMINID> AND REG.enrollmentSemesterID = '4000441'\
+ORDER \
+    BY CMP.CampusName, STD.firstname

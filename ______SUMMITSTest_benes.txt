@@ -1,0 +1,3 @@
+SELECT PVF.usertype, PVF.userID, PVF.fieldValue AS FV  \
+FROM ProfileFieldValues PVF \
+Where PVF.usertype = 3 AND FieldName = 'Team_name' AND PVF.<ADMINID>

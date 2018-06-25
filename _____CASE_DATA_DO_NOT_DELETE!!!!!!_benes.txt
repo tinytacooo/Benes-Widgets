@@ -1,0 +1,66 @@
+Select \
+, STD.dateOfBirth, (YEAR(CURDATE())-YEAR(STD.dateOfBirth)) AS age (DATE DIFF)\
+\
+\
+,Case When TypeID = '28' then 'Campus Director'\
+When TypeID = '29' then 'Admissions'\
+When TypeID = '30'  then 'Front Desk Staff'\
+When TypeID = '31' then 'Financial Aid'\
+When TypeID = '32' then 'Admin'\
+When TypeID = '33' then 'Business Office Manager'\
+Else 'Teacher' END as Designation\
+\
+, CASE WHEN STD.Race = 1 THEN "Caucasion"\
+   WHEN STD.Race = 2 THEN "African American"\
+   WHEN STD.Race = 3 THEN "Two or More"\
+   WHEN STD.Race = 4 THEN "Unknown/Other"\
+   WHEN STD.Race = 5 THEN "Asian"\
+   WHEN STD.Race = 6 THEN "Hispanic"\
+   WHEN STD.Race = 7 THEN "Alaskan Native"\
+   WHEN STD.Race = 8 THEN "American Indian"\
+   ELSE 'Unknown'\
+ END AS Race\
+\
+, CASE WHEN REG.studentCampus = '34652' THEN 'New Port Richey'\
+   WHEN REG.studentCampus = '34606' THEN 'Spring Hill'\
+   WHEN REG.studentCampus = '34601' THEN 'Brooksville'\
+   ELSE 'Unknown/Other'\
+ END AS 'Student Campus'\
+\
+, CASE WHEN REG.enrollmentType = 1.0 THEN "Full Time"\
+   WHEN REG.enrollmentType  = 0.75 THEN"3/4th Time"\
+   WHEN REG.enrollmentType = 0.5  OR REG.enrollmentType = 0.6 THEN "Part Time"\
+ END AS 'Enrollment Type'\
+\
+, CASE WHEN REG.regStatus = 0 THEN "Inactive/Past student/Withdrawn"\
+   WHEN REG.regStatus = 1 THEN "Enrolled"\
+   WHEN REG.regStatus = 2 THEN "Suspended/Access disabled"\
+   WHEN REG.regStatus = 3 THEN "Graduated/Completed"\
+   WHEN REG.regStatus = 4 THEN "Deferred"\
+   WHEN REG.regStatus = 5 THEN "Unknown"\
+   WHEN REG.regStatus = 6 THEN "Dismissed"\
+   WHEN REG.regStatus = 7 THEN "New Applicant"\
+   WHEN REG.regStatus = 8 THEN "Accepted"\
+   WHEN REG.regStatus = 9 THEN "Rejected"\
+   WHEN REG.regStatus = 10 THEN "Prospect"\
+   WHEN REG.regStatus = 11 THEN "ISIR Import"\
+   WHEN REG.regStatus = 12 THEN "Leave of Absence"\
+   WHEN REG.regStatus = 14 THEN "No Start"\
+   WHEN REG.regStatus = 15 THEN "Unsatisfactory Progress"\
+   WHEN REG.regStatus = 91 THEN "Application in Progress"\
+   WHEN REG.regStatus = 99 THEN "Active & Suspended"\
+   ELSE 'Unknown'\
+ END AS 'Status'\
+\
+\
+\
+SSS.StatusID AND SSS.statusID NOT IN (0,3) AND \
+\	ATD.subjectId IN (SELECT GSR.subjectId\
+\	\	\	FROM CourseGroups CGP\
+\	\	\	INNER JOIN GroupSubjectReltn GSR ON CGP.courseGroupId=GSR.courseGroupId AND GSR.isActive=1\
+\	\	\	WHERE REG.programmeId = CGP.programmeId and CGP.isActive=1)\
+\	\	\	\	\	\	\	\	\	\	AND\
+\	ATD.classId IN (SELECT DISTINCT CRS.classId\
+\	\	\	From ClassStudentReltn CRS\
+\	\	\	Where CRS.studentId = ATD.studentId AND CRS.isActive=1)\
+

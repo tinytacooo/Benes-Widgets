@@ -1,0 +1,9 @@
+SELECT  CONCAT('<a href="admin_view_teacher.jsp?teacherid=', CAST(STD.StudentID AS CHAR),'"target="_blank">', STD.firstName, ' ', STD.lastName, '</a>') AS 'Student Name'\
+, CP.userID AS 'Student ID'\
+, CONCAT('Tardy Punch @ ',DATE_FORMAT(MIN(CP.punchTime), '%h:%i %p')) AS 'PunchTime'\
+FROM ClockPunches CP\
+INNER JOIN Students STD\
+\	\	 ON CP.userID = STD.studentID AND STD.<ADMINID>\
+WHERE DATE(CP.Punchtime) = CURDATE() AND TIME(CP.punchtime) >= TIME('09:30:00')\
+GROUP BY STD.studentID\
+ORDER BY STD.LastName
