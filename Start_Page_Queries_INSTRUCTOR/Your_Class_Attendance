@@ -1,11 +1,8 @@
 -- Developer: Zachary Bene
--- Last Update: 03/16/2017
-    -- swiTed studentId with idNumber
--- Attendance Sense for Teacher Start Screens
--- The purpose of this query is to show
-    -- Current attendance status of each student
-    -- Filtered by teacher for the teacher start page
+
 -- Edited by: Kelly MJ
+-- Update: 06/27/2018
+    -- Added condition REG.regStatus = 1 (to prevent graduated students from shwing up in result set)
 -- Update: 06/04/2018
     -- Now displays students for classes where the teacher is listed as a shared instructor
     -- Changed all AND NOT isActive = 0 to AND isActive = 1
@@ -14,8 +11,13 @@
        -- Also changed criteria for Absent status to a student who has not clocked in when the class has been in session for an hour
        -- Now using 'clockedStatus' instead of counting daily clockpunches to determine if a student is present
     -- Sorted by class names, ascending start times
-
-
+    
+-- Update: 03/16/2017 by Zachary Bene
+    -- switched studentId with idNumber
+-- Attendance Sense for Teacher Start Screens
+-- The purpose of this query is to show
+    -- Current attendance status of each student
+    -- Filtered by teacher for the teacher start page
 
 SELECT
     S.idNumber
@@ -31,10 +33,10 @@ SELECT
       END AS 'Last Time Clocked'
 
 FROM Registrations REG
-    INNER JOIN Students S
-    ON REG.studentId = S.studentId
-    AND S.isActive = 1
-        OR REG.studentId = S.studentId AND S.isActive = 12
+
+INNER JOIN Students S
+ON REG.studentId = S.studentId
+AND S.isActive IN (1, 12)
 
 JOIN ClassStudentReltn CSR
 ON S.studentId = CSR.studentId
@@ -74,6 +76,7 @@ ON S.studentId = CP.userId
 WHERE REG.<ADMINID>
   AND CTR.teacherId = [USERID]
   AND REG.isActive = 1 -- Changed from != 0
+  AND REG.regStatus = 1
   AND REG.enrollmentSemesterId = 4000441
 
 GROUP BY S.idNumber
