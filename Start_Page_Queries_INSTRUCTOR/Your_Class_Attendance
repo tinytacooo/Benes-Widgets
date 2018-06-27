@@ -2,7 +2,9 @@
 
 -- Edited by: Kelly MJ
 -- Update: 06/27/2018
-    -- Added condition REG.regStatus = 1 (to prevent graduated students from shwing up in result set)
+    -- Rewrote selection statement from Registration table - included only student records where regStatus = 1, isActive = 1
+    -- Added condition CSR.status < 2  --> only shows students who haven't dropped the class
+
 -- Update: 06/04/2018
     -- Now displays students for classes where the teacher is listed as a shared instructor
     -- Changed all AND NOT isActive = 0 to AND isActive = 1
@@ -32,7 +34,16 @@ SELECT
          ELSE 'Clocked Out'
       END AS 'Last Time Clocked'
 
-FROM Registrations REG
+FROM (SELECT R.studentId
+           , R.registrationId
+           , MAX(R.startDate)
+      FROM Registrations R
+      WHERE R.regStatus = 1
+        AND R.isActive = 1
+        AND R.enrollmentSemesterId = 4000441
+        AND R.<ADMINID>
+      GROUP BY R.studentId
+      ) REG
 
 INNER JOIN Students S
 ON REG.studentId = S.studentId
@@ -41,6 +52,7 @@ AND S.isActive IN (1, 12)
 JOIN ClassStudentReltn CSR
 ON S.studentId = CSR.studentId
 AND CSR.isActive = 1 -- Changed from AND NOT CSR.isActive = 0
+AND CSR.status < 2
 
 JOIN Classes C
 ON CSR.classId = C.classId
@@ -73,11 +85,7 @@ LEFT OUTER JOIN
         ) AS CP
 ON S.studentId = CP.userId
 
-WHERE REG.<ADMINID>
-  AND CTR.teacherId = [USERID]
-  AND REG.isActive = 1 -- Changed from != 0
-  AND REG.regStatus = 1
-  AND REG.enrollmentSemesterId = 4000441
+WHERE CTR.teacherId = [USERID]
 
 GROUP BY S.idNumber
 
