@@ -8,12 +8,11 @@
 SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(ST.studentId AS CHAR), '">', ST.firstName, ' ', ST.lastName, '</a>') AS 'Student Name', idNumber AS 'Student ID', 
                ST.creationDtTm AS 'Creation Date' 
 FROM Students ST
-     INNER JOIN Registrations REG ON REG.studentId  =  ST.studentId 
+     LEFT OUTER JOIN Registrations REG ON REG.studentId  =  ST.studentId 
      LEFT OUTER JOIN IsirInstance INS  ON REG.studentId = INS.studentId
 WHERE ST.<ADMINID> AND REG.programmeId IS NULL 
       AND firstName = BINARY UPPER(firstName) 
       AND lastName = BINARY UPPER(lastName)
       AND DATE(ST.creationDtTm) BETWEEN (CURDATE() - INTERVAL 7 DAY) AND CURDATE()
-      AND ST.isActive = 1                           -- because imports are automatically marked as 'Enrolled Students'
-      AND ST.creationDtTm = ST.lastUpdateDtTm      -- to select records which haven't been updated
+      AND ST.creationDtTm = ST.lastUpdateDtTm      -- only includes records which haven't been updated
 ORDER BY lastName
