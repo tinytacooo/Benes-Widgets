@@ -1,11 +1,26 @@
-SELECT DISTINCT FORMAT(SUM(A.duration),2) as "Total Hours Attended in Program"
-
-FROM Registrations R, Attendance A, Classes C, ClassStudentReltn CSR
-
-WHERE R.<ADMINID> and R.isActive=1 
-and R.studentId=[USERID] 
-and R.studentId=A.studentId and A.attendanceDate>=R.startDate and A.isActive=1
-and A.classId=C.classId and C.isActive=1 AND CSR.classId=C.classId AND CSR.studentId=A.studentId AND CSR.isActive<>0
-and C.subjectId IN (SELECT subjectId FROM GroupSubjectReltn GSR, CourseGroups CG WHERE CG.programmeId=R.programmeId and CG.isActive=1 and CG.courseGroupId=GSR.courseGroupId and GSR.isActive=1)
-
-GROUP BY R.registrationId
+-- Current Attended Hours in School (student widget)
+-- Written by: Kelly MJ   |   7/17/2018
+    -- Displays current attended hours, hours remaining, and hours in program for current user (student)
+    
+SELECT FORMAT(SUM(A.duration),2) 'Total Hours Attended in Program'    -- hours attended
+     , SUM(C.instructHour)/COUNT(A.attendanceId) 'Hours Scheduled'          -- hours scheduled
+     , FORMAT(SUM(C.instructHour)/COUNT(A.attendanceId) - SUM(A.duration), 2) 'Hours Remaining' -- hours remaining
+    
+FROM (SELECT REG.* FROM Registrations REG
+             WHERE REG.studentId = [USERID] AND REG.isActive = 1
+             ORDER BY REG.registrationDate DESC
+             LIMIT 1) R
+        , ClassStudentReltn CSR
+        , Classes C
+        , Attendance A
+   
+WHERE R.studentId = A.studentId AND R.studentId = CSR.studentId       -- studentId criteria
+     AND C.classId = A.classId AND C.classId = CSR.classId                       -- classId criteria
+     AND C.subjectId IN (SELECT subjectId FROM GroupSubjectReltn GSR, CourseGroups CG
+					WHERE CG.programmeId=R.programmeId AND CG.isActive=1
+                                         AND CG.courseGroupId=GSR.courseGroupId AND GSR.isActive=1)
+     AND C.isActive = 1 AND A.isActive = 1 AND CSR.isActive = 1                -- isActive criteria
+     AND A.attendanceDate >= R.startDate                                                     -- attendance date criteria
+     AND R.<ADMINID>
+  
+  GROUP BY R.registrationId
