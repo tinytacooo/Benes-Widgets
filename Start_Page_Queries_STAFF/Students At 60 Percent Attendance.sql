@@ -1,12 +1,14 @@
 -- Scheduled Attendance (Query Report)
 -- Author: Kelly MJ   |   7/26/2018
     -- Lists students who are at 60% attendance or lower
+-- 7/27/2018: Added start date, ordered by percentage, changed admin filter (super admins can see all students)
 
 SELECT CONCAT("Campus: ", CASE WHEN SA.campusCode = 34652 THEN 'New Port Richey'
-	        WHEN SA.campusCode = 34601 THEN 'Brooksville'
-            WHEN SA.campusCode = 34606 THEN 'Spring Hill'
-		END) 'Student Name'
-	 , null 'Program', null 'Percent Attended'
+	                             WHEN SA.campusCode = 34601 THEN 'Brooksville'
+                               WHEN SA.campusCode = 34606 THEN 'Spring Hill'
+                               ELSE 'All campuses'
+		 END) 'Student Name'
+	 , null 'Program', null 'Percent Attended', null 'Start Date'
 FROM SubAdmins SA
 WHERE SA.subAdminId = [USERID]
 AND SA.<ADMINID>
@@ -14,13 +16,15 @@ AND SA.<ADMINID>
 UNION
     
 (SELECT t1.name
-              , t1.program
-              , CONCAT(t1.percent, '%')
+      , t1.program
+      , CONCAT(t1.percent, '%')
+      , t1.startDate
 
 FROM (
 SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(S.studentId AS CHAR), '">', CONCAT(UCASE(SUBSTRING(S.firstname, 1, 1)),LCASE(SUBSTRING(S.firstname, 2))," ",CONCAT(UCASE(SUBSTRING(S.lastName, 1, 1)),LCASE(SUBSTRING(S.lastName, 2)))), '</a>') 'Name'  -- Name (link)
      , P.programmeName 'Program' -- Program name
-     , 100*FORMAT( SUM(A.duration)/(SUM(C.instructHour)/COUNT(A.attendanceId)), 2) 'percent'                                             -- Percentage (numerical)
+     , ROUND(100*SUM(A.duration)/(SUM(C.instructHour)/COUNT(A.attendanceId)), 0) 'percent'                                             -- Percentage (numerical)
+     , R.startDate
 
 FROM Registrations R
    
@@ -52,12 +56,16 @@ ON R.studentId = S.studentId
 AND S.isActive = 1
 
 WHERE R.isActive = 1
-AND R.studentCampus = (SELECT campusCode from SubAdmins WHERE subAdminId = [USERID])
+AND CASE WHEN (SELECT campusCode from SubAdmins WHERE subAdminId = [USERID]) != 0     -- when user has a specific campus, only display students from that campus
+         THEN R.studentCampus = (SELECT campusCode from SubAdmins WHERE subAdminId = [USERID])
+         ELSE R.studentCampus != -1        -- for super admins without a campus, display all students in the school
+    END
 AND R.<ADMINID>
 AND S.firstName NOT IN ('Test', 'TEST', 'test')
-  
+AND S.lastName NOT IN ('Test', 'TEST', 'test')
+
 GROUP BY R.registrationId
+ORDER BY percent ASC
 ) t1
 
-WHERE t1.percent <= 60
-ORDER BY t1.percent ASC)
+WHERE t1.percent <= 60)
