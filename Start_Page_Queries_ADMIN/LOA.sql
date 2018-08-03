@@ -1,3 +1,7 @@
+-- LOA Start Page Query
+-- Update: Kelly MJ  |  07/30/2018
+    -- Added 'Actual Hours' column
+    
 SELECT Name
 	
 ,  CASE WHEN (CurrentDiff +  PAST) >= 170 THEN CONCAT('<font color="white">','<div style="background-color:#ff0000; width: 100%; height:100%; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px"> ' ,LeaveDate,'</div>','</font>')
