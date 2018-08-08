@@ -1,0 +1,64 @@
+-- Created by: Andrew St. George
+-- Edited by: Kelly MJ
+-- Last update: 5/30/2018
+-- Changes: For "Retail" and "Services", changed "SC.parentcatergory = 'Retail'" to "SC.parentcategory LIKE '%Retail%'"
+
+SELECT PVF.fieldValue AS Team
+      , CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(STD.studentId AS CHAR), '">', CAST(STD.firstName AS CHAR), ' ', CAST(STD.lastName AS CHAR), '</a>') AS Name
+      , COUNT(CASE WHEN SC.parentcategory LIKE '%Retail%' THEN 1 END) AS 'Total Retail'
+      , CONCAT('<div align="right">','$',ROUND(SUM(CASE WHEN SC.parentcategory LIKE '%Retail%' THEN SC.tickettotal END),2),'</div>') AS 'Retail Sum'
+      , COUNT(CASE WHEN SC.parentcategory LIKE '%Service%' THEN 1 END) AS 'Total Services'
+      , CONCAT('<div align="right">','$',ROUND(SUM(CASE WHEN SC.parentcategory LIKE '%Service%' THEN SC.tickettotal END),2),'</div>') AS 'Service Sum'
+      , COUNT(CASE WHEN SC.productID = 1215 THEN 1 END) AS 'Total GitfCard'
+      , CONCAT('<div align="right">','$',ROUND(SUM(CASE WHEN SC.productID = 1215 THEN SC.ticketTotal END),2),'</div>') AS 'Giftcard Sum'
+      , COUNT(CASE WHEN SC.serviceName = 'Pre-Book Next Appointment' THEN 1 END) AS 'PreBooks'
+      , COUNT(CASE WHEN SC.serviceName = 'Referral Customer' THEN 1 END) AS Referral
+      , COUNT(CASE WHEN SC.serviceName = 'Add On Style' THEN 1 END) AS 'AddOns'
+        FROM StudentServiceCustomerReltn SC
+        INNER JOIN Students STD 
+                ON STD.StudentID = SC.studentID
+        INNER JOIN ProfileFieldValues PVF
+                ON PVF.userID = STD.studentID AND PVF.FieldName = 'TEAM_NAME'
+        WHERE SC.creationDtTm BETWEEN '[?Start Date]' AND '[?End Date]'    AND (SC.ParentCategory LIKE '%Service%' OR SC.ParentCategory LIKE '%Retail%') AND
+        STD.studentCampus = [?Campus{34652|New Port Richey|34606|Spring Hill|34601|BrooksVille}]  AND PVF.FieldValue IS NOT NULL AND PVF.FieldValue != '' AND SC.<ADMINID>
+        GROUP BY STD.studentID
+UNION 
+SELECT PVF.fieldValue AS Team
+       , CONCAT('<b>',' Sub Totals','</b>')
+       , COUNT(CASE WHEN SC.parentcategory LIKE '%Retail%' THEN 1 END) AS 'Total Retail'
+       , CONCAT('<div align="right">','$',ROUND(SUM(CASE WHEN SC.parentcategory LIKE '%Retail%' THEN SC.tickettotal END),2),'</div>') AS 'Retail Sum'
+       , COUNT(CASE WHEN SC.parentcategory LIKE '%Service%' THEN 1 END) AS 'Total Services'
+       , CONCAT('<div align="right">','$',ROUND(SUM(CASE WHEN SC.parentcategory LIKE '%Service%' THEN SC.tickettotal END),2),'</div>') AS 'Service Sum'
+       , COUNT(CASE WHEN SC.productID = 1215 THEN 1 END) AS 'Total GitfCard'
+       , CONCAT('<div align="right">','$',ROUND(SUM(CASE WHEN SC.productID = 1215 THEN SC.ticketTotal END),2),'</div>') AS 'Giftcard Sum'
+       , COUNT(CASE WHEN SC.serviceName = 'Pre-Book Next Appointment' THEN 1 END) AS 'PreBooks'
+       , COUNT(CASE WHEN SC.serviceName = 'Referral Customer' THEN 1 END) AS Referral
+       , COUNT(CASE WHEN SC.serviceName = 'Add On Style' THEN 1 END) AS 'AddOns'
+FROM StudentServiceCustomerReltn SC
+        INNER JOIN Students STD 
+                ON STD.StudentID = SC.studentID
+        INNER JOIN ProfileFieldValues PVF
+                ON PVF.userID = STD.studentID AND PVF.FieldName = 'TEAM_NAME'
+        WHERE SC.creationDtTm BETWEEN '[?Start Date]' AND '[?End Date]' AND (SC.ParentCategory LIKE '%Service%' OR SC.ParentCategory LIKE '%Retail%') AND
+        STD.studentCampus = [?Campus{34652|New Port Richey|34606|Spring Hill|34601|BrooksVille}]  AND PVF.FieldValue IS NOT NULL AND PVF.FieldValue != '' AND SC.<ADMINID>
+        GROUP BY PVF.fieldValue
+UNION 
+SELECT PVF.fieldValue AS Team
+       , NULL 
+       , NULL
+       , NULL
+       , NULL
+       , NULL
+       , NULL
+       , NULL
+       , NULL
+       , NULL
+       , NULL
+FROM StudentServiceCustomerReltn SC
+        INNER JOIN Students STD 
+                ON STD.StudentID = SC.studentID
+        INNER JOIN ProfileFieldValues PVF
+                ON PVF.userID = STD.studentID AND PVF.FieldName = 'TEAM_NAME'
+        WHERE SC.creationDtTm BETWEEN '[?Start Date]' AND '[?End Date]'  AND (SC.ParentCategory LIKE '%Service%' OR SC.ParentCategory LIKE '%Retail%') AND
+        STD.studentCampus = [?Campus{34652|New Port Richey|34606|Spring Hill|34601|BrooksVille}]  AND PVF.FieldValue IS NOT NULL AND PVF.FieldValue != '' AND SC.<ADMINID>
+ORDER BY Team
