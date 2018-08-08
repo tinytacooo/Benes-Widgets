@@ -2,7 +2,7 @@
 -- 7/27/2018: Added filter so instructors only see information for students registered in one of their classes - applies to both the main and shared instructors.
 
 select  st.idnumber ID_No,
-          CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(st.studentId AS CHAR), '">', st.firstName, ' ', st.lastName, '</a>') AS 
+          CONCAT('<a href="https://benes.orbund.com/einstein-freshair/addedit_form_instance.jsp?userId=', CAST(st.studentId AS CHAR), '&userType=1&formId=13">', st.firstName, ' ', st.lastName, '</a>') AS 
           'Student Name',
           ca.campusName 'Campus',
           prog.programmeName 'Program',
