@@ -1,105 +1,72 @@
--- Written by: ??
--- 6/8/2018 Update (Kelly)
-   -- Now accounts for 'Daily' or 'Hourly' surcharges
-   -- Logic: code calculates average of lesson durations for each student, then divides overall excess hours by the average to find the number of 
-        -- 'days' the student has missed.
--- 8/10/2018 Update (Kelly)
-   -- Remove Career Pathways students from the list
-   -- Uses absolute max grad date for each students (in case of students with multiple registrations)
-   -- Moved 'End Date' to second column position
-   -- Rolled surcharge type and rate columns into one column
+-- Widget (Admin View): Students Past Contract Grad Date
+-- Author: Kelly MJ  |  8/15/2018
+-- Displays students who have not fulfilled their program hours by their contracted graduation date.
 
-SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(S.studentId AS CHAR), '">', CAST(S.firstName AS CHAR), ' ', CAST(S.lastName AS CHAR), '</a>') AS Name
-,  P.programmeName AS 'Program'
-,  R.Enddate AS 'End Date'
-,  ROUND(SUM(A.duration)) AS 'Total Hours At End Date'
-,  P.MinClockHours AS 'Program Total'
--- ,  P.overContactAmount AS 'Hours Surcharge'
-,  CASE WHEN P.overContactType LIKE 'Hourly'
-          THEN CONCAT('Over: ', ROUND((P.MinClockHours)-(SUM(A.duration)), 1), ' hours<br>Rate:   $', P.overContactAmount, '/hr')
-        WHEN P.overContactType LIKE 'Daily'
-          THEN CONCAT('Over: ', ROUND((ROUND((P.MinClockHours)-(SUM(A.duration))) / CS.lessonDur), 1), ' days<br>Rate:   $', P.overContactAmount, '/day')
-   END AS 'Surcharge Days/Hours' 
-   
-,  CASE WHEN P.overContactType LIKE 'Hourly' 
-          THEN CONCAT('$',ROUND((ROUND((P.MinClockHours)-(SUM(A.duration))) * P.overContactAmount), 2))
-        WHEN P.overContactType LIKE 'Daily'
-          THEN CONCAT('$', ROUND(((ROUND((P.MinClockHours)-(SUM(A.duration))) * P.overContactAmount)/CS.lessonDur), 2))
-   END AS 'Total'
+SELECT t1.Name
+	, t1.programmeName 'Program Name'
+	, t1.endDate 'Contract Grad Date'
+	, t1.lastPunch 'Last Date Attended'
+	, t1.minClockHours 'Program Hours'
+	, ROUND(t1.HoursAttended, 1) 'Hours Attended up to Contract Grad Date'
 
-FROM Attendance A
+FROM (
 
-INNER JOIN Registrations    R 
-ON A.studentId = R.studentId AND  R.isActive = 1
+SELECT S.idNumber, CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(S.studentId AS CHAR), '">', S.firstName, ' ', S.lastName, '</a>') AS Name
+    , P.programmeName
+	, R.endDate
+    , SUM(A.duration) AS HoursAttended  -- before contracted grad date
+    , CP.lastPunch
+	, P.minClockHours
+    , R.transferUnits
+    , P.minClockHours - SUM(A.duration) - R.transferUnits AS Hours_Remaining
+    , S.studentCampus AS Campus
+    
+FROM Students S
+
+INNER JOIN Registrations R
+	ON R.studentId = S.studentId
+
+-- Finds greatest contract grad date for each student
+INNER JOIN (
+	SELECT RR.studentId
+		, MAX(RR.endDate) endDate
+	FROM Registrations RR
+	WHERE RR.programmeId IN (SELECT PP.programmeId FROM Programmes PP WHERE PP.programmeName NOT LIKE '%areer%' AND PP.programmeName NOT LIKE '%nstructor%raining%')
+    GROUP BY RR.studentId) MAXREG
+    ON MAXREG.studentId = R.studentId
+    AND MAXREG.endDate = R.endDate
+    
+INNER JOIN Programmes P
+	ON P.programmeId = R.programmeId
+    AND P.isActive = 1
+
+INNER JOIN Attendance A
+	ON A.studentId = S.studentId
+    AND A.attendanceDate <= R.endDate
+    AND A.attendanceDate >= R.startDate
+    AND A.subjectId IN (SELECT GSR.subjectId FROM CourseGroups CG
+						INNER JOIN GroupSubjectReltn GSR ON GSR.courseGroupId = CG.courseGroupId
+                        WHERE GSR.isActive = 1 AND CG.isActive = 1 AND R.programmeId = CG.programmeId)
+	AND A.classId IN (SELECT CSR.classId FROM ClassStudentReltn CSR
+					  WHERE CSR.studentId = A.studentId AND CSR.isActive = 1)
 
 INNER JOIN (
-    SELECT R.studentId
-        , MAX(R.endDate) AS endDate
-    FROM Registrations R
-    GROUP BY R.studentId) MAXREG
-ON MAXREG.studentId = A.studentId
-AND MAXREG.endDate = R.endDate
+	SELECT DATE(MAX(CPS.punchTime)) AS lastPunch, CPS.userId
+    FROM ClockPunches CPS
+    GROUP BY CPS.userId) CP
+	ON CP.userId = R.studentId
 
-INNER JOIN Programmes       P 
-ON R.programmeId = P.programmeId AND  P.isActive = 1
-
-INNER JOIN Students         S 
-ON R.studentId = S.studentId AND S.isactive = 1
-
-INNER JOIN (
-  SELECT CSR.studentId
-    , C.classId
-    , SUM(C.lessonDuration)/COUNT(C.lessonDuration) AS lessonDur
-  FROM ClassStudentReltn CSR
-  INNER JOIN Classes C
-  ON C.classId = CSR.classId
-  GROUP BY CSR.studentId
-  ) CS
-ON CS.studentId = S.studentId
-
-INNER JOIN (SELECT S.StudentID AS Student 
-            FROM Attendance A 
-            INNER JOIN  Registrations R 
-              ON A.studentId = R.studentId 
-      INNER JOIN (
-        SELECT R.studentId
-          , MAX(R.endDate) AS endDate
-        FROM Registrations R
-        GROUP BY R.studentId) MAXREG
-      ON MAXREG.studentId = A.studentId AND MAXREG.endDate = R.endDate
-            INNER JOIN Students        S 
-              ON R.studentId = S.studentId 
-              AND S.isactive = 1
-            INNER JOIN Programmes       P 
-              ON R.programmeId = P.programmeId
-              AND  P.isActive = 1
-              AND  R.isActive = 1
-            WHERE A.attendanceDate >= R.enddate 
-              AND R.regStatus not like '3' 
-              AND R.regStatus not like '0'   
-              AND P.programmename Not like ('Care%%') 
-              AND P.programmename Not like ('Instructor Training')
-            Group BY S.studentID
-        ) as late 
-ON R.studentId = late.Student
- 
 WHERE
-    R.enrollmentSemesterId = 4000441
-    AND R.regStatus not like '3' 
-    AND R.regStatus not like '0'
-    AND A.attendancedate <= R.enddate
-    AND A.subjectId IN (SELECT GSR.subjectId
-            FROM CourseGroups CGP
-            INNER JOIN GroupSubjectReltn GSR
-              ON CGP.courseGroupId=GSR.courseGroupId
-              AND GSR.isActive=1
-            WHERE R.programmeId = CGP.programmeId 
-              AND CGP.isActive=1)
-                                        
-    AND A.classId IN (SELECT DISTINCT CRS.classId
-            From ClassStudentReltn CRS
-            Where CRS.studentId = A.studentId AND CRS.isActive=1)
-  AND A.<ADMINID>
+	S.isActive = 1
+    AND R.isActive = 1
+    AND R.regStatus NOT IN (0, 3)
+    AND R.endDate <= CURDATE()
+    AND R.enrollmentSemesterId = 4000441
+    AND S.firstName NOT LIKE 'test'
+    AND R.<ADMINID>
+    
+GROUP BY S.studentId
+ORDER BY R.endDate DESC
+) t1
 
-GROUP BY late.Student
-ORDER BY S.firstName
+WHERE t1.Hours_Remaining > 0
