@@ -6,7 +6,6 @@ SELECT t1.Name
 	, t1.programmeName 'Program Name'
 	, t1.endDate 'Contract Grad Date'
 	, t1.lastPunch 'Last Date Attended'
-	, t1.minClockHours 'Program Hours'
 	, ROUND(t1.HoursAttended, 1) 'Hours Attended up to Contract Grad Date'
 
 FROM (
