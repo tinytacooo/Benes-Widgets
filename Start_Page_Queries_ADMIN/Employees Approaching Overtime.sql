@@ -1,5 +1,36 @@
-SELECT allData.TAAname AS 'Staff Name'
-             , CONCAT('<div>','<font color="red">', allData.TAAduration, '</font>','</div>') AS 'Total Hours This Week'
+-- Widget (Admin view): Employees Approaching Overtime
+-- Author: Kelly MJ  |  08/16/2018
+-- Displays instructors/staff who have accumulated more than 35 hours in the current week.
+
+-- Displays the date range for which the information is being displayed
+(SELECT
+	'Date range: ' AS 'Staff Name'
+	, CASE
+		WHEN DAYOFWEEK(CURDATE()) = 7
+			THEN CONCAT(DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 6 DAY), '%m/%d/%Y'), ' - ', DATE_FORMAT(CURDATE(), '%m/%d/%Y'))
+		WHEN DAYOFWEEK(CURDATE()) = 6
+			THEN CONCAT(DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 5 DAY), '%m/%d/%Y'), ' - ', DATE_FORMAT(CURDATE(), '%m/%d/%Y'))
+		WHEN DAYOFWEEK(CURDATE()) = 5
+			THEN CONCAT(DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 4 DAY), '%m/%d/%Y'), ' - ', DATE_FORMAT(CURDATE(), '%m/%d/%Y'))
+		WHEN DAYOFWEEK(CURDATE()) = 4
+			THEN CONCAT(DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 3 DAY), '%m/%d/%Y'), ' - ', DATE_FORMAT(CURDATE(), '%m/%d/%Y'))
+		WHEN DAYOFWEEK(CURDATE()) = 3
+			THEN CONCAT(DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 2 DAY), '%m/%d/%Y'), ' - ', DATE_FORMAT(CURDATE(), '%m/%d/%Y'))
+		WHEN DAYOFWEEK(CURDATE()) = 2
+			THEN CONCAT(DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '%m/%d/%Y'), ' - ', DATE_FORMAT(CURDATE(), '%m/%d/%Y'))
+		ELSE CONCAT(DATE_FORMAT(CURDATE(), '%m/%d/%Y'), ' - ', DATE_FORMAT(CURDATE(), '%m/%d/%Y'))
+		END AS 'Total Hours This Week'
+)
+
+UNION
+
+-- Lists employees/their culumative hours
+(SELECT allData.TAAname AS 'Staff Name'
+    , CASE
+        WHEN allData.TAAduration <= 40
+            THEN CONCAT('<div>','<font color="black">', allData.TAAduration, '</font>','</div>')
+        ELSE CONCAT('<div>','<font color="red">', allData.TAAduration, '</font>','</div>')
+        END AS 'Total Hours This Week'
 
 FROM
 
@@ -13,15 +44,15 @@ INNER JOIN
           , CASE WHEN DAYOFWEEK(CURDATE()) = 7
 					  THEN DATE_SUB(CURDATE(), INTERVAL 6 DAY)
 				 WHEN DAYOFWEEK(CURDATE()) = 6
-					  THEN DATE_SUB(CURDATE(), INTERVAL 4 DAY)
+					  THEN DATE_SUB(CURDATE(), INTERVAL 5 DAY)
 				 WHEN DAYOFWEEK(CURDATE()) = 5
-					  THEN DATE_SUB(CURDATE(), INTERVAL 3 DAY)
+					  THEN DATE_SUB(CURDATE(), INTERVAL 4 DAY)
 				 WHEN DAYOFWEEK(CURDATE()) = 4
-					  THEN DATE_SUB(CURDATE(), INTERVAL 2 DAY)
+					  THEN DATE_SUB(CURDATE(), INTERVAL 3 DAY)
 				 WHEN DAYOFWEEK(CURDATE()) = 3
-					  THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+					  THEN DATE_SUB(CURDATE(), INTERVAL 2 DAY)
 				 WHEN DAYOFWEEK(CURDATE()) = 2
-					  THEN DATE_SUB(CURDATE(), INTERVAL 0 DAY)
+					  THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)
 			END as monday
 	 FROM TeacherAttendance
      ) AS TAA
@@ -45,15 +76,15 @@ INNER JOIN
           , CASE WHEN DAYOFWEEK(CURDATE()) = 7
 					  THEN DATE_SUB(CURDATE(), INTERVAL 6 DAY)
 				 WHEN DAYOFWEEK(CURDATE()) = 6
-					  THEN DATE_SUB(CURDATE(), INTERVAL 4 DAY)
+					  THEN DATE_SUB(CURDATE(), INTERVAL 5 DAY)
 				 WHEN DAYOFWEEK(CURDATE()) = 5
-					  THEN DATE_SUB(CURDATE(), INTERVAL 3 DAY)
+					  THEN DATE_SUB(CURDATE(), INTERVAL 4 DAY)
 				 WHEN DAYOFWEEK(CURDATE()) = 4
-					  THEN DATE_SUB(CURDATE(), INTERVAL 2 DAY)
+					  THEN DATE_SUB(CURDATE(), INTERVAL 3 DAY)
 				 WHEN DAYOFWEEK(CURDATE()) = 3
-					  THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+					  THEN DATE_SUB(CURDATE(), INTERVAL 2 DAY)
 				 WHEN DAYOFWEEK(CURDATE()) = 2
-					  THEN DATE_SUB(CURDATE(), INTERVAL 0 DAY)
+					  THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)
 			END as monday
 	 FROM SubAdminAttendance
          WHERE SubAdminAttendance.<ADMINID>
@@ -65,4 +96,4 @@ WHERE SAA.attendanceDate BETWEEN SAA.monday AND CURDATE()
       AND SA.<ADMINID>
 GROUP BY SA.subAdminId) AS allData
 
-WHERE (allData.TAAduration >= 35)
+WHERE (allData.TAAduration >= 35))
