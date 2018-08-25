@@ -1,8 +1,10 @@
+-- Kelly MJ 8/24/2018 update: use attendanceClockPunch instead of reasonText
+
 SELECT
 	CONCAT('<a href="view_attendance.jsp?semesterid=', CAST(REG.enrollmentSemesterId AS CHAR), '&classid=', CAST(ATD.classId AS CHAR), '&subjectid=', CAST(ATD.subjectId AS CHAR), '&studentid=', CAST(ATD.studentId AS CHAR), '"target="_blank">', CAST(SDT.firstName AS CHAR), ' ', CAST(SDT.lastName AS CHAR), '</a>') AS Name,
 	ATD.duration AS Duration,
 	ATD.attendanceDate AS Attendance_Date,
-        ATD.reasonText
+        ATD.attendanceClockPunch
 FROM
 	Attendance ATD
 	INNER JOIN Registrations REG ON ATD.studentId = REG.studentId
