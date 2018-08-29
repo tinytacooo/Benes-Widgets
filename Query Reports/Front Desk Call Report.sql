@@ -2,6 +2,50 @@
 -- Author: Kelly MJ  |  8/25/2018
 -- Lists "At Risk," "Under 60% Attendance" and "Pending Drop" students in a printable report for front desk staff
 
+
+-- **** At Risk Widget list ****
+SELECT '<div style="padding-top: 3px;"><font size="2"><strong>At Risk Students</strong></font></div>' AS 'Name'
+	, NULL AS 'Home Phone/<br>Cell Phone'
+	, NULL AS 'Call Date/Time'
+	, '<font color="#fff">Write down what the outcome of the call to each student was</font>' AS 'Call Outcome'  -- white text makes space on the physical print for handwritten notes
+
+UNION
+
+(  SELECT Name AS 'Student'
+	, Phone
+	, NULL
+	, NULL
+FROM
+(
+SELECT Name, Phone, Classname, lda, ((DATEDIFF(CURRENT_DATE, lda)) -
+            ((WEEK(CURRENT_DATE) - WEEK(lda)) * 2) -
+            (case when weekday(CURRENT_DATE) = 6 then 1 else 0 end) -
+            (case when weekday(lda) = 5 then 1 else 0 end)) as DifD
+FROM(
+SELECT Distinct A.studentID,C.ClassName, CONCAT(S.firstName, ' ', S.lastName) AS Name, CONCAT('<div>H: ', S.homePhone, '<br>C: ', S.cellPhone, '</div>') as Phone, MAX(A.attendanceDate) as lda
+FROM Attendance A
+INNER JOIN Classes C 
+               ON A.classId = C.classId
+INNER JOIN ClassStudentReltn R 
+               ON  C.classId = R.classId 
+               AND A.studentId = R.studentId 
+INNER JOIN 
+                  (SELECT RR.registrationId, RR.studentID  
+                   FROM Registrations RR 
+                    WHERE RR.isActive=1 
+                    AND RR.regstatus = 1) AS REG ON REG.RegistrationID = R.registrationId 
+INNER JOIN Students S 
+                ON S.studentID = REG.studentID 
+                AND S.<ADMINID>
+
+WHERE C.isActive=1 AND R.isActive=1 AND A.isActive=1 AND A.present > 0 AND A.AttendanceDate  BETWEEN (CURRENT_DATE - INTERVAL 60 DAY) AND CURRENT_DATE
+AND S.studentID NOT IN (SELECT LOA.StudentID FROM LeavesOfAbsence LOA WHERE LOA.isactive = 1 AND LOA.returnDate IS NULL OR LOA.returndate = '') 
+GROUP BY A.studentID) as t1) as t2
+WHERE DifD > 7
+ORDER BY S.lastName ASC  )
+
+UNION
+
 -- **** Under 60% Attendance list ****
 SELECT '<div style="padding-top: 3px;"><font size="2"><strong>Under 60% Attendance</strong></font></div>' AS 'Name'
 	, NULL AS 'Home Phone/<br>Cell Phone'
@@ -10,8 +54,7 @@ SELECT '<div style="padding-top: 3px;"><font size="2"><strong>Under 60% Attendan
 
 UNION
 
--- Under 60% Scheduled Attendance (Query Report)
--- Author: Kelly MJ   |   7/26/2018
+-- Author: Kelly MJ  |  7/26/2018  |  Code from: "Under 60% Attendance" Admin widget
 (  SELECT t1.name
       , t1.phone
       , NULL
@@ -97,47 +140,4 @@ ON R.studentId = S.studentId
 WHERE S.isActive = 16
   AND S.<ADMINID>
 
-ORDER BY S.lastName ASC  )
-
-UNION
-
--- **** At Risk Widget list ****
-SELECT '<div style="padding-top: 3px;"><font size="2"><strong>At Risk Students</strong></font></div>' AS 'Name'
-	, NULL AS 'Home Phone/<br>Cell Phone'
-	, NULL AS 'Call Date/Time'
-	, '<font color="#fff">Write down what the outcome of the call to each student was</font>' AS 'Call Outcome'  -- white text makes space on the physical print for handwritten notes
-
-UNION
-
-(  SELECT Name AS 'Student'
-	, Phone
-	, NULL
-	, NULL
-FROM
-(
-SELECT Name, Phone, Classname, lda, ((DATEDIFF(CURRENT_DATE, lda)) -
-            ((WEEK(CURRENT_DATE) - WEEK(lda)) * 2) -
-            (case when weekday(CURRENT_DATE) = 6 then 1 else 0 end) -
-            (case when weekday(lda) = 5 then 1 else 0 end)) as DifD
-FROM(
-SELECT Distinct A.studentID,C.ClassName, CONCAT(S.firstName, ' ', S.lastName) AS Name, CONCAT('<div>H: ', S.homePhone, '<br>C: ', S.cellPhone, '</div>') as Phone, MAX(A.attendanceDate) as lda
-FROM Attendance A
-INNER JOIN Classes C 
-               ON A.classId = C.classId
-INNER JOIN ClassStudentReltn R 
-               ON  C.classId = R.classId 
-               AND A.studentId = R.studentId 
-INNER JOIN 
-                  (SELECT RR.registrationId, RR.studentID  
-                   FROM Registrations RR 
-                    WHERE RR.isActive=1 
-                    AND RR.regstatus = 1) AS REG ON REG.RegistrationID = R.registrationId 
-INNER JOIN Students S 
-                ON S.studentID = REG.studentID 
-                AND S.<ADMINID>
-
-WHERE C.isActive=1 AND R.isActive=1 AND A.isActive=1 AND A.present > 0 AND A.AttendanceDate  BETWEEN (CURRENT_DATE - INTERVAL 60 DAY) AND CURRENT_DATE
-AND S.studentID NOT IN (SELECT LOA.StudentID FROM LeavesOfAbsence LOA WHERE LOA.isactive = 1 AND LOA.returnDate IS NULL OR LOA.returndate = '') 
-GROUP BY A.studentID) as t1) as t2
-WHERE DifD > 7
 ORDER BY S.lastName ASC  )
