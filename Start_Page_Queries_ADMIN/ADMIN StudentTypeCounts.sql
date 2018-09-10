@@ -17,7 +17,7 @@ WHERE S.isActive = 1
 
 UNION
 
-SELECT CONCAT('<a target="_blank" href="https://benes.orbund.com/einstein-freshair/view_startpage_query_report.jsp?queryid=230&type=spquery">New starts in the past week:</a>') AS 'Student Type'
+SELECT CONCAT('<a target="_blank" href="https://benes.orbund.com/einstein-freshair/view_startpage_query_report.jsp?queryid=230&type=spquery">New starts in the past week (link to list):</a>') AS 'Student Type'
 	, COUNT(DISTINCT S.idNumber)
     
 FROM Students S
