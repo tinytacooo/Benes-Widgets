@@ -1,19 +1,18 @@
 -- ADMIN Widget: Management Dashboard
 -- Kelly MJ  |  9/10/2018
 
-SELECT CONCAT('Enrolled students as of yesterday (', DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 DAY), "%m/%d/%y"), '): ') AS 'Student Type'
+SELECT CONCAT('Enrolled students who have started since yesterday (', DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 DAY), "%m/%d/%y"), '): ') AS 'Student Type'
     , COUNT(DISTINCT S.idNumber) AS Count
     
 FROM Students S
 	, Registrations R
 
 WHERE S.isActive = 1
-	AND S.studentId = R.studentId
-	AND R.isActive = 1 AND R.enrollmentSemesterId = 4000441
-	AND S.isActive = 1 AND S.firstName NOT LIKE '%test%' AND S.lastName NOT LIKE '%test%'
-	AND S.studentId Not In (Select Distinct L.studentId From LeavesOfAbsence L WHERE L.isActive = 1 AND (leaveDate < Now() AND (L.returnDate IS NULL OR L.returnDate > NOW())))
-	AND R.startDate < CURDATE()
 	AND S.<ADMINID>
+	AND R.studentId=S.studentId
+	AND R.regStatus = 1 AND R.isActive = 1 AND R.startDate < CURDATE()
+	AND S.studentId Not In (Select Distinct L.studentId From LeavesOfAbsence L WHERE L.isActive = 1 AND (leaveDate < Now() AND (L.returnDate IS NULL OR L.returnDate > NOW())) AND L.<ADMINID>)
+	AND S.firstName NOT LIKE '%test%'
 
 UNION	-- New Starts in the past Week
 SELECT CONCAT('<a target="_blank" href="https://benes.orbund.com/einstein-freshair/view_startpage_query_report.jsp?queryid=230&type=spquery">New starts in the past week (link to list):</a>') AS 'Student Type'

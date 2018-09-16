@@ -69,10 +69,10 @@ FROM (
 	WHERE C.isActive = 1
 		AND C.<ADMINID>
 		AND DATE(C.creationDtTm) >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK)
-		AND C.subAdminId IN (SELECT subAdminId FROM SubAdmins WHERE campusCode = 34601)
+		AND C.subAdminId IN (SELECT subAdminId FROM SubAdmins WHERE campusCode = 34606)
 
 	GROUP BY CT.typeName) t2
-WHERE t2.Campus = 34601
+WHERE t2.Campus = 34606
 
 UNION	-- Brookesville
 SELECT NULL 'Contact Name', NULL 'Stage', NULL 'Program of Interest'
@@ -106,6 +106,6 @@ FROM (
 	WHERE C.isActive = 1
 		AND C.<ADMINID>
 		AND DATE(C.creationDtTm) >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK)
-		AND C.subAdminId IN (SELECT subAdminId FROM SubAdmins WHERE campusCode = 34606)
+		AND C.subAdminId IN (SELECT subAdminId FROM SubAdmins WHERE campusCode = 34601)
 
 	GROUP BY CT.typeName) t1

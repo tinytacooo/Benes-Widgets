@@ -51,7 +51,7 @@ FROM (
 		AND C.<ADMINID>
 
 	GROUP BY Campus, CT.typeName) t2
-WHERE t2.Campus = 34601
+WHERE t2.Campus = 34606
 
 UNION	-- Brookesville
 SELECT NULL AS 'Lead Type'
@@ -77,4 +77,4 @@ FROM (
 		AND C.<ADMINID>
 
 	GROUP BY Campus, CT.typeName) t3
-WHERE t3.Campus = 34606
+WHERE t3.Campus = 34601

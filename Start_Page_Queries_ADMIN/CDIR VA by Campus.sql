@@ -1,31 +1,74 @@
-SELECT CONCAT('<a href="admin_view_student.jsp?studentid=', CAST(SDT.studentId AS CHAR), '">', SDT.firstName, ' ', SDT.lastName, '</a>') AS 'Student Name',
-CASE WHEN SUM(ATD.duration)/SUM(CLS.lessonDuration)*100 <= 80 THEN Concat('<font color="red">',PRG.programmeName,'</font>')
-            ELSE PRG.programmeName END AS Program,
-CASE WHEN SUM(ATD.duration)/SUM(CLS.lessonDuration)*100 <= 80 THEN Concat('<font color="red">',CMP.campusName ,'</font>')
-            ELSE CMP.campusName  END AS 'Campus',
-CASE WHEN SUM(ATD.duration)/SUM(CLS.lessonDuration)*100 <= 80 THEN Concat('<font color="red">',REG.startdate,'</font>')
-            ELSE REG.startdate END AS 'Start Date',
-CASE WHEN SUM(ATD.duration)/SUM(CLS.lessonDuration)*100 <= 80 THEN CONCAT( '<div align="center">','<font color="red">'  , ROUND(100*SUM(ATD.duration)/SUM(CLS.lessonDuration),2)  ,' %', '</font>','</div>')
-            ELSE CONCAT( '<div align="center">',ROUND(100*SUM(ATD.duration)/SUM(CLS.lessonDuration),2),' %','</div>') END AS Attendance_Percentage,
-CASE WHEN SUM(ATD.duration)/SUM(CLS.lessonDuration)*100 <= 80 THEN Concat('<font color="red">','At Risk','</font>')
-            ELSE 'Satisfactory' END AS 'SAP'
-FROM Registrations REG
-INNER JOIN Attendance ATD ON REG.studentId=ATD.studentId AND ATD.isActive=1
-INNER JOIN Classes CLS ON ATD.classId = CLS.classId AND CLS.isActive=1
-INNER JOIN Students SDT ON REG.studentId = SDT.studentId AND SDT.isActive=1
-INNER JOIN Campuses CMP ON SDT.studentCampus = CMP.campusCode AND CMP.isActive=1
-INNER JOIN Programmes PRG ON PRG.programmeId = REG.programmeId AND PRG.isActive=1
-INNER JOIN ProfileFieldValues PVF ON REG.studentID = PVF.userID AND PVF.isActive=1
-WHERE
-REG.<ADMINID> AND REG.isActive=1 AND
-REG.enrollmentSemesterId = 4000441 AND
-REG.endDate>=CURDATE() AND  PVF.fieldName = 'VA_student' AND PVF.fieldValue = 'TRUE' AND
-SDT.<ADMINID> AND (SDT.isActive = 1 OR SDT.isActive = 12) AND SDT.studentCampus = (Select campusCode From SubAdmins Where <ADMINID> AND subAdminId=[USERID]) 
-GROUP BY SDT.idNumber
-Order by CMP.campusName, SDT.lastName, PRG.programmeName ASC
+-- Campus Director Widget: VA by Campus
+-- Edit: Kelly MJ 09/13/2018 - changed percent attendance to PFV calculation
 
-   
+SELECT t1.name 'Student Name'
+	, IF(t1.percent < 80, CONCAT('<font color="red">',t1.programmeName,'</font>'), t1.programmeName) AS Program
+	, IF(t1.percent < 80, CONCAT('<font color="red">',t1.startDate,'</font>'), t1.startDate) AS 'Start Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	, IF(t1.percent < 80, CONCAT('<font color="red">',t1.percent,'</font>'), t1.percent) AS 'Attendance<br>Percentage'
+	, IF(t1.percent < 80, '<font color="red">At Risk</font>', 'Satisfactory') AS 'SAP'
 
+FROM (
+	SELECT CONCAT('<a target="_blank" href="admin_view_student.jsp?studentid=', CAST(S.studentId AS CHAR), '">', S.firstName, ' ', S.lastName, '</a>') AS name
+		, P.programmeName
+		, R.startDate
+		, ROUND((SUM(A.duration)/SCH.hours)*100, 2) percent
+		, SUM(A.duration) AS attH
+		, SCH.hours AS schH
+		, S.studentCampus AS Campus
 
+	FROM Registrations R
 
+	INNER JOIN Students S
+		ON S.studentId = R.studentId
 
+	INNER JOIN Attendance A
+		ON A.studentId = S.studentId
+		AND A.attendanceDate >= R.startDate
+		AND A.isActive = 1
+ 
+	INNER JOIN (
+		SELECT userId
+			, fieldValue AS hours
+		FROM ProfileFieldValues
+		WHERE fieldName = "HOURS_ATTENDED") ATT
+		ON ATT.userId = R.studentId
+
+	INNER JOIN (
+		SELECT userId
+			, fieldValue AS hours
+		FROM ProfileFieldValues
+		WHERE fieldName = "HOURS_SCHEDULED_FOR_CURRENT_PROGRAM") SCH
+		ON SCH.userId = R.studentId
+
+	INNER JOIN ProfileFieldValues PFV
+		ON PFV.userId = R.studentId
+		AND PFV.fieldName = 'VA_Student' AND PFV.fieldValue = 'TRUE'
+
+	INNER JOIN Programmes P
+		ON P.programmeId = R.programmeId
+
+	INNER JOIN (
+		SELECT studentId, MAX(startDate) AS maxStartDate
+		FROM Registrations WHERE isActive = 1 AND enrollmentSemesterId = 4000441
+		GROUP BY studentId) RR
+		ON RR.studentId = R.studentId
+		AND RR.maxStartDate = R.startDate
+
+	INNER JOIN (
+		SELECT studentId, classId
+		FROM ClassStudentReltn
+		WHERE isActive = 1) CSR
+		ON CSR.studentId = R.studentId
+	INNER JOIN Classes C
+		ON C.classId = CSR.classId
+		and C.subjectId IN (SELECT subjectId FROM GroupSubjectReltn GSR, CourseGroups CG WHERE CG.programmeId=R.programmeId and CG.isActive=1 and CG.courseGroupId=GSR.courseGroupId and GSR.isActive=1)
+
+	WHERE R.isActive = 1
+		AND R.enrollmentSemesterId = 4000441
+		AND S.isActive IN (1, 12)
+		AND A.classId = C.classId
+		AND S.studentCampus = (SELECT campusCode FROM SubAdmins WHERE <ADMINID> AND subAdminId=[USERID]) 
+		AND R.<ADMINID>
+
+	GROUP BY R.studentId
+		) t1

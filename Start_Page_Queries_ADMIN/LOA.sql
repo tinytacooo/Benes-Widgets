@@ -2,7 +2,12 @@
 -- Update: Kelly MJ  |  07/30/2018
     -- Added 'Actual Hours' column
     
-SELECT Name
+SELECT CASE WHEN t1.studentCampus = 34652 THEN 'New Port Richey'
+			WHEN t1.studentCampus = 34601 THEN 'Spring Hill'
+			WHEN t1.studentCampus = 34606 THEN 'Brookesville'
+		END AS Campus
+
+, Name
 	
 ,  CASE WHEN (CurrentDiff +  PAST) >= 170 THEN CONCAT('<font color="white">','<div style="background-color:#ff0000; width: 100%; height:100%; margin:-3px -3px -3px -5px; padding:4px 4px 2px 4px"> ' ,LeaveDate,'</div>','</font>')
        ELSE LeaveDate
@@ -28,6 +33,7 @@ FROM
 
 	  (SELECT DISTINCT CONCAT('<a href="admin_view_student.jsp?studentid=',CAST(CurrentLOA.StudentID AS CHAR), '">',firstName, ' ', lastName, '</a>') AS Name
 	  	   , CurrentLOA.StudentID
+	  	   , studentCampus
            , Lastname
 	       , LeaveDate
 		   , expectedReturnDate
@@ -38,6 +44,7 @@ FROM
       (SELECT STD.StudentID
 			, CONCAT(UCASE(SUBSTRING(Firstname, 1, 1)),LCASE(SUBSTRING(Firstname, 2))) AS FirstName
 			, CONCAT(UCASE(SUBSTRING(LastName, 1, 1)),LCASE(SUBSTRING(LastName, 2))) AS Lastname
+			, STD.studentCampus
 			, LeaveDate
 			, expectedReturnDate
 			, ReturnDate
@@ -94,4 +101,4 @@ AND ATT.attendanceDate >= ATT.startDate
 
 GROUP BY ATT.studentId
 
-ORDER BY expectedReturnDate
+ORDER BY Campus, expectedReturnDate
